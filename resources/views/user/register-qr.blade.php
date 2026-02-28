@@ -38,7 +38,10 @@
         {{-- ── FORM CARD ── --}}
         <div
             style="background:#fff;border-radius:28px;border:1px solid rgba(0,0,0,.07);padding:24px 20px;box-shadow:0 20px 30px -10px rgba(0,0,0,0.07);margin-bottom:24px">
-            <form action="{{ route('user.register-qr.store', $qrCode->id) }}" method="POST">
+
+            {{-- CORRECTED ROUTE AND ENCTYPE --}}
+            <form action="{{ route('qr.store-qr-registration', $qrCode->id) }}" method="POST"
+                enctype="multipart/form-data">
                 @csrf
                 @if ($errors->any())
                     <div
@@ -137,6 +140,7 @@
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">{{ old('full_address') }}</textarea>
                 </div>
 
+                {{-- CATEGORY DETECTION PHP BLOCK --}}
                 @php
                     $categoryName = strtolower($qrCode->category->name);
                     $categoryTag = 'bag_tags';
@@ -152,6 +156,92 @@
                         $categoryTag = 'bag_tags';
                     }
                 @endphp
+
+                {{-- ── DYNAMIC CATEGORY FIELDS ── --}}
+                @if ($categoryTag === 'pet' || $categoryTag === 'car' || $categoryTag === 'bike' || $categoryTag === 'children')
+                    <div
+                        style="height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.07),transparent);margin-bottom:18px">
+                    </div>
+                    <p class="f-display"
+                        style="font-size:11px;font-weight:700;color:#ADADAD;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">
+                        {{ ucfirst($categoryTag === 'children' ? 'Child' : $categoryTag) }} Details
+                    </p>
+
+                    @if ($categoryTag === 'pet')
+                        <div style="margin-bottom:12px;">
+                            <input type="file" name="photo" accept="image/*"
+                                style="width:100%;padding:10px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                        <div style="display:flex;gap:12px;margin-bottom:12px;">
+                            <input type="text" name="breed" value="{{ old('breed') }}" placeholder="Breed"
+                                style="flex:1;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                            <input type="text" name="age" value="{{ old('age') }}" placeholder="Age"
+                                style="flex:1;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <input type="text" name="colour" value="{{ old('colour') }}" placeholder="Colour"
+                                style="width:100%;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                    @elseif($categoryTag === 'car' || $categoryTag === 'bike')
+                        <div style="display:flex;gap:12px;margin-bottom:12px;">
+                            <input type="text" name="make" required value="{{ old('make') }}"
+                                placeholder="Make (e.g. Honda) *"
+                                style="flex:1;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                            <input type="text" name="model" required value="{{ old('model') }}"
+                                placeholder="Model *"
+                                style="flex:1;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <input type="text" name="vehicle_no" required value="{{ old('vehicle_no') }}"
+                                placeholder="Vehicle No. *"
+                                style="width:100%;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease;text-transform:uppercase;"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                    @elseif($categoryTag === 'children')
+                        <div style="margin-bottom:12px;">
+                            <input type="text" name="child_name" required value="{{ old('child_name') }}"
+                                placeholder="Name of the Child *"
+                                style="width:100%;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <input type="text" name="child_age" required value="{{ old('child_age') }}"
+                                placeholder="Age of the Child *"
+                                style="width:100%;padding:14px 16px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                        </div>
+                    @endif
+                @endif
+
+                {{-- ── EMERGENCY NOTE ── --}}
+                <div
+                    style="height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.07),transparent);margin-bottom:18px">
+                </div>
+                <p class="f-display"
+                    style="font-size:11px;font-weight:800;color:#d97706;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">
+                    Emergency Note
+                </p>
+                <div style="margin-bottom:20px;">
+                    <textarea name="emergency_note" rows="2" placeholder="E.g. My child is autistic, please react calmly"
+                        style="width:100%;padding:14px 16px;background:#fffbea;border:1.5px solid #fef08a;border-radius:16px;font-size:14px;font-weight:500;color:#92400e;outline:none;transition:all .2s ease;resize:none"
+                        onfocus="this.style.border='1.5px solid #facc15';this.style.background='#fff'"
+                        onblur="this.style.border='1.5px solid #fef08a';this.style.background='#fffbea'">{{ old('emergency_note') }}</textarea>
+                </div>
 
                 <div
                     style="height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.07),transparent);margin-bottom:18px">

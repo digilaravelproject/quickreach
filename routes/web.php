@@ -15,7 +15,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\UserNewController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 
-
+use App\Http\Controllers\UserQrRegistrationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\QrScanController;
@@ -90,6 +90,9 @@ Route::prefix('scan')->name('qr.')->group(function () {
     Route::get('/', [QrScanController::class, 'showScanner'])->name('scanner');
     Route::post('/process', [QrScanController::class, 'processScan'])->name('process');
 
+    Route::post('/register-qr/{qrCode}', [UserQrRegistrationController::class, 'storeRegistration'])->name('store-qr-registration');
+
+    Route::get('/register-qr/success/{qrCode}', [UserQrRegistrationController::class, 'success'])->name('register-success');
     Route::get('/{code}', [QrScanController::class, 'scan'])->name('scan');
     Route::post('/{qrCode}/call', [QrScanController::class, 'initiateCall'])->name('call');
     Route::get('/{qrCode}/whatsapp', [QrScanController::class, 'initiateWhatsApp'])->name('whatsapp');
@@ -168,8 +171,12 @@ Route::prefix('user')->name('user.')->group(function () {
     // Route::get('/order/success', [UserController::class, 'orderSuccess'])->name('order.success');
 
     // --- QR Registration (For Owners) ---
-    Route::get('/register-qr/{qrCode}', [UserController::class, 'showRegistrationForm'])->name('register-qr');
-    Route::post('/register-qr/{qrCode}', [UserController::class, 'storeRegistration'])->name('register-qr.store');
+    Route::get('/register-qr/{qrCode}', [UserQrRegistrationController::class, 'showRegistrationForm'])->name('register-qr');
+
+    // QR Register form submit (save) karne ka route
+
+    // Route::get('/register-qr/{qrCode}', [UserController::class, 'showRegistrationForm'])->name('register-qr');
+    // Route::post('/register-qr/{qrCode}', [UserController::class, 'storeRegistration'])->name('register-qr.store');
 
     // --- Dashboard ---
     // Route::get('/my-qrs', [UserController::class, 'myQrs'])->name('my-qrs');
@@ -179,7 +186,14 @@ Route::prefix('user')->name('user.')->group(function () {
 
 // --- Public Scanning Route (Anyone can access) ---
 Route::get('/scan/{code}', [QrScanController::class, 'scan'])->name('public.qr.scan');
+Route::get('registrations/export', [QrRegistrationController::class, 'export'])
+    ->name('admin.registrations.export');
+Route::get('users/export', [UserNewController::class, 'export'])
+    ->name('admin.users.export');
+Route::post('/users/{id}/toggle-status', [UserNewController::class, 'toggleStatus'])->name('admin.users.toggle-status');
 
+Route::get('payments/export', [AdminPaymentController::class, 'export'])
+    ->name('admin.payments.export');
 /*
 |--------------------------------------------------------------------------
 | 6. Admin Routes (Admin Middleware - Only Admins)
@@ -208,8 +222,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('sliders/update/{id}', [SliderController::class, 'update'])->name('sliders.custom_update');
 
     Route::resource('registrations', QrRegistrationController::class);
+
     Route::get('/users', [UserNewController::class, 'index'])->name('users.index');
     Route::get('/users/{id}', [UserNewController::class, 'show'])->name('users.show');
+
 
     Route::get('/qr/download/{id}', [UserNewController::class, 'downloadCard'])->name('qr.download');
     Route::get('/qr/generate-card/{id}', [UserNewController::class, 'generateCard'])->name('qr.generateCard');
@@ -226,11 +242,27 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('qr-codes/export/csv', [AdminQrCodeController::class, 'exportCsv'])->name('qr-codes.export-csv');
 
     // Payments
+    // Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+    // Route::get('payments/create', [AdminPaymentController::class, 'create'])->name('payments.create');
+    // Route::post('payments/store', [AdminPaymentController::class, 'store'])->name('payments.store');
+    // Route::get('payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
+    // Route::post('payments/{payment}/refund', [AdminPaymentController::class, 'refund'])->name('payments.refund');
+
+    // List orders — GET returns view; with AJAX header returns JSON
     Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+
+    // Manual payment form
     Route::get('payments/create', [AdminPaymentController::class, 'create'])->name('payments.create');
     Route::post('payments/store', [AdminPaymentController::class, 'store'])->name('payments.store');
+
+    // Export filtered orders as CSV
+    Route::get('payments/export', [AdminPaymentController::class, 'export'])->name('payments.export');
+
+    // Single order detail page
     Route::get('payments/{payment}', [AdminPaymentController::class, 'show'])->name('payments.show');
-    Route::post('payments/{payment}/refund', [AdminPaymentController::class, 'refund'])->name('payments.refund');
+
+    // Mark COD order as completed + assign QR codes (returns JSON)
+    Route::post('payments/{order}/mark-paid', [AdminPaymentController::class, 'markCodPaid'])->name('payments.mark-paid');
 
     Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');
 });

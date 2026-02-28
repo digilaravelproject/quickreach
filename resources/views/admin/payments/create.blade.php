@@ -1,29 +1,46 @@
 @extends('layout.app')
 
 @section('content')
-    <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 lg:p-10">
-        <div class="mb-8">
-            <a href="{{ route('admin.payments.index') }}"
-                class="text-sm text-brand-600 font-medium flex items-center gap-1 mb-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to Payments
-            </a>
-            <h1 class="text-3xl font-bold text-gray-900">Create Manual Payment</h1>
-        </div>
+    <div class="main-area">
+        <div class="page-scroll" style="background: var(--bg); padding: 12px !important;">
 
-        <div class="max-w-4xl">
-            <form action="{{ route('admin.payments.store') }}" method="POST" class="space-y-6">
-                @csrf
+            {{-- ── PAGE HEADER ── --}}
+            <div class="card"
+                style="margin: 0 0 15px 0; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius); border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <a href="{{ route('admin.payments.index') }}" class="btn-outline"
+                        style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text);">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="title" style="margin: 0; font-size: 18px; letter-spacing: -0.5px;">Create Manual Payment
+                        </h1>
+                        <p style="font-size: 10px; color: var(--text3); margin: 2px 0 0; font-weight: 700;">
+                            Generate a new offline or manual order
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {{-- ── FORM AREA ── --}}
+            <div class="card"
+                style="padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); max-width: 800px;">
+                <form action="{{ route('admin.payments.store') }}" method="POST">
+                    @csrf
 
-                        <div class="col-span-2 md:col-span-1">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Select Customer</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+
+                        {{-- Select Customer --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Select Customer <span style="color: #dc2626;">*</span>
+                            </label>
                             <select name="user_id" required
-                                class="w-full rounded-xl border-gray-200 focus:ring-brand-500 focus:border-brand-500">
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none; appearance: auto;">
                                 <option value="">Choose User...</option>
                                 @foreach ($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
@@ -31,65 +48,92 @@
                             </select>
                         </div>
 
-                        <div class="col-span-2 md:col-span-1">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">QR Category</label>
+                        {{-- QR Category --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                QR Category (In Stock) <span style="color: #dc2626;">*</span>
+                            </label>
                             <select id="category_id" name="category_id" required
-                                class="w-full rounded-xl border-gray-200 focus:ring-brand-500 focus:border-brand-500">
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none; appearance: auto;">
                                 <option value="">Select Category...</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" data-price="{{ $category->price }}">
-                                        {{ $category->name }} (₹{{ $category->price }})
+                                        {{ $category->name }} (₹{{ $category->price }} | Stock:
+                                        {{ $category->available_qr_codes_count }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <div class="col-span-2 md:col-span-1">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Order ID</label>
+                        {{-- Order ID --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Order ID
+                            </label>
                             <input type="text" name="order_id" value="ORD-{{ strtoupper(Str::random(8)) }}" readonly
-                                class="w-full rounded-xl border-gray-200 bg-gray-50 text-gray-500">
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); padding: 0 15px; font-size: 13px; color: var(--text3); font-weight: 600; outline: none; opacity: 0.8; cursor: not-allowed;">
                         </div>
 
-                        <div class="col-span-2 md:col-span-1">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Payment Method</label>
-                            <select name="payment_method" class="w-full rounded-xl border-gray-200">
+                        {{-- Payment Method --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Payment Method <span style="color: #dc2626;">*</span>
+                            </label>
+                            <select name="payment_method" required
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none; appearance: auto;">
                                 <option value="offline">Offline / Cash</option>
                                 <option value="bank_transfer">Bank Transfer</option>
                                 <option value="razorpay">Razorpay (Manual Entry)</option>
                             </select>
                         </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Final Amount (₹)</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                        {{-- Final Amount --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Final Amount <span style="color: #dc2626;">*</span>
+                            </label>
+                            <div style="position: relative;">
+                                <span
+                                    style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text3); font-weight: 800; font-size: 14px;">₹</span>
                                 <input type="number" id="final_amount" name="final_amount" step="0.01" required
-                                    class="w-full pl-8 rounded-xl border-gray-200 focus:ring-brand-500 focus:border-brand-500 text-lg font-bold">
+                                    style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px 0 32px; font-size: 16px; color: var(--text); font-weight: 800; outline: none;">
                             </div>
                         </div>
 
-                        <div class="col-span-2">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Transaction ID / Reference
-                                (Optional)</label>
+                        {{-- Transaction ID --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Transaction ID / Reference
+                            </label>
                             <input type="text" name="transaction_id" placeholder="Bank ref no, Cash receipt no, etc."
-                                class="w-full rounded-xl border-gray-200">
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none;">
                         </div>
+
                     </div>
 
-                    <div class="mt-8 pt-6 border-t border-gray-100 flex gap-4">
+                    {{-- Actions --}}
+                    <div
+                        style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center;">
                         <button type="submit"
-                            class="bg-brand-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-brand-700 transition shadow-lg shadow-brand-200">
-                            Create Payment Entry
+                            style="display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 24px; background: var(--text); color: var(--bg); border: none; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer;">
+                            Create Payment
                         </button>
                         <a href="{{ route('admin.payments.index') }}"
-                            class="bg-gray-100 text-gray-600 px-8 py-3 rounded-xl font-bold hover:bg-gray-200 transition">
+                            style="display: inline-flex; align-items: center; justify-content: center; height: 42px; padding: 0 24px; background: var(--card2); color: var(--text); border: 1px solid var(--border); border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">
                             Cancel
                         </a>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
+
+            <div style="height: 40px;"></div>
         </div>
-    </main>
+    </div>
 
     <script>
         // Auto-fill price when category is selected

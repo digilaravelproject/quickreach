@@ -10,21 +10,26 @@ class Order extends Model
         'user_id',
         'order_number',
         'razorpay_order_id',
+        'razorpay_payment_id',
         'subtotal',
         'tax',
         'shipping_cost',
         'total_amount',
-        'status',
-        'payment_status',
-        'shipping_data'
+        'status',           // 'pending' | 'confirmed'
+        'payment_status',   // 'pending' | 'completed'
+        'payment_method',   // 'online'  | 'cod'       ← was MISSING, caused the bug
+        'shipping_data',
+        'paid_at',
     ];
 
     protected $casts = [
         'shipping_data' => 'array',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'paid_at' => 'datetime',
+        'created_at'    => 'datetime',
+        'updated_at'    => 'datetime',
+        'paid_at'       => 'datetime',
     ];
+
+    // ── Relationships ─────────────────────────────────────────────────────
 
     public function user()
     {
@@ -36,9 +41,25 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    // New Relationship to link QR Codes directly to the Order
     public function qrCodes()
     {
         return $this->hasMany(QrCode::class, 'order_id');
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    public function isCod(): bool
+    {
+        return $this->payment_method === 'cod';
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->payment_status === 'completed';
+    }
+
+    public function isPending(): bool
+    {
+        return $this->payment_status === 'pending';
     }
 }

@@ -16,7 +16,9 @@
                     </div>
                 </div>
 
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+
+                    {{-- Search --}}
                     <div class="search-wrap" style="position: relative;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             style="width: 14px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3);">
@@ -27,6 +29,19 @@
                             placeholder="Search name, email, phone..."
                             style="width: 250px; background: var(--card2); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 8px 12px 8px 35px; outline: none; font-size: 13px;">
                     </div>
+
+                    {{-- Export Button --}}
+                    <button @click="exportCSV()" :disabled="exporting"
+                        style="display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; background: var(--text); color: var(--bg); border: none; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; white-space: nowrap;"
+                        :style="exporting ? 'opacity: 0.5; cursor: not-allowed;' : ''">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                        </svg>
+                        <span
+                            x-text="exporting ? 'Exporting...' : (selectedUsers.length > 0 ? 'Export Selected (' + selectedUsers.length + ')' : 'Export All CSV')"></span>
+                    </button>
+
                 </div>
             </div>
 
@@ -71,7 +86,10 @@
         function userApp() {
             return {
                 users: [],
+                selectedUsers: [],
+                selectAll: false,
                 loading: false,
+                exporting: false,
                 search: '',
                 pagination: {
                     current_page: 1,
@@ -82,6 +100,8 @@
                 },
                 async fetchData() {
                     this.loading = true;
+                    this.selectAll = false;
+                    this.selectedUsers = [];
                     try {
                         const res = await fetch(
                             `{{ route('admin.users.index') }}?search=${this.search}&page=${this.pagination.current_page}`, {
@@ -97,10 +117,56 @@
                     }
                     this.loading = false;
                 },
+                toggleSelectAll() {
+                    if (this.selectAll) {
+                        this.selectedUsers = this.users.map(u => u.id);
+                    } else {
+                        this.selectedUsers = [];
+                    }
+                },
                 changePage(p) {
                     if (p < 1 || p > this.pagination.last_page) return;
                     this.pagination.current_page = p;
                     this.fetchData();
+                },
+                async toggleUserStatus(user) {
+                    try {
+                        const res = await fetch(`/users/${user.id}/toggle-status`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        }).then(r => r.json());
+
+                        if (res.success) {
+                            user.is_active = res.is_active;
+                        }
+                    } catch (e) {
+                        console.error("Error toggling status:", e);
+                    }
+                },
+                exportCSV() {
+                    this.exporting = true;
+                    let url = `{{ route('admin.users.export') }}?search=${encodeURIComponent(this.search)}`;
+
+                    // Add selected IDs to URL if any checkboxes are checked
+                    if (this.selectedUsers.length > 0) {
+                        url += `&ids=${this.selectedUsers.join(',')}`;
+                    }
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(() => {
+                        this.exporting = false;
+                        this.selectedUsers = [];
+                        this.selectAll = false;
+                    }, 2000);
                 },
                 formatDate(date) {
                     if (!date) return '-';

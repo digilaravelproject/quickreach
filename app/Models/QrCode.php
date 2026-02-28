@@ -20,48 +20,60 @@ class QrCode extends Model
         'qr_image_path',
         'order_id',
         'status',
+        'source',           // 'online_order' | 'bulk_admin' — prevents bulk QRs mixing with online assignment
         'assigned_at',
         'registered_at',
     ];
 
     protected $casts = [
-        'assigned_at' => 'datetime',
+        'assigned_at'   => 'datetime',
         'registered_at' => 'datetime',
     ];
 
-    /**
-     * Get the category that owns the QR code.
-     */
+    // ── Relationships ───────────────────────────────────────
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    /**
-     * Get the order associated with the QR code.
-     */
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
-    /**
-     * Get the registration details for this QR code.
-     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function registration(): HasOne
     {
         return $this->hasOne(QrRegistration::class, 'qr_code_id', 'id');
     }
 
-    /**
-     * Get the scan history for this QR code.
-     */
     public function scans(): HasMany
     {
         return $this->hasMany(QrScan::class);
     }
 
-    // --- Scopes ---
+    // ── Scopes ──────────────────────────────────────────────
+
+    /** QR codes available for online order assignment (excludes bulk-admin QRs) */
+    public function scopeAvailableForOnlineOrder($query)
+    {
+        return $query->where('status', 'available')
+            ->where(function ($q) {
+                $q->whereNull('source')
+                    ->orWhere('source', 'online_order');
+            });
+    }
+
+    /** QR codes generated for bulk admin download/sale (never auto-assigned to online orders) */
+    public function scopeBulkAdmin($query)
+    {
+        return $query->where('source', 'bulk_admin');
+    }
 
     public function scopeAvailable($query)
     {
@@ -77,8 +89,11 @@ class QrCode extends Model
     {
         return $query->where('status', 'registered');
     }
-    public function user(): BelongsTo
+
+    // ── Helpers ─────────────────────────────────────────────
+
+    public function isBulkAdminQr(): bool
     {
-        return $this->belongsTo(User::class);
+        return $this->source === 'bulk_admin';
     }
 }

@@ -20,11 +20,15 @@ class QrRegistration extends Model
         'friend_family_1',
         'friend_family_2',
         'selected_tags',
+        'category_data', // New field
+        'emergency_note', // New field
+        'photo_path', // New field
         'is_active',
     ];
 
     protected $casts = [
         'selected_tags' => 'array',
+        'category_data' => 'array', // JSON to array cast
         'is_active' => 'boolean',
     ];
 
@@ -49,24 +53,22 @@ class QrRegistration extends Model
      */
     public function getEmergencyContactsAttribute($value): array
     {
-        // Agar database se value hai to use karo
         if ($value && $value !== 'null') {
             return json_decode($value, true) ?? [];
         }
 
-        // Otherwise friend_family fields se banao
         $contacts = [];
 
         if ($this->friend_family_1) {
             $contacts[] = [
-                'name' => 'Friend/Family 1',
+                'name' => 'Emergency Contact 1',
                 'number' => $this->friend_family_1
             ];
         }
 
         if ($this->friend_family_2) {
             $contacts[] = [
-                'name' => 'Friend/Family 2',
+                'name' => 'Emergency Contact 2',
                 'number' => $this->friend_family_2
             ];
         }
@@ -74,9 +76,6 @@ class QrRegistration extends Model
         return $contacts;
     }
 
-    /**
-     * Scope for active registrations
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

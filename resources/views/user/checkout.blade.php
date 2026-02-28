@@ -1,7 +1,6 @@
 @extends('user_layout.user')
 
 @section('content')
-    {{-- Pass auth status & user data to Alpine.js safely --}}
     <script>
         window.__AUTH__ = {
             isLoggedIn: {{ Auth::check() ? 'true' : 'false' }},
@@ -43,8 +42,7 @@
                 </div>
                 <h3 class="font-display font-black text-xl mb-2" style="color:#1A1A3E;">Login Required</h3>
                 <p class="text-sm font-medium mb-6" style="color:#9B9BB4;">Login is required to proceed with payment. Your
-                    data will be saved!.</p>
-
+                    data will be saved!</p>
                 <a :href="loginRedirectUrl()"
                     class="block w-full text-white py-4 rounded-[16px] font-black text-sm mb-3 active:scale-95 transition-all"
                     style="background-color:#1A1A3E; border-bottom: 3px solid #5B5BDB;">
@@ -58,13 +56,41 @@
             </div>
         </div>
 
+        <!-- COD Confirmation Modal -->
+        <div x-show="showCodModal" x-transition.opacity style="display: none;"
+            class="fixed inset-0 z-50 flex items-center justify-center p-6"
+            style="background: rgba(26, 26, 62, 0.6); backdrop-filter: blur(6px);">
+            <div class="w-full max-w-sm rounded-[32px] p-8 text-center"
+                style="background:#ffffff; box-shadow: 0 20px 60px rgba(90,90,180,0.2);">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                    style="background:#FFF7ED;">
+                    <span class="text-3xl">📦</span>
+                </div>
+                <h3 class="font-display font-black text-xl mb-2" style="color:#1A1A3E;">Cash on Delivery</h3>
+                <p class="text-sm font-medium mb-2" style="color:#9B9BB4;">You will pay <strong class="text-[#1A1A3E]"
+                        x-text="'₹' + subtotal().toLocaleString()"></strong> when your order arrives.</p>
+                <p class="text-xs font-bold mb-6 px-4 py-3 rounded-xl" style="background:#FFF7ED; color:#C2410C;">
+                    ⚠️ QR Tags will be dispatched only after order confirmation by our team.
+                </p>
+                <button @click="placeCodOrder()" :disabled="codLoading"
+                    class="w-full text-white py-4 rounded-[16px] font-black text-sm mb-3 active:scale-95 transition-all flex items-center justify-center gap-2"
+                    style="background-color:#F97316; border-bottom: 3px solid #C2410C;">
+                    <span x-show="!codLoading">✅ Confirm COD Order</span>
+                    <span x-show="codLoading">Placing Order...</span>
+                </button>
+                <button @click="showCodModal = false" :disabled="codLoading"
+                    class="w-full py-3 rounded-[16px] font-bold text-sm transition-all active:scale-95"
+                    style="background:#EAEAF8; color:#9B9BB4;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
         <!-- ── STEP INDICATOR ── -->
         <div class="flex items-center justify-between mb-8 text-[10px] font-bold uppercase tracking-widest relative">
-            <div class="absolute top-1/2 left-0 w-full h-0.5 -z-10 -translate-y-1/2" style="background: #DDDDF0;">
-            </div>
+            <div class="absolute top-1/2 left-0 w-full h-0.5 -z-10 -translate-y-1/2" style="background: #DDDDF0;"></div>
             <div class="absolute top-1/2 left-0 h-0.5 -z-10 -translate-y-1/2 transition-all duration-300"
                 style="background: #1A1A3E;" :style="'width: ' + ((step - 1) * 50) + '%'"></div>
-
             <span class="px-3 py-1.5 rounded-full transition-colors duration-300"
                 :class="step >= 1 ? 'bg-[#1A1A3E] text-white' : 'bg-[#EAEAF8] text-[#9B9BB4]'">Cart</span>
             <span class="px-3 py-1.5 rounded-full transition-colors duration-300"
@@ -84,7 +110,6 @@
             </button>
             <h2 class="flex-1 text-center font-display font-black text-xl" style="color:#1A1A3E;" x-text="getStepTitle()">
             </h2>
-            {{-- Auth Badge --}}
             @auth
                 <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style="background:#EAEAF8;">
                     <div class="w-2 h-2 rounded-full bg-green-400"></div>
@@ -107,20 +132,14 @@
                 <template x-for="(item, index) in cartItems" :key="item.id">
                     <div class="flex items-center gap-4 p-4 rounded-[24px] border"
                         style="background:#EAEAF8; border-color:#DDDDF0;">
-                        <!-- Image -->
                         <div class="w-16 h-16 rounded-xl flex items-center justify-center p-2" style="background:#ffffff;">
                             <img :src="item.icon" class="w-full h-full object-contain">
                         </div>
-
-                        <!-- Details -->
                         <div class="flex-1">
-                            <h4 class="font-display font-bold text-sm" style="color:#1A1A3E;" x-text="item.name">
-                            </h4>
+                            <h4 class="font-display font-bold text-sm" style="color:#1A1A3E;" x-text="item.name"></h4>
                             <p class="text-[11px] font-black mt-1" style="color:#5B5BDB;"
                                 x-text="'₹' + (item.price * item.quantity).toLocaleString()"></p>
                         </div>
-
-                        <!-- Qty Controls -->
                         <div class="flex items-center gap-3 bg-white px-2 py-1.5 rounded-xl border border-[#DDDDF0]">
                             <button @click="decrementQty(index)"
                                 class="w-6 h-6 flex items-center justify-center text-lg font-bold text-[#9B9BB4] active:scale-90">-</button>
@@ -131,18 +150,14 @@
                     </div>
                 </template>
 
-                <!-- Empty cart message -->
                 <div x-show="cartItems.length === 0"
                     class="text-center py-10 bg-[#EAEAF8] rounded-3xl border border-[#DDDDF0]">
                     <p class="font-bold text-sm" style="color:#9B9BB4;">Your cart is empty!</p>
                     <a href="{{ route('user.products') }}" class="font-black text-sm underline mt-3 inline-block"
-                        style="color:#5B5BDB;">
-                        Browse Products →
-                    </a>
+                        style="color:#5B5BDB;">Browse Products →</a>
                 </div>
             </div>
 
-            <!-- Subtotal Box Step 1 -->
             <div x-show="cartItems.length > 0" class="p-5 rounded-[24px] mb-8 space-y-2"
                 style="background:#EAEAF8; border: 1px solid #DDDDF0;">
                 <div class="flex justify-between text-sm font-bold" style="color:#9B9BB4;">
@@ -168,20 +183,16 @@
         <!-- ============================== -->
         <div x-show="step === 2" x-transition.opacity style="display: none;">
             <div class="space-y-4 mb-8">
-                <!-- Personal Details -->
                 <div class="space-y-3 p-5 rounded-[24px] border border-[#DDDDF0] bg-[#EAEAF8]">
-                    <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Personal Info
-                    </p>
+                    <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Personal Info</p>
                     <input type="text" x-model="shippingData.full_name" placeholder="Full Name" required
                         class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-
                     <input type="email" x-model="shippingData.email" placeholder="Email Address" required
                         class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-
                     <input type="tel" x-model="shippingData.mobile_number" placeholder="Mobile Number (10 Digit)"
                         required pattern="[0-9]{10}"
                         class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
@@ -189,32 +200,27 @@
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
                 </div>
 
-                <!-- Address Details -->
                 <div class="space-y-3 p-5 rounded-[24px] border border-[#DDDDF0] bg-[#EAEAF8]">
                     <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Address</p>
                     <input type="text" x-model="shippingData.address_line1" placeholder="Flat, House no., Building"
                         required class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-
                     <input type="text" x-model="shippingData.address_line2"
                         placeholder="Area, Street, Sector (Optional)"
                         class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-
                     <div class="flex gap-3">
                         <input type="text" x-model="shippingData.city" placeholder="City / Town" required
                             class="w-1/2 p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-
                         <input type="text" x-model="shippingData.pincode" placeholder="Pincode" required
                             pattern="[0-9]{6}" class="w-1/2 p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
                     </div>
-
                     <input type="text" x-model="shippingData.state" placeholder="State" required
                         class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
@@ -222,7 +228,6 @@
                 </div>
             </div>
 
-            {{-- Auth Notice Banner --}}
             @guest
                 <div class="flex items-center gap-3 p-4 rounded-[16px] mb-5"
                     style="background:#FFF7ED; border: 1.5px solid #FED7AA;">
@@ -250,11 +255,9 @@
 
         <!-- ============================== -->
         <!-- STEP 3: PAYMENT                -->
-        <!-- (Only reachable when logged in) -->
         <!-- ============================== -->
         <div x-show="step === 3" x-transition.opacity style="display: none;">
 
-            {{-- Logged-in User Badge --}}
             @auth
                 <div class="flex items-center gap-3 p-4 rounded-[16px] mb-5"
                     style="background:#F0FDF4; border: 1.5px solid #BBF7D0;">
@@ -270,8 +273,7 @@
 
             <!-- Shipping Address Summary -->
             <div class="p-6 rounded-[24px] mb-6 border border-[#DDDDF0] bg-[#EAEAF8]">
-                <p class="text-[10px] font-black uppercase tracking-widest mb-4" style="color:#9B9BB4;">Shipping To
-                </p>
+                <p class="text-[10px] font-black uppercase tracking-widest mb-4" style="color:#9B9BB4;">Shipping To</p>
                 <p class="font-bold text-sm text-[#1A1A3E] mb-1" x-text="shippingData.full_name"></p>
                 <p class="text-xs font-medium text-[#9B9BB4] leading-relaxed"
                     x-text="shippingData.address_line1 + ', ' + (shippingData.address_line2 ? shippingData.address_line2 + ', ' : '') + shippingData.city + ' - ' + shippingData.pincode + ', ' + shippingData.state">
@@ -280,10 +282,9 @@
             </div>
 
             <!-- Order Summary -->
-            <div class="p-6 rounded-[32px] mb-8 space-y-3"
+            <div class="p-6 rounded-[32px] mb-6 space-y-3"
                 style="background:#ffffff; border: 1px solid #DDDDF0; box-shadow: 0 10px 40px rgba(90,90,180,0.08);">
-                <p class="text-[10px] font-black uppercase tracking-widest mb-2" style="color:#9B9BB4;">Order Summary
-                </p>
+                <p class="text-[10px] font-black uppercase tracking-widest mb-2" style="color:#9B9BB4;">Order Summary</p>
                 <div class="flex justify-between text-sm font-bold" style="color:#9B9BB4;">
                     <span>Subtotal (<span x-text="cartItems.length"></span> items)</span>
                     <span x-text="'₹' + subtotal().toLocaleString()"></span>
@@ -299,17 +300,69 @@
                 </div>
             </div>
 
-            <button @click="initiateRazorpay()"
-                class="w-full text-white py-5 rounded-[20px] font-black text-lg shadow-xl active:scale-95 transition-all mb-10 flex items-center justify-center gap-3"
-                style="background-color:#1A1A3E; border-bottom: 4px solid #5B5BDB;">
+            <!-- ── PAYMENT METHOD SELECTOR ── -->
+            <div class="mb-6">
+                <p class="text-[10px] font-black uppercase tracking-widest mb-3" style="color:#9B9BB4;">Choose Payment
+                    Method</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <!-- Online Payment -->
+                    <button @click="paymentMethod = 'online'"
+                        class="p-4 rounded-[20px] border-2 transition-all active:scale-95 text-left"
+                        :style="paymentMethod === 'online'
+                            ?
+                            'border-color:#1A1A3E; background:#1A1A3E; color:#ffffff;' :
+                            'border-color:#DDDDF0; background:#ffffff; color:#1A1A3E;'">
+                        <div class="text-2xl mb-2">💳</div>
+                        <p class="font-black text-sm">Online</p>
+                        <p class="text-[10px] font-bold mt-0.5 opacity-70">UPI / Card / NetBanking</p>
+                    </button>
+
+                    <!-- Cash on Delivery -->
+                    <button @click="paymentMethod = 'cod'"
+                        class="p-4 rounded-[20px] border-2 transition-all active:scale-95 text-left"
+                        :style="paymentMethod === 'cod'
+                            ?
+                            'border-color:#F97316; background:#FFF7ED; color:#C2410C;' :
+                            'border-color:#DDDDF0; background:#ffffff; color:#1A1A3E;'">
+                        <div class="text-2xl mb-2">📦</div>
+                        <p class="font-black text-sm">Cash on Delivery</p>
+                        <p class="text-[10px] font-bold mt-0.5 opacity-70">Pay when delivered</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- COD Info Note -->
+            <div x-show="paymentMethod === 'cod'" x-transition.opacity
+                class="flex items-start gap-3 p-4 rounded-[16px] mb-6"
+                style="background:#FFF7ED; border: 1.5px solid #FED7AA; display:none;">
+                <span class="text-lg shrink-0">ℹ️</span>
+                <p class="text-xs font-bold" style="color:#C2410C;">
+                    Your order will be confirmed by our team. QR Tags will be dispatched after confirmation.
+                    Payment is collected on delivery.
+                </p>
+            </div>
+
+            <!-- Online Payment Button -->
+            <button x-show="paymentMethod === 'online'" @click="initiateRazorpay()"
+                class="w-full text-white py-5 rounded-[20px] font-black text-lg shadow-xl active:scale-95 transition-all mb-3 flex items-center justify-center gap-3"
+                style="background-color:#1A1A3E; border-bottom: 4px solid #5B5BDB; display:none;">
                 <span x-text="'Pay ₹' + subtotal().toLocaleString()"></span>
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
                     <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
             </button>
-            <p class="text-center text-[10px] font-bold text-[#9B9BB4] mt-[-20px] pb-10">🔒 100% Secure Payments
-                via Razorpay</p>
+            <p x-show="paymentMethod === 'online'" class="text-center text-[10px] font-bold text-[#9B9BB4] mb-6"
+                style="display:none;">🔒 100% Secure Payments via Razorpay</p>
+
+            <!-- COD Button -->
+            <button x-show="paymentMethod === 'cod'" @click="showCodModal = true"
+                class="w-full text-white py-5 rounded-[20px] font-black text-lg shadow-xl active:scale-95 transition-all mb-3 flex items-center justify-center gap-3"
+                style="background-color:#F97316; border-bottom: 4px solid #C2410C; display:none;">
+                <span>📦 Place COD Order — ₹<span x-text="subtotal().toLocaleString()"></span></span>
+            </button>
+            <p x-show="paymentMethod === 'cod'" class="text-center text-[10px] font-bold text-[#9B9BB4] mb-6"
+                style="display:none;">Pay in cash when your order arrives at your door</p>
         </div>
 
     </div>
@@ -318,10 +371,6 @@
 
     <script>
         function checkoutFlow() {
-            // ──────────────────────────────────────────────────
-            // On page load: check if we returned from login
-            // If so, restore saved shipping data & jump to step 3
-            // ──────────────────────────────────────────────────
             const savedShipping = localStorage.getItem('qr_pending_shipping');
             const returnedFromLogin = new URLSearchParams(window.location.search).get('auth_redirect') === '1';
             const isLoggedIn = window.__AUTH__.isLoggedIn;
@@ -332,7 +381,7 @@
             if (returnedFromLogin && isLoggedIn && savedShipping) {
                 try {
                     restoredShipping = JSON.parse(savedShipping);
-                    initialStep = 3; // Jump straight to payment
+                    initialStep = 3;
                     localStorage.removeItem('qr_pending_shipping');
                 } catch (e) {}
             }
@@ -340,6 +389,9 @@
             return {
                 step: initialStep,
                 showLoginModal: false,
+                showCodModal: false,
+                codLoading: false,
+                paymentMethod: 'online', // 'online' | 'cod'
                 cartItems: JSON.parse(localStorage.getItem('quickreach_cart')) || [],
                 toast: {
                     show: false,
@@ -358,8 +410,6 @@
                     shipping_method: 'standard'
                 },
 
-                // ── Helper Methods ──
-
                 getStepTitle() {
                     if (this.step === 1) return 'Your Cart';
                     if (this.step === 2) return 'Shipping Info';
@@ -367,7 +417,6 @@
                 },
 
                 loginRedirectUrl() {
-                    // After login, redirect back to checkout with flag
                     return window.__AUTH__.loginUrl + '?redirect=' + encodeURIComponent(
                         window.__AUTH__.checkoutUrl + '?auth_redirect=1'
                     );
@@ -421,9 +470,7 @@
                 },
 
                 goToShipping() {
-                    if (this.cartItems.length === 0) {
-                        return this.showToast('Your cart is empty!', 'error');
-                    }
+                    if (this.cartItems.length === 0) return this.showToast('Your cart is empty!', 'error');
                     this.step = 2;
                     window.scrollTo({
                         top: 0,
@@ -432,28 +479,21 @@
                 },
 
                 goToPayment() {
-                    // ── Field Validation ──
                     const s = this.shippingData;
                     if (!s.full_name || !s.email || !s.mobile_number || !s.address_line1 || !s.city || !s.state || !s
                         .pincode) {
                         return this.showToast('Please fill all required fields!', 'error');
                     }
-                    if (s.mobile_number.length < 10) {
-                        return this.showToast('Please enter a valid 10-digit mobile number.', 'error');
-                    }
-                    if (s.pincode.length < 6) {
-                        return this.showToast('Please enter a valid 6-digit pincode.', 'error');
-                    }
+                    if (s.mobile_number.length < 10) return this.showToast('Please enter a valid 10-digit mobile number.',
+                        'error');
+                    if (s.pincode.length < 6) return this.showToast('Please enter a valid 6-digit pincode.', 'error');
 
-                    // ── AUTH CHECK ──
-                    // If not logged in: save data, show login modal
                     if (!window.__AUTH__.isLoggedIn) {
                         localStorage.setItem('qr_pending_shipping', JSON.stringify(this.shippingData));
                         this.showLoginModal = true;
                         return;
                     }
 
-                    // Logged in → proceed to payment
                     this.step = 3;
                     window.scrollTo({
                         top: 0,
@@ -461,17 +501,12 @@
                     });
                 },
 
-                async initiateRazorpay() {
+                // ── COD Order ──
+                async placeCodOrder() {
                     if (this.cartItems.length === 0) return this.showToast('Cart is empty', 'error');
-
-                    // Double-check auth (safety net)
-                    if (!window.__AUTH__.isLoggedIn) {
-                        this.showLoginModal = true;
-                        return;
-                    }
+                    this.codLoading = true;
 
                     try {
-                        // 1. Create Order
                         const response = await fetch('{{ route('user.create.order') }}', {
                             method: 'POST',
                             headers: {
@@ -481,17 +516,57 @@
                             body: JSON.stringify({
                                 cart_items: this.cartItems,
                                 shipping_data: this.shippingData,
-                                amount: this.subtotal()
+                                amount: this.subtotal(),
+                                payment_method: 'cod' // ← flag for backend
                             })
                         });
 
                         const data = await response.json();
 
                         if (!data.success) {
-                            return this.showToast('Error: ' + data.message, 'error');
+                            this.showToast('Error: ' + data.message, 'error');
+                            return;
                         }
 
-                        // 2. Open Razorpay
+                        // COD: no payment gateway, directly go to success
+                        localStorage.removeItem('quickreach_cart');
+                        window.location.href = '{{ route('user.order.success') }}?order_id=' + data.order_id;
+
+                    } catch (error) {
+                        console.error('COD Order Error:', error);
+                        this.showToast('Something went wrong. Please try again.', 'error');
+                    } finally {
+                        this.codLoading = false;
+                        this.showCodModal = false;
+                    }
+                },
+
+                // ── Razorpay Online Payment ──
+                async initiateRazorpay() {
+                    if (this.cartItems.length === 0) return this.showToast('Cart is empty', 'error');
+                    if (!window.__AUTH__.isLoggedIn) {
+                        this.showLoginModal = true;
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('{{ route('user.create.order') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                cart_items: this.cartItems,
+                                shipping_data: this.shippingData,
+                                amount: this.subtotal(),
+                                payment_method: 'online'
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (!data.success) return this.showToast('Error: ' + data.message, 'error');
+
                         const options = {
                             "key": data.razorpay_key,
                             "amount": data.amount,
@@ -508,7 +583,6 @@
                                 "color": "#1A1A3E"
                             },
                             "handler": async (response) => {
-                                // 3. Verify Payment
                                 const verifyRes = await fetch('{{ route('user.verify.payment') }}', {
                                     method: 'POST',
                                     headers: {

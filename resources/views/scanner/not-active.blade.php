@@ -1,7 +1,7 @@
 @extends('user_layout.user')
 
 @section('content')
-    <div class="min-h-[80vh] flex items-center justify-center p-6">
+    <div class="min-h-[80vh] flex items-center justify-center p-6 bg-[#F5F3FA]">
         <div class="max-w-md w-full text-center">
 
             {{-- ── VISUAL ICON ── --}}
@@ -11,7 +11,7 @@
                     <span class="text-5xl">🏷️</span>
                 </div>
                 <div
-                    class="absolute -bottom-2 right-1/2 translate-x-12 w-8 h-8 bg-yellow-400 rounded-full border-4 border-gray-50 flex items-center justify-center text-white text-xs font-bold">
+                    class="absolute -bottom-2 right-1/2 translate-x-12 w-8 h-8 bg-yellow-400 rounded-full border-4 border-[#F5F3FA] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                     !
                 </div>
             </div>
@@ -23,27 +23,28 @@
             </p>
 
             {{-- ── STATUS BOX ── --}}
-            <div class="bg-white rounded-[28px] p-6 mb-8 border border-gray-100 shadow-lg inline-block w-full">
+            <div class="bg-white rounded-[28px] p-6 mb-8 border border-white shadow-lg inline-block w-full">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Current Status</p>
-                <span class="text-[#86D657] font-black text-xl">Available for Purchase</span>
+                <span class="text-[#4B3D76] font-black text-xl">Available for Purchase</span>
             </div>
 
             {{-- ── ACTION BUTTONS ── --}}
             <div class="space-y-4">
                 <a href="{{ route('user.products') }}"
-                    class="block w-full bg-[#86D657] text-gray-900 text-sm font-black py-5 rounded-2xl shadow-xl shadow-green-100 hover:bg-[#77c24a] active:scale-[0.96] transition-all uppercase tracking-wider border-b-4 border-green-700">
+                    class="block w-full bg-[#4B3D76] text-white text-sm font-black py-5 rounded-2xl shadow-lg shadow-indigo-900/20 hover:bg-[#3c315e] active:scale-[0.96] transition-all uppercase tracking-wider border-b-4 border-[#31274f]">
                     Buy This Tag Now
                 </a>
 
                 <p class="text-xs text-gray-400 font-bold uppercase tracking-tighter">
-                    Already own this? <a href="{{ route('login') }}" class="text-gray-900 underline">Login to register</a>
+                    Already own this? <a href="{{ route('login') }}"
+                        class="text-[#4B3D76] underline hover:text-[#3c315e]">Login to register</a>
                 </p>
             </div>
 
             {{-- ── FOOTER BRAND ── --}}
-            <div class="mt-16 opacity-30">
+            <div class="mt-16 opacity-40">
                 <p class="font-sans text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]">
-                    Qwick<span class="text-green-500">Reach</span> Security
+                    Qwick<span class="text-[#4B3D76]">Reach</span> Security
                 </p>
             </div>
         </div>

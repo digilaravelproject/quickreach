@@ -15,7 +15,9 @@
                     </div>
                 </div>
 
-                <div class="header-actions">
+                <div class="header-actions" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+
+                    {{-- Search --}}
                     <div class="search-wrap" style="position: relative;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             style="width: 14px; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3);">
@@ -26,6 +28,18 @@
                             placeholder="Search name, phone, QR..."
                             style="width: 250px; background: var(--card2); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 8px 12px 8px 35px; outline: none; font-size: 13px;">
                     </div>
+
+                    {{-- Export Button (Dynamic Text Based on Selection) --}}
+                    <button @click="exportExcel()" :disabled="exporting"
+                        style="display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; background: var(--text); color: var(--bg); border: none; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; white-space: nowrap;"
+                        :style="exporting ? 'opacity: 0.5; cursor: not-allowed;' : ''">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 14px; height: 14px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
+                        </svg>
+                        <span x-text="exporting ? 'Exporting...' : (selectedIds.length > 0 ? 'Export Selected (' + selectedIds.length + ')' : 'Export CSV')"></span>
+                    </button>
+
                 </div>
             </div>
 
@@ -69,7 +83,10 @@
             return {
                 registrations: [],
                 loading: false,
+                exporting: false,
                 search: '',
+                selectedIds: [], // 🌟 NEW: Checkbox selection array
+                selectAll: false, // 🌟 NEW: Select All toggle
                 pagination: {
                     current_page: 1,
                     last_page: 1
@@ -89,10 +106,26 @@
                         this.registrations = res.data;
                         this.pagination.current_page = res.current_page;
                         this.pagination.last_page = res.last_page;
+
+                        // Data aate hi purana selection clear kardo
+                        this.selectedIds = [];
+                        this.selectAll = false;
                     } catch (e) {
                         console.error(e);
                     }
                     this.loading = false;
+                },
+                // 🌟 NEW: Toggle All check/uncheck
+                toggleAll() {
+                    if (this.selectAll) {
+                        this.selectedIds = this.registrations.map(r => r.id);
+                    } else {
+                        this.selectedIds = [];
+                    }
+                },
+                // 🌟 NEW: Update Select All when single item is checked
+                updateSelectAll() {
+                    this.selectAll = this.registrations.length > 0 && this.selectedIds.length === this.registrations.length;
                 },
                 changePage(p) {
                     if (p < 1 || p > this.pagination.last_page) return;
@@ -114,6 +147,28 @@
                     });
                     this.fetchData();
                 },
+                exportExcel() {
+                    this.exporting = true;
+                    // 🌟 UPDATED: URL with ids if selected
+                    let url = `{{ route('admin.registrations.export') }}?search=${encodeURIComponent(this.search)}`;
+
+                    if (this.selectedIds.length > 0) {
+                        url += `&ids=${this.selectedIds.join(',')}`;
+                    }
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = '';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+
+                    setTimeout(() => {
+                        this.exporting = false;
+                        // Export ke baad check clear karna chahte hain toh:
+                        // this.selectedIds = []; this.selectAll = false;
+                    }, 2000);
+                },
                 formatDate(date) {
                     if (!date) return '-';
                     return new Date(date).toLocaleDateString('en-GB', {
@@ -124,4 +179,4 @@
             }
         }
     </script>
-@endsection
+@endsection 

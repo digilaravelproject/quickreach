@@ -5,9 +5,14 @@
     </div>
 
     <div class="table-scroll" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <table class="data-table" style="width: 100%; min-width: 1000px; border-collapse: collapse;">
+        <table class="data-table" style="width: 100%; min-width: 1250px; border-collapse: collapse;">
             <thead>
                 <tr style="background: var(--card2);">
+                    {{-- 1. Checkbox Header --}}
+                    <th style="padding: 15px 20px; width: 50px; text-align: center;">
+                        <input type="checkbox" x-model="selectAll" @change="toggleAll"
+                            style="width: 16px; height: 16px; accent-color: var(--text); cursor: pointer; border-radius: 4px;">
+                    </th>
                     <th
                         style="padding: 15px 20px; text-align: left; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
                         Registered User</th>
@@ -16,7 +21,13 @@
                         Linked QR</th>
                     <th
                         style="padding: 15px 20px; text-align: left; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
-                        Emergency Contacts</th>
+                        Category</th>
+                    <th
+                        style="padding: 15px 20px; text-align: left; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
+                        Tag Details</th>
+                    <th
+                        style="padding: 15px 20px; text-align: left; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
+                        Emergency Info</th>
                     <th
                         style="padding: 15px 20px; text-align: left; color: var(--text3); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">
                         Status</th>
@@ -28,14 +39,22 @@
             <tbody>
                 <template x-for="reg in registrations" :key="reg.id">
                     <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;"
-                        onmouseover="this.style.background='var(--card2)'"
-                        onmouseout="this.style.background='transparent'">
+                        :style="selectedIds.includes(reg.id) ? 'background: rgba(134, 214, 87, 0.05);' : ''"
+                        onmouseover="if(!this.style.background.includes('rgba')) this.style.background='var(--card2)'"
+                        onmouseout="if(!this.style.background.includes('rgba')) this.style.background='transparent'">
+
+                        {{-- 1. Checkbox Data --}}
+                        <td style="padding: 15px 20px; text-align: center;">
+                            <input type="checkbox" :value="reg.id" x-model="selectedIds"
+                                @change="updateSelectAll"
+                                style="width: 16px; height: 16px; accent-color: var(--text); cursor: pointer; border-radius: 4px;">
+                        </td>
 
                         <td style="padding: 15px 20px;">
                             <div class="customer-cell">
                                 <div class="customer-avatar"
                                     style="background: var(--text); color: var(--bg); width: 40px; height: 40px; font-weight: 800; border-radius: 12px; font-size: 14px;"
-                                    x-text="reg.full_name.charAt(0).toUpperCase()">
+                                    x-text="reg.full_name ? reg.full_name.charAt(0).toUpperCase() : '?'">
                                 </div>
                                 <div>
                                     <div class="customer-name" style="font-size: 14px; color: var(--text);"
@@ -47,22 +66,51 @@
                         </td>
 
                         <td style="padding: 15px 20px;">
-                            <div style="display: flex; flex-direction: column; gap: 4px;">
-                                <span class="prog-code"
-                                    style="background: var(--card2); padding: 4px 8px; border-radius: 6px; width: fit-content; color: var(--text);"
-                                    x-text="reg.qr_code?.qr_code || 'DELETED'"></span>
+                            <span class="prog-code"
+                                style="background: var(--card2); padding: 5px 10px; border-radius: 6px; width: fit-content; color: var(--text); font-weight: 700; border: 1px solid var(--border);"
+                                x-text="reg.qr_code?.qr_code || 'DELETED'"></span>
+                        </td>
+
+                        {{-- Category with icon --}}
+                        <td style="padding: 15px 20px;">
+                            <div
+                                style="display: inline-flex; align-items: center; gap: 6px; background: rgba(var(--blue-rgb), 0.05); padding: 4px 10px; border-radius: 100px; border: 1px solid var(--border);">
+
                                 <span
-                                    style="font-size: 10px; color: var(--blue); font-weight: 700; text-transform: uppercase;"
-                                    x-text="reg.qr_code?.category?.name || ''"></span>
+                                    style="font-size: 10px; font-weight: 800; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px;"
+                                    x-text="reg.qr_code?.category?.name || 'N/A'"></span>
                             </div>
                         </td>
 
+                        {{-- Tag Details (Safe JSON Parsing) --}}
+                        <td style="padding: 15px 20px;">
+                            <div x-show="reg.category_data && typeof reg.category_data === 'object' && Object.keys(reg.category_data).length > 0"
+                                style="display: flex; flex-direction: column; gap: 4px;">
+                                <template x-for="(value, key) in reg.category_data">
+                                    <div style="font-size: 11px; color: var(--text2);">
+                                        <strong style="color: var(--text3); text-transform: capitalize;"
+                                            x-text="key.replace('_', ' ') + ':'"></strong>
+                                        <span x-text="value" style="font-weight: 600;"></span>
+                                    </div>
+                                </template>
+                            </div>
+                            <div x-show="!reg.category_data || typeof reg.category_data !== 'object' || Object.keys(reg.category_data).length === 0"
+                                style="font-size: 11px; color: var(--text3);">—</div>
+                        </td>
+
+                        {{-- Emergency Info --}}
                         <td style="padding: 15px 20px;">
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <div style="font-size: 11px; color: var(--text2); font-weight: 600;">P1: <span
                                         x-text="reg.friend_family_1 || '—'"></span></div>
                                 <div style="font-size: 11px; color: var(--text2); font-weight: 600;">P2: <span
                                         x-text="reg.friend_family_2 || '—'"></span></div>
+
+                                <div x-show="reg.emergency_note"
+                                    style="margin-top: 6px; font-size: 10px; color: var(--red); background: rgba(255,0,0,0.05); padding: 6px 8px; border-radius: 6px; border: 1px dashed rgba(255,0,0,0.2); max-width: 180px; white-space: normal; line-height: 1.3;">
+                                    <strong style="text-transform: uppercase;">Note:</strong> <span
+                                        x-text="reg.emergency_note"></span>
+                                </div>
                             </div>
                         </td>
 
@@ -94,7 +142,7 @@
                 </template>
 
                 <tr x-show="!loading && registrations.length === 0">
-                    <td colspan="5" style="text-align: center; padding: 60px; color: var(--text3);">
+                    <td colspan="8" style="text-align: center; padding: 60px; color: var(--text3);">
                         No registered users found matching your search.
                     </td>
                 </tr>

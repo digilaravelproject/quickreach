@@ -15,7 +15,8 @@
                 <div class="live-badge" style="font-size: 10px; padding: 4px 10px;">System Live</div>
             </div>
 
-            <div class="stat-grid anim delay-1" style="margin-bottom: 15px; gap: 10px;">
+            <div class="stat-grid anim delay-1"
+                style="margin-bottom: 15px; gap: 10px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                 <div class="card" style="padding: 20px;">
                     <div class="stat-top">
                         <span class="stat-label">Total Revenue</span>
@@ -43,6 +44,19 @@
 
                 <div class="card" style="padding: 20px;">
                     <div class="stat-top">
+                        <span class="stat-label">Total Orders</span>
+                        <div class="stat-icon" style="background:#dcfce7"><svg style="color:#16a34a" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg></div>
+                    </div>
+                    <div class="stat-val" style="font-size: 22px;">{{ number_format($stats['total_orders']) }}</div>
+                    <p class="stat-period">Lifetime orders</p>
+                </div>
+
+                <div class="card" style="padding: 20px;">
+                    <div class="stat-top">
                         <span class="stat-label">Inventory</span>
                         <div class="stat-icon" style="background:var(--amber-bg)"><svg style="color:var(--amber)"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,7 +73,7 @@
                     <p class="stat-period" style="margin-top:5px;">{{ number_format($stats['registered_qrs']) }} active</p>
                 </div>
 
-                <div class="card" style="padding: 20px;">
+                {{-- <div class="card" style="padding: 20px;">
                     <div class="stat-top">
                         <span class="stat-label">Scans</span>
                         <div class="stat-icon" style="background:#ede9fe"><svg style="color:#8b5cf6" fill="none"
@@ -71,7 +85,7 @@
                     <div class="stat-val" style="font-size: 22px;">{{ number_format($stats['total_scans']) }}</div>
                     <div><span class="stat-change up" style="color:#8b5cf6">+{{ $stats['today_scans'] }}</span> <span
                             class="stat-period">today</span></div>
-                </div>
+                </div> --}}
             </div>
 
             <div class="grid-2 anim delay-2" style="gap: 10px; margin-bottom: 15px;">

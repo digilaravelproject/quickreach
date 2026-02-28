@@ -55,6 +55,18 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
+
+        // Active Status Check added here
+        if ($request->user()->is_active == 0) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Your account is inactive. Please contact the administrator.',
+            ])->onlyInput('email');
+        }
+
         $request->session()->regenerate();
 
         // Aapke model ka isAdmin() method use ho raha hai

@@ -32,7 +32,9 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.qr-codes.store') }}" method="POST">
+                {{-- Form pe onsubmit validation add kiya gaya hai --}}
+                <form action="{{ route('admin.qr-codes.store') }}" method="POST" id="qrGenerateForm"
+                    onsubmit="return validateForm(event)">
                     @csrf
 
                     <div class="card" style="padding: 25px; border: 1px solid var(--border); margin-bottom: 15px;">
@@ -44,9 +46,9 @@
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
                             @foreach ($categories as $category)
                                 <label style="position: relative; cursor: pointer; display: block;">
+                                    {{-- Radio input se 'required' hata diya taki custom popup dikh sake --}}
                                     <input type="radio" name="category_id" value="{{ $category->id }}" class="peer"
-                                        style="display: none;" {{ old('category_id') == $category->id ? 'checked' : '' }}
-                                        required>
+                                        style="display: none;" {{ old('category_id') == $category->id ? 'checked' : '' }}>
                                     <div class="category-radio-card"
                                         style="padding: 15px; border: 1px solid var(--border); border-radius: 15px; background: var(--card2); transition: all 0.2s; display: flex; align-items: center; gap: 12px;">
                                         <div
@@ -107,11 +109,33 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                 d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                         </svg>
-                        Start Batch Generation
+                        Qr Bulk Generation
                     </button>
                 </form>
             </div>
             <div style="height: 40px;"></div>
+        </div>
+    </div>
+
+    {{-- Custom Alert Modal for Category Selection --}}
+    <div id="categoryAlertModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div
+            style="background: var(--card); padding: 30px; border-radius: 20px; text-align: center; max-width: 320px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); transform: scale(0.9); animation: popIn 0.2s forwards ease-out;">
+            <div
+                style="width: 60px; height: 60px; background: #fee2e2; color: #dc2626; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 30px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
+                </svg>
+            </div>
+            <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 800; color: var(--text);">Selection Required</h3>
+            <p style="margin: 0 0 20px 0; font-size: 13px; color: var(--text3); line-height: 1.5;">Please select a Product
+                Category first before generating QR codes.</p>
+            <button type="button" onclick="closeAlertModal()"
+                style="width: 100%; padding: 12px; background: var(--text); color: var(--bg); border: none; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer;">OK,
+                Got It</button>
         </div>
     </div>
 
@@ -131,5 +155,32 @@
         input[type="radio"]:checked+.category-radio-card div {
             color: var(--blue) !important;
         }
+
+        /* Modal Animation */
+        @keyframes popIn {
+            to {
+                transform: scale(1);
+            }
+        }
     </style>
+
+    <script>
+        // Validation function on form submit
+        function validateForm(e) {
+            // Check if any radio button with name 'category_id' is checked
+            const categorySelected = document.querySelector('input[name="category_id"]:checked');
+
+            if (!categorySelected) {
+                e.preventDefault(); // Form submit roko
+                document.getElementById('categoryAlertModal').style.display = 'flex'; // Modal dikhao
+                return false;
+            }
+            return true;
+        }
+
+        // Close modal function
+        function closeAlertModal() {
+            document.getElementById('categoryAlertModal').style.display = 'none';
+        }
+    </script>
 @endsection

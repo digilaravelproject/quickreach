@@ -12,8 +12,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // Google ID aur Avatar add kar diya
-    protected $fillable = ['name', 'email', 'password', 'phone', 'is_admin', 'google_id', 'avatar'];
+    // Google ID, Avatar aur is_active add kar diya
+    protected $fillable = ['name', 'email', 'password', 'phone', 'is_admin', 'google_id', 'avatar', 'is_active'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -23,6 +23,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_active' => 'boolean', // Active/Inactive handle karne ke liye
             'google_id' => 'string', // Google ID handle karne ke liye
         ];
     }

@@ -18,6 +18,42 @@ class DashboardController extends Controller
     /**
      * Display admin dashboard
      */
+    // public function index(Request $request)
+    // {
+    //     $stats = [
+    //         'total_qrs' => QrCode::count(),
+    //         'available_qrs' => QrCode::where('status', 'available')->count(),
+    //         'assigned_qrs' => QrCode::where('status', 'assigned')->count(),
+    //         'registered_qrs' => QrCode::where('status', 'registered')->count(),
+    //         'total_users' => QrRegistration::where('is_active', true)->count(),
+    //         'total_revenue' => Order::where('payment_status', 'completed')->sum('total_amount'),
+    //         'today_revenue' => Order::where('payment_status', 'completed')
+    //             ->whereDate('updated_at', today())
+    //             ->sum('total_amount'),
+    //         'total_scans' => QrScan::count(),
+    //         'today_scans' => QrScan::whereDate('created_at', today())->count(),
+    //     ];
+
+    //     // Recent Data
+    //     $recentPayments = Order::with(['user'])->latest()->take(10)->get();
+    //     $recentRegistrations = QrCode::with(['category', 'registration'])
+    //         ->where('status', 'registered')
+    //         ->latest('registered_at')
+    //         ->take(10)->get();
+
+    //     // Chart Data (Default select daily)
+    //     $period = $request->get('period', 'daily');
+    //     $chartData = $this->getRevenueChartData($period);
+
+    //     return view('admin.dashboard', compact(
+    //         'stats',
+    //         'recentPayments',
+    //         'recentRegistrations',
+    //         'chartData',
+    //         'period'
+    //     ));
+    // }
+
     public function index(Request $request)
     {
         $stats = [
@@ -32,6 +68,7 @@ class DashboardController extends Controller
                 ->sum('total_amount'),
             'total_scans' => QrScan::count(),
             'today_scans' => QrScan::whereDate('created_at', today())->count(),
+            'total_orders' => Order::count(), // Added this line
         ];
 
         // Recent Data

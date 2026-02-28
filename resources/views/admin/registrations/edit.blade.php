@@ -79,6 +79,49 @@
                             style="width: 100%; padding: 12px 15px; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; font-weight: 700; color: var(--text); outline: none; resize: none; font-size: 13px;">{{ $registration->full_address }}</textarea>
                     </div>
 
+                    {{-- NEWLY ADDED: Emergency Note --}}
+                    <div style="margin-bottom: 25px; display: flex; flex-direction: column; gap: 6px;">
+                        <label
+                            style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-left: 2px;">Emergency
+                            Note</label>
+                        <textarea name="emergency_note" rows="2"
+                            style="width: 100%; padding: 12px 15px; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; font-weight: 700; color: var(--text); outline: none; resize: none; font-size: 13px;">{{ $registration->emergency_note }}</textarea>
+                    </div>
+
+                    {{-- NEWLY ADDED: Category Data & Photo (Read Only) --}}
+                    @if (!empty($registration->category_data) || $registration->photo_path)
+                        <div
+                            style="margin-bottom: 25px; padding: 20px; background: var(--card2); border-radius: 15px; border: 1px dashed var(--border);">
+                            <h3
+                                style="font-size: 11px; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 15px 0;">
+                                Category Specific Data</h3>
+
+                            @if ($registration->photo_path)
+                                <div style="margin-bottom: 15px;">
+                                    <span
+                                        style="display:block; font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">Uploaded
+                                        Photo</span>
+                                    <img src="{{ asset('storage/' . $registration->photo_path) }}" alt="Photo"
+                                        style="max-width: 120px; border-radius: 10px; border: 1px solid var(--border);">
+                                </div>
+                            @endif
+
+                            @if (!empty($registration->category_data))
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                                    @foreach ($registration->category_data as $key => $value)
+                                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                                            <span
+                                                style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px;">{{ str_replace('_', ' ', $key) }}</span>
+                                            <span
+                                                style="font-size: 13px; font-weight: 700; color: var(--text);">{{ $value }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     <div
                         style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 25px;">
                         <div style="display: flex; align-items: center; gap: 10px;">

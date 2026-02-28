@@ -30,6 +30,17 @@
             </span>
             <span class="nav-label">Dashboard</span>
         </a>
+        <a href="{{ route('admin.users.index') }}"
+            class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" data-tip="User Registration">
+            <span class="nav-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                    </path>
+                </svg>
+            </span>
+            <span class="nav-label">Users</span>
+        </a>
         <a href="{{ route('admin.payments.index') }}"
             class="nav-link {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}" data-tip="Payments">
             <span class="nav-icon">
@@ -40,7 +51,17 @@
             </span>
             <span class="nav-label">Orders & Payments</span>
         </a>
-
+        <span class="nav-section">QR's</span>
+        <a href="{{ route('admin.categories.index') }}"
+            class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" data-tip="Categories">
+            <span class="nav-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+            </span>
+            <span class="nav-label">Categories</span>
+        </a>
         <a href="{{ route('admin.qr-codes.index') }}"
             class="nav-link {{ request()->routeIs('admin.qr-codes.*') ? 'active' : '' }}" data-tip="QR Inventory">
             <span class="nav-icon">
@@ -50,53 +71,33 @@
                     </path>
                 </svg>
             </span>
-            <span class="nav-label">QR Inventory</span>
+            <span class="nav-label">QR Generation</span>
         </a>
-
-        <a href="{{ route('admin.categories.index') }}"
-            class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" data-tip="Categories">
+        <a href="{{ route('admin.registrations.index') }}"
+            class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}"
+            data-tip="Qr Registration">
             <span class="nav-icon">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
                 </svg>
             </span>
-            <span class="nav-label">QR Categories</span>
+            <span class="nav-label">Qr Registration List</span>
         </a>
 
-        <div class="nav-group">
+
+        {{-- <div class="nav-group">
             <div
                 style="padding: 15px 20px 5px 20px; font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.7;">
                 User Management
             </div>
 
-            <a href="{{ route('admin.registrations.index') }}"
-                class="nav-link {{ request()->routeIs('admin.registrations.*') ? 'active' : '' }}"
-                data-tip="Qr Registration">
-                <span class="nav-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
-                        </path>
-                    </svg>
-                </span>
-                <span class="nav-label">Qr Registration</span>
-            </a>
 
-            <a href="{{ route('admin.users.index') }}"
-                class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-                data-tip="User Registration">
-                <span class="nav-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                        </path>
-                    </svg>
-                </span>
-                <span class="nav-label">User Registration</span>
-            </a>
-        </div>
-        <span class="nav-section">System</span>
+
+
+        </div> --}}
+        <span class="nav-section">Website</span>
 
         <a href="{{ route('admin.analytics') }}"
             class="nav-link {{ request()->routeIs('admin.analytics') ? 'active' : '' }}" data-tip="Analytics">

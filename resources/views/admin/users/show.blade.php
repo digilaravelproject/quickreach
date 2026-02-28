@@ -68,8 +68,10 @@
                         <div
                             style="padding: 15px; background: var(--card2); border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 12px; font-weight: 700; color: var(--text2);">Registration Status</span>
-                            <span
-                                style="font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 6px; background: #e0f2f1; color: #00695c;">ACTIVE</span>
+                            <span style="font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 6px;"
+                                style="{{ $user->is_active ? 'background: #e0f2f1; color: #00695c;' : 'background: #ffebee; color: #c62828;' }}">
+                                {{ $user->is_active ? 'ACTIVE' : 'INACTIVE' }}
+                            </span>
                         </div>
                     </div>
                 </div>

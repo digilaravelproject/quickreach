@@ -22,21 +22,9 @@ class QrCodeService
         $category = Category::findOrFail($categoryId);
         $qrCodes = [];
 
-        // Library config to force RAW SVG output
-        $options = new QROptions([
-            'version'              => Version::AUTO,
-            'outputType'           => QROutputInterface::MARKUP_SVG,
-            'imageBase64'          => false, // 👈 Sabse important: Base64 band kar diya
-            'eccLevel'             => EccLevel::L,
-            'addQuietzone'         => true,
-            'svgAddXmlDeclaration' => true,
-            'svgUseFullAttributes' => true,
-        ]);
-
-        $qrcodeGenerator = new QRCode($options);
-
         for ($i = 0; $i < $quantity; $i++) {
-            $qrCodes[] = $this->generateSingleQrCode($category, $qrcodeGenerator);
+            // ✅ FIX: Generator har iteration mein fresh banao - shared instance state cache karta hai
+            $qrCodes[] = $this->generateSingleQrCode($category);
         }
 
         return $qrCodes;
@@ -47,36 +35,36 @@ class QrCodeService
      */
     public function generateSingleQrCode(Category $category, $generator = null): QrCodeModel
     {
-        if (!$generator) {
-            $options = new QROptions([
-                'version'              => Version::AUTO,
-                'outputType'           => QROutputInterface::MARKUP_SVG,
-                'imageBase64'          => false, // 👈 Yahan bhi Base64 band
-                'eccLevel'             => EccLevel::L,
-                'addQuietzone'         => true,
-                'svgAddXmlDeclaration' => true,
-                'svgUseFullAttributes' => true,
-                'connectPaths'         => true,
-            ]);
-            $generator = new QRCode($options);
-        }
+        // ✅ FIX: Har call pe fresh options aur fresh generator instance
+        $options = new QROptions([
+            'version'              => Version::AUTO,
+            'outputType'           => QROutputInterface::MARKUP_SVG,
+            'imageBase64'          => false,
+            'eccLevel'             => EccLevel::L,
+            'addQuietzone'         => true,
+            'svgAddXmlDeclaration' => true,
+            'svgUseFullAttributes' => true,
+            'connectPaths'         => true,
+        ]);
 
-        $uniqueCode = 'QR' . strtoupper(Str::random(10));
-        // $scanUrl = route('qr.scan', ['code' => $uniqueCode]);
-        // QrCodeService.php mein change karein
+        // ✅ FIX: Passed generator ignore karo, har baar naya banao
+        $freshGenerator = new QRCode($options);
+
+        // ✅ FIX: Unique code DB check ke saath
+        do {
+            $uniqueCode = 'QR' . strtoupper(Str::random(10));
+        } while (QrCodeModel::where('qr_code', $uniqueCode)->exists());
+
         $scanUrl = route('public.qr.scan', ['code' => $uniqueCode]);
 
-        // Output buffer saaf karo taki koi extra space na aaye
         if (ob_get_length()) ob_clean();
 
-        // Render QR - ab ye Base64 nahi, pure SVG markup dega
-        $qrSvgData = (string)$generator->render($scanUrl);
+        // ✅ FIX: Fresh generator pe render karo
+        $qrSvgData = (string)$freshGenerator->render($scanUrl);
 
-        // Path setup
         $folderName = $category->slug ?? $category->id;
         $filename = "qr_codes/{$folderName}/{$uniqueCode}.svg";
 
-        // File save karo
         Storage::disk('public')->put($filename, trim($qrSvgData));
 
         return QrCodeModel::create([
