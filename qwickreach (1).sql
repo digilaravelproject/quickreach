@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 26, 2026 at 01:00 PM
+-- Generation Time: Feb 28, 2026 at 11:57 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.3.25
 
@@ -243,7 +243,10 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (18, '2026_02_23_094142_create_contacts_table', 10),
 (19, '2026_02_23_120516_add_google_id_to_users_table', 11),
 (20, '2026_02_25_045139_create_password_resets_table', 12),
-(21, '2026_02_25_093436_create_privacy_policies_table', 13);
+(21, '2026_02_25_093436_create_privacy_policies_table', 13),
+(22, '2026_02_27_085732_add_payment_method_and_qr_source_to_payments_table', 14),
+(23, '2026_02_28_024421_add_is_active_to_users_table', 15),
+(24, '2026_02_28_043558_add_category_data_to_qr_registrations_table', 16);
 
 -- --------------------------------------------------------
 
@@ -262,6 +265,8 @@ CREATE TABLE `orders` (
   `total_amount` decimal(10,2) NOT NULL,
   `status` varchar(191) NOT NULL,
   `payment_status` varchar(191) NOT NULL,
+  `payment_method` enum('online','cod') NOT NULL DEFAULT 'online',
+  `paid_at` timestamp NULL DEFAULT NULL,
   `shipping_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`shipping_data`)),
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -271,29 +276,41 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `user_id`, `order_number`, `razorpay_order_id`, `subtotal`, `tax`, `shipping_cost`, `total_amount`, `status`, `payment_status`, `shipping_data`, `created_at`, `updated_at`) VALUES
-(8, NULL, 'ORD-MMI8BZZ9XX', 'order_SFazU1Ns7MNfws', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', '{\"full_name\":\"Sachin Verma\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 04:53:14', '2026-02-13 04:53:15'),
-(9, NULL, 'ORD-OUPUYLRYI7', 'order_SFbRmybuiBhxQA', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"partapgarh\",\"address_line2\":\"partapgarh\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:20:02', '2026-02-13 05:20:03'),
-(10, NULL, 'ORD-N87Z0BAYQC', 'order_SFbdNqBhw9jxsB', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:31:00', '2026-02-13 05:31:01'),
-(11, NULL, 'ORD-WNDDV2CKOJ', 'order_SFbksrhFbCR56A', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:38:06', '2026-02-13 05:38:07'),
-(12, NULL, 'ORD-GE2Q1LDNXG', 'order_SFbuMlori9rulx', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:47:05', '2026-02-13 05:47:06'),
-(13, NULL, 'ORD-ATHNHCXDM3', 'order_SFbzwUJJbXvWwU', 499.15, 89.85, 0.00, 589.00, 'confirmed', 'completed', '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:52:22', '2026-02-13 05:52:58'),
-(14, NULL, 'ORD-VSPLZQKB60', 'order_SFeiugKCB5aFFy', 399.15, 71.85, 0.00, 471.00, 'pending', 'pending', '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 08:32:19', '2026-02-13 08:32:20'),
-(15, NULL, 'ORD-ZCCPZBEIZJ', 'order_SGgdHXILnS3kY1', 1499.15, 269.85, 0.00, 1769.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7800060691\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"pratapgarh\",\"state\":\"Uttar Pradesh\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-15 23:03:22', '2026-02-15 23:03:24'),
-(16, NULL, 'ORD-RG7JMBGFAY', 'order_SGgiWTPH49dT5B', 1499.15, 269.85, 0.00, 1769.00, 'confirmed', 'completed', '{\"full_name\":\"Sachin Verma\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"saraiya ,kishunganj,pratapgarh\",\"address_line2\":\"saraiya ,kishunganj,pratapgarh\",\"city\":\"pratapgarh\",\"state\":\"Uttar Pradesh\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-15 23:08:20', '2026-02-15 23:09:07'),
-(17, NULL, 'ORD-RQEJCRQSCI', 'order_SGnz4uBgUI3TBO', 499.15, 89.85, 0.00, 589.00, 'confirmed', 'completed', '{\"full_name\":\"ram\",\"mobile_number\":\"7800060691\",\"email\":\"sachin@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"pratapgarh\",\"state\":\"Uttar Pradesh\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-16 06:14:51', '2026-02-16 06:15:33'),
-(18, NULL, 'ORD-UBXX5PDTYY', 'order_SH8y939VFCepZv', 2894.92, 521.08, 0.00, 3416.00, 'confirmed', 'completed', '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-17 02:46:32', '2026-02-17 02:47:18'),
-(19, NULL, 'ORD-T5W5XYPOBP', 'order_SI1WPDWNjug8Xb', 422.88, 76.12, 0.00, 499.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"fdfdsf\",\"shipping_method\":\"standard\"}', '2026-02-19 08:08:25', '2026-02-19 08:08:27'),
-(20, NULL, 'ORD-RQD9OE5LIY', 'order_SI1X44jlEmmtb8', 422.88, 76.12, 0.00, 499.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"fdfdsf\",\"shipping_method\":\"standard\"}', '2026-02-19 08:09:04', '2026-02-19 08:09:04'),
-(21, NULL, 'ORD-QFCJBDIIHK', 'order_SI1cqBBudv0ex3', 422.88, 76.12, 0.00, 499.00, 'confirmed', 'completed', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"dsdsdfdf\",\"shipping_method\":\"standard\"}', '2026-02-19 08:14:32', '2026-02-19 08:15:09'),
-(22, NULL, 'ORD-JNUZKLEX1R', 'order_SI2TgmAiM1Q6n6', 1270.34, 228.66, 0.00, 1499.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"test\",\"shipping_method\":\"standard\"}', '2026-02-19 09:04:33', '2026-02-19 09:04:34'),
-(23, NULL, 'ORD-DEQHGKTNDD', 'order_SI2ZkfnMplwFSj', 1270.34, 228.66, 0.00, 1499.00, 'pending', 'pending', '{\"full_name\":\"sachin\",\"mobile_number\":\"07080032118\",\"address\":\"saraiya ,kishunganj,pratapgarh\",\"shipping_method\":\"standard\"}', '2026-02-19 09:10:18', '2026-02-19 09:10:19'),
-(24, NULL, 'ORD-NEMG6QSK6X', 'order_SImJvGgbDSqXJe', 422.88, 76.12, 0.00, 499.00, 'confirmed', 'completed', '{\"full_name\":\"test\",\"mobile_number\":\"2345678901\",\"address\":\"dfdfddgfd\",\"shipping_method\":\"standard\"}', '2026-02-21 05:55:12', '2026-02-21 05:56:00'),
-(25, 2, 'ORD-CD8GTR9OCB', 'order_SJrZez8hJgUl7w', 422.88, 76.12, 0.00, 499.00, 'pending', 'pending', '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"address\":\"test test\",\"shipping_method\":\"standard\"}', '2026-02-23 23:42:35', '2026-02-23 23:42:36'),
-(26, 2, 'ORD-EJQVMBGXNM', 'order_SJrd9Ou18rcYuZ', 422.88, 76.12, 0.00, 499.00, 'confirmed', 'completed', '{\"full_name\":\"Sachin Verma\",\"mobile_number\":\"7080032118\",\"address\":\"test\",\"shipping_method\":\"standard\"}', '2026-02-23 23:45:53', '2026-02-23 23:46:33'),
-(27, NULL, 'ORD-JDCQSCRICB', 'order_SJxWW1tsH7dHyG', 1944.92, 350.08, 0.00, 2295.00, 'pending', 'pending', '{\"full_name\":\"ram Vrema\",\"email\":\"digiempsachin@gmail.com\",\"mobile_number\":\"7080032118\",\"address_line1\":\"Pratapgarh\",\"city\":\"antu\",\"pincode\":\"230503\"}', '2026-02-24 05:31:45', '2026-02-24 05:31:47'),
-(28, NULL, 'ORD-4ZPIF6QZ1J', 'order_SJxZ29lXs8VCT6', 1944.92, 350.08, 0.00, 2295.00, 'confirmed', 'completed', '{\"full_name\":\"sachin\",\"email\":\"digiempsachin@gmail.com\",\"mobile_number\":\"7080032118\",\"address_line1\":\"Partapgarh\",\"city\":\"babuganj\",\"pincode\":\"230503\"}', '2026-02-24 05:34:09', '2026-02-24 05:34:52'),
-(29, 2, 'ORD-Z2LKEGP1SZ', 'order_SJyp1VpuxLfIs0', 845.76, 152.24, 0.00, 998.00, 'confirmed', 'completed', '{\"full_name\":\"Sachin Verma Verma\",\"email\":\"digiempsachin@gmail.com\",\"mobile_number\":\"7080032118\",\"address_line1\":\"DFGFDFD\",\"city\":\"GFDGFDGF\",\"pincode\":\"12333334\"}', '2026-02-24 06:47:59', '2026-02-24 06:48:45');
+INSERT INTO `orders` (`id`, `user_id`, `order_number`, `razorpay_order_id`, `subtotal`, `tax`, `shipping_cost`, `total_amount`, `status`, `payment_status`, `payment_method`, `paid_at`, `shipping_data`, `created_at`, `updated_at`) VALUES
+(8, NULL, 'ORD-MMI8BZZ9XX', 'order_SFazU1Ns7MNfws', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin Verma\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 04:53:14', '2026-02-13 04:53:15'),
+(9, NULL, 'ORD-OUPUYLRYI7', 'order_SFbRmybuiBhxQA', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"partapgarh\",\"address_line2\":\"partapgarh\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:20:02', '2026-02-13 05:20:03'),
+(10, NULL, 'ORD-N87Z0BAYQC', 'order_SFbdNqBhw9jxsB', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:31:00', '2026-02-13 05:31:01'),
+(11, NULL, 'ORD-WNDDV2CKOJ', 'order_SFbksrhFbCR56A', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:38:06', '2026-02-13 05:38:07'),
+(12, NULL, 'ORD-GE2Q1LDNXG', 'order_SFbuMlori9rulx', 499.15, 89.85, 0.00, 589.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:47:05', '2026-02-13 05:47:06'),
+(13, NULL, 'ORD-ATHNHCXDM3', 'order_SFbzwUJJbXvWwU', 499.15, 89.85, 0.00, 589.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 05:52:22', '2026-02-13 05:52:58'),
+(14, NULL, 'ORD-VSPLZQKB60', 'order_SFeiugKCB5aFFy', 399.15, 71.85, 0.00, 471.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-13 08:32:19', '2026-02-13 08:32:20'),
+(15, NULL, 'ORD-ZCCPZBEIZJ', 'order_SGgdHXILnS3kY1', 1499.15, 269.85, 0.00, 1769.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7800060691\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"pratapgarh\",\"state\":\"Uttar Pradesh\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-15 23:03:22', '2026-02-15 23:03:24'),
+(16, NULL, 'ORD-RG7JMBGFAY', 'order_SGgiWTPH49dT5B', 1499.15, 269.85, 0.00, 1769.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"Sachin Verma\",\"mobile_number\":\"7080032118\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"saraiya ,kishunganj,pratapgarh\",\"address_line2\":\"saraiya ,kishunganj,pratapgarh\",\"city\":\"pratapgarh\",\"state\":\"Uttar Pradesh\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-15 23:08:20', '2026-02-15 23:09:07'),
+(17, NULL, 'ORD-RQEJCRQSCI', 'order_SGnz4uBgUI3TBO', 499.15, 89.85, 0.00, 589.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"ram\",\"mobile_number\":\"7800060691\",\"email\":\"sachin@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"pratapgarh\",\"state\":\"Uttar Pradesh\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-16 06:14:51', '2026-02-16 06:15:33'),
+(18, NULL, 'ORD-UBXX5PDTYY', 'order_SH8y939VFCepZv', 2894.92, 521.08, 0.00, 3416.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"Address Line\",\"address_line2\":\"Address Line\",\"city\":\"Thane\",\"state\":\"Maharashtra\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-17 02:46:32', '2026-02-17 02:47:18'),
+(19, NULL, 'ORD-T5W5XYPOBP', 'order_SI1WPDWNjug8Xb', 422.88, 76.12, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"fdfdsf\",\"shipping_method\":\"standard\"}', '2026-02-19 08:08:25', '2026-02-19 08:08:27'),
+(20, NULL, 'ORD-RQD9OE5LIY', 'order_SI1X44jlEmmtb8', 422.88, 76.12, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"fdfdsf\",\"shipping_method\":\"standard\"}', '2026-02-19 08:09:04', '2026-02-19 08:09:04'),
+(21, NULL, 'ORD-QFCJBDIIHK', 'order_SI1cqBBudv0ex3', 422.88, 76.12, 0.00, 499.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"dsdsdfdf\",\"shipping_method\":\"standard\"}', '2026-02-19 08:14:32', '2026-02-19 08:15:09'),
+(22, NULL, 'ORD-JNUZKLEX1R', 'order_SI2TgmAiM1Q6n6', 1270.34, 228.66, 0.00, 1499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"7080032118\",\"address\":\"test\",\"shipping_method\":\"standard\"}', '2026-02-19 09:04:33', '2026-02-19 09:04:34'),
+(23, NULL, 'ORD-DEQHGKTNDD', 'order_SI2ZkfnMplwFSj', 1270.34, 228.66, 0.00, 1499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"sachin\",\"mobile_number\":\"07080032118\",\"address\":\"saraiya ,kishunganj,pratapgarh\",\"shipping_method\":\"standard\"}', '2026-02-19 09:10:18', '2026-02-19 09:10:19'),
+(24, NULL, 'ORD-NEMG6QSK6X', 'order_SImJvGgbDSqXJe', 422.88, 76.12, 0.00, 499.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"test\",\"mobile_number\":\"2345678901\",\"address\":\"dfdfddgfd\",\"shipping_method\":\"standard\"}', '2026-02-21 05:55:12', '2026-02-21 05:56:00'),
+(25, 2, 'ORD-CD8GTR9OCB', 'order_SJrZez8hJgUl7w', 422.88, 76.12, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin\",\"mobile_number\":\"7080032118\",\"address\":\"test test\",\"shipping_method\":\"standard\"}', '2026-02-23 23:42:35', '2026-02-23 23:42:36'),
+(26, 2, 'ORD-EJQVMBGXNM', 'order_SJrd9Ou18rcYuZ', 422.88, 76.12, 0.00, 499.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"Sachin Verma\",\"mobile_number\":\"7080032118\",\"address\":\"test\",\"shipping_method\":\"standard\"}', '2026-02-23 23:45:53', '2026-02-23 23:46:33'),
+(27, NULL, 'ORD-JDCQSCRICB', 'order_SJxWW1tsH7dHyG', 1944.92, 350.08, 0.00, 2295.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"ram Vrema\",\"email\":\"digiempsachin@gmail.com\",\"mobile_number\":\"7080032118\",\"address_line1\":\"Pratapgarh\",\"city\":\"antu\",\"pincode\":\"230503\"}', '2026-02-24 05:31:45', '2026-02-24 05:31:47'),
+(28, NULL, 'ORD-4ZPIF6QZ1J', 'order_SJxZ29lXs8VCT6', 1944.92, 350.08, 0.00, 2295.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"sachin\",\"email\":\"digiempsachin@gmail.com\",\"mobile_number\":\"7080032118\",\"address_line1\":\"Partapgarh\",\"city\":\"babuganj\",\"pincode\":\"230503\"}', '2026-02-24 05:34:09', '2026-02-24 05:34:52'),
+(29, 2, 'ORD-Z2LKEGP1SZ', 'order_SJyp1VpuxLfIs0', 845.76, 152.24, 0.00, 998.00, 'confirmed', 'completed', 'online', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"email\":\"digiempsachin@gmail.com\",\"mobile_number\":\"7080032118\",\"address_line1\":\"DFGFDFD\",\"city\":\"GFDGFDGF\",\"pincode\":\"12333334\"}', '2026-02-24 06:47:59', '2026-02-24 06:48:45'),
+(30, 2, 'QR-BGD1O6AX', NULL, 1297.00, 0.00, 0.00, 1297.00, 'pending', 'pending', 'cod', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"gfdgfdg\",\"address_line2\":\"fgfgf\",\"city\":\"fdf\",\"state\":\"up\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-27 03:34:25', '2026-02-27 03:34:25'),
+(31, 2, 'QR-K6OCAEOZ', NULL, 349.00, 0.00, 0.00, 349.00, 'confirmed', 'completed', 'cod', '2026-02-27 21:45:14', '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"gdfgfdg\",\"address_line2\":\"gdfgfg\",\"city\":\"gfg\",\"state\":\"fdsgfgf\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-27 04:45:57', '2026-02-27 21:45:14'),
+(32, 2, 'QR-E8L4RLWW', 'order_SL8NOKjW2Tze3O', 499.00, 0.00, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"dsfdf\",\"address_line2\":\"fdfd\",\"city\":\"fdgfd\",\"state\":\"tyuyt\",\"pincode\":\"323434\",\"shipping_method\":\"standard\"}', '2026-02-27 04:47:45', '2026-02-27 04:47:47'),
+(33, 2, 'QR-JCOZNS7G', 'order_SL8QZ9chdARUT4', 499.00, 0.00, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"dsfdf\",\"address_line2\":\"fdfd\",\"city\":\"fdgfd\",\"state\":\"tyuyt\",\"pincode\":\"323434\",\"shipping_method\":\"standard\"}', '2026-02-27 04:50:46', '2026-02-27 04:50:47'),
+(34, 2, 'QR-1VTHEFIR', 'order_SL8Yif0nWlkuvP', 499.00, 0.00, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"dsfdf\",\"address_line2\":\"fdfd\",\"city\":\"fdgfd\",\"state\":\"tyuyt\",\"pincode\":\"323434\",\"shipping_method\":\"standard\"}', '2026-02-27 04:58:29', '2026-02-27 04:58:30'),
+(35, 2, 'QR-PSC607QQ', 'order_SL8d4RkDMz1mMU', 499.00, 0.00, 0.00, 499.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"fdsgdg\",\"address_line2\":\"gdfg\",\"city\":\"dfg\",\"state\":\"dsfd\",\"pincode\":\"305036\",\"shipping_method\":\"standard\"}', '2026-02-27 05:02:36', '2026-02-27 05:02:37'),
+(36, 2, 'QR-N7DE4DDM', NULL, 1998.00, 0.00, 0.00, 1998.00, 'confirmed', 'completed', 'cod', '2026-02-27 07:29:30', '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7894679876\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"cfdf\",\"address_line2\":\"fdf\",\"city\":\"dfdf\",\"state\":\"df\",\"pincode\":\"342345\",\"shipping_method\":\"standard\"}', '2026-02-27 05:06:08', '2026-02-27 07:29:30'),
+(37, 2, 'QR-GDD9BJ8O', 'order_SL9InC6SZK1ncf', 299.00, 0.00, 0.00, 299.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"dsfdfd\",\"address_line2\":\"fdsfds\",\"city\":\"dfdsf\",\"state\":\"dsfdf\",\"pincode\":\"230504\",\"shipping_method\":\"standard\"}', '2026-02-27 05:42:06', '2026-02-27 05:42:07'),
+(38, 2, 'QR-L3TB76IV', 'order_SL9QbpqpT4yUtU', 299.00, 0.00, 0.00, 299.00, 'confirmed', 'completed', 'online', '2026-02-27 05:50:14', '{\"full_name\":\"Sachin Verma Verma\",\"mobile_number\":\"7080032118\",\"email\":\"digiempsachin@gmail.com\",\"address_line1\":\"fdfdgfg\",\"address_line2\":\"dsgsds\",\"city\":\"dfdf\",\"state\":\"up\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-27 05:49:30', '2026-02-27 05:50:14'),
+(39, 3, 'QR-AE6FIGPQ', 'order_SLBvGz9kLGKCv1', 2998.00, 0.00, 0.00, 2998.00, 'pending', 'pending', 'online', NULL, '{\"full_name\":\"name\",\"mobile_number\":\"3465788912\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"rtyytu\",\"address_line2\":\"ytrytry\",\"city\":\"tret\",\"state\":\"up\",\"pincode\":\"230503\",\"shipping_method\":\"standard\"}', '2026-02-27 08:15:51', '2026-02-27 08:15:53'),
+(40, 3, 'QR-YD3KROVD', 'order_SLBxIK4Swmxiok', 2998.00, 0.00, 0.00, 2998.00, 'confirmed', 'completed', 'online', '2026-02-27 08:18:25', '{\"full_name\":\"name\",\"mobile_number\":\"2345678912\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"fdsfdgfdg\",\"address_line2\":\"gfdfgfd\",\"city\":\"dfdf\",\"state\":\"up\",\"pincode\":\"2345555\",\"shipping_method\":\"standard\"}', '2026-02-27 08:17:50', '2026-02-27 08:18:25'),
+(41, 3, 'QR-2YCZOT3L', 'order_SLUuqGvXmmgaSE', 499.00, 0.00, 0.00, 499.00, 'confirmed', 'completed', 'online', '2026-02-28 02:52:09', '{\"full_name\":\"name\",\"mobile_number\":\"2345678909\",\"email\":\"sachinve4@gmail.com\",\"address_line1\":\"fdfdsf\",\"address_line2\":\"dfsdf\",\"city\":\"dfdf\",\"state\":\"dfdf\",\"pincode\":\"234567\",\"shipping_method\":\"standard\"}', '2026-02-28 02:50:40', '2026-02-28 02:52:09');
 
 -- --------------------------------------------------------
 
@@ -343,7 +360,21 @@ INSERT INTO `order_items` (`id`, `order_id`, `category_id`, `quantity`, `price`,
 (31, 27, 2, 2, 399.00, 798.00, '2026-02-24 05:31:45', '2026-02-24 05:31:45'),
 (32, 28, 1, 3, 499.00, 1497.00, '2026-02-24 05:34:09', '2026-02-24 05:34:09'),
 (33, 28, 2, 2, 399.00, 798.00, '2026-02-24 05:34:09', '2026-02-24 05:34:09'),
-(34, 29, 1, 2, 499.00, 998.00, '2026-02-24 06:47:59', '2026-02-24 06:47:59');
+(34, 29, 1, 2, 499.00, 998.00, '2026-02-24 06:47:59', '2026-02-24 06:47:59'),
+(35, 30, 1, 2, 499.00, 998.00, '2026-02-27 03:34:25', '2026-02-27 03:34:25'),
+(36, 30, 5, 1, 299.00, 299.00, '2026-02-27 03:34:25', '2026-02-27 03:34:25'),
+(37, 31, 4, 1, 349.00, 349.00, '2026-02-27 04:45:57', '2026-02-27 04:45:57'),
+(38, 32, 1, 1, 499.00, 499.00, '2026-02-27 04:47:45', '2026-02-27 04:47:45'),
+(39, 33, 1, 1, 499.00, 499.00, '2026-02-27 04:50:46', '2026-02-27 04:50:46'),
+(40, 34, 1, 1, 499.00, 499.00, '2026-02-27 04:58:29', '2026-02-27 04:58:29'),
+(41, 35, 1, 1, 499.00, 499.00, '2026-02-27 05:02:36', '2026-02-27 05:02:36'),
+(42, 36, 1, 1, 499.00, 499.00, '2026-02-27 05:06:08', '2026-02-27 05:06:08'),
+(43, 36, 6, 1, 1499.00, 1499.00, '2026-02-27 05:06:08', '2026-02-27 05:06:08'),
+(44, 37, 3, 1, 299.00, 299.00, '2026-02-27 05:42:06', '2026-02-27 05:42:06'),
+(45, 38, 3, 1, 299.00, 299.00, '2026-02-27 05:49:30', '2026-02-27 05:49:30'),
+(46, 39, 6, 2, 1499.00, 2998.00, '2026-02-27 08:15:51', '2026-02-27 08:15:51'),
+(47, 40, 6, 2, 1499.00, 2998.00, '2026-02-27 08:17:50', '2026-02-27 08:17:50'),
+(48, 41, 1, 1, 499.00, 499.00, '2026-02-28 02:50:40', '2026-02-28 02:50:40');
 
 -- --------------------------------------------------------
 
@@ -438,6 +469,7 @@ CREATE TABLE `qr_codes` (
   `category_id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `order_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `source` enum('online_order','bulk_admin') DEFAULT NULL,
   `status` varchar(255) NOT NULL DEFAULT 'available',
   `qr_image_path` varchar(255) DEFAULT NULL,
   `assigned_at` timestamp NULL DEFAULT NULL,
@@ -451,84 +483,202 @@ CREATE TABLE `qr_codes` (
 -- Dumping data for table `qr_codes`
 --
 
-INSERT INTO `qr_codes` (`id`, `qr_code`, `category_id`, `user_id`, `order_id`, `status`, `qr_image_path`, `assigned_at`, `registered_at`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(121, 'QRQ95U49CTMG', 1, NULL, 13, 'sold', 'qr_codes/car/QRQ95U49CTMG.svg', '2026-02-13 05:52:58', NULL, '2026-02-11 07:45:12', '2026-02-13 05:52:58', NULL),
-(122, 'QRLKCSQJ5F61', 2, NULL, 18, 'sold', 'qr_codes/bike/QRLKCSQJ5F61.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 03:30:19', '2026-02-17 02:47:18', NULL),
-(123, 'QRELCAINPQCT', 5, NULL, 18, 'sold', 'qr_codes/children-qr-tag/QRELCAINPQCT.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:47:40', '2026-02-17 02:47:18', NULL),
-(124, 'QR647TEC0ZHQ', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QR647TEC0ZHQ.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(125, 'QR9CYZBBLGWT', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QR9CYZBBLGWT.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(126, 'QRPCDHIHKKKB', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRPCDHIHKKKB.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(127, 'QRPFN88LRK19', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRPFN88LRK19.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(128, 'QRWLBXTRIEH1', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRWLBXTRIEH1.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(129, 'QRIJ6BW7MHQ7', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRIJ6BW7MHQ7.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(130, 'QR9PLUEEZMJV', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QR9PLUEEZMJV.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(131, 'QRD78NHA0EIU', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRD78NHA0EIU.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(132, 'QRMPKMRTY0TL', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRMPKMRTY0TL.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:53:44', '2026-02-20 03:53:44'),
-(133, 'QR6GZ7P6XCXA', 6, NULL, 16, 'sold', 'qr_codes/combo-qr-tags/QR6GZ7P6XCXA.svg', '2026-02-15 23:09:07', NULL, '2026-02-12 05:47:54', '2026-02-15 23:09:07', NULL),
-(134, 'QRJYFCRWTK2V', 6, NULL, 16, 'sold', 'qr_codes/combo-qr-tags/QRJYFCRWTK2V.svg', '2026-02-15 23:09:07', NULL, '2026-02-12 05:47:54', '2026-02-15 23:09:07', NULL),
-(135, 'QRGIKFZSD4WQ', 6, NULL, 18, 'sold', 'qr_codes/combo-qr-tags/QRGIKFZSD4WQ.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:47:54', '2026-02-17 02:47:18', NULL),
-(136, 'QRYOZNOZ86Y7', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRYOZNOZ86Y7.svg', NULL, NULL, '2026-02-12 05:47:54', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(137, 'QRPWJ10ZRXRF', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRPWJ10ZRXRF.svg', NULL, NULL, '2026-02-12 05:47:54', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
-(138, 'QR7WZP5GKGX8', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QR7WZP5GKGX8.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(139, 'QRALNCNGVEX1', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRALNCNGVEX1.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(140, 'QRNDZGAI3AM2', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRNDZGAI3AM2.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(141, 'QRUEYIAVXBY0', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRUEYIAVXBY0.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(142, 'QRCABYJDWPRQ', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRCABYJDWPRQ.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(143, 'QR7XTEJYMGFS', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QR7XTEJYMGFS.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-12 06:24:21', '2026-02-12 06:24:21'),
-(144, 'QRQ0FFQNE9VS', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRQ0FFQNE9VS.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-12 06:28:01', '2026-02-12 06:28:01'),
-(145, 'QRBINEKFEJFI', 4, NULL, 18, 'sold', 'qr_codes/pet-qr-tag/QRBINEKFEJFI.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:48:04', '2026-02-17 02:47:18', NULL),
-(146, 'QRRRE201O9ZV', 4, NULL, 18, 'sold', 'qr_codes/pet-qr-tag/QRRRE201O9ZV.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:48:04', '2026-02-17 02:47:18', NULL),
-(147, 'QRCXOMRN5FG2', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRCXOMRN5FG2.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
-(148, 'QRI9MK9CGQXX', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRI9MK9CGQXX.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
-(149, 'QRHFRYMLBYXW', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRHFRYMLBYXW.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
-(150, 'QRWBETX6NI8Z', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRWBETX6NI8Z.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
-(151, 'QRKMJNZNTFNN', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRKMJNZNTFNN.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
-(152, 'QRS8IMINEP9O', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRS8IMINEP9O.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
-(153, 'QR6LWMFYLU6O', 1, NULL, 13, 'registered', 'qr_codes/car-qr-tag/QR6LWMFYLU6O.svg', '2026-02-13 05:52:58', '2026-02-16 03:26:25', '2026-02-12 08:07:14', '2026-02-16 03:26:25', NULL),
-(154, 'QRP8OFCOOB1Z', 1, NULL, 17, 'registered', 'qr_codes/car-qr-tag/QRP8OFCOOB1Z.svg', '2026-02-16 06:15:33', '2026-02-16 06:22:32', '2026-02-16 06:13:03', '2026-02-16 06:22:32', NULL),
-(155, 'QR3YSTTKN3FS', 1, NULL, 21, 'sold', 'qr_codes/car-qr-tag/QR3YSTTKN3FS.svg', '2026-02-19 08:15:09', NULL, '2026-02-19 03:45:48', '2026-02-19 08:15:09', NULL),
-(156, 'QRTHGVEYCF3T', 1, NULL, 24, 'sold', 'qr_codes/car-qr-tag/QRTHGVEYCF3T.svg', '2026-02-21 05:56:00', NULL, '2026-02-20 03:55:16', '2026-02-21 05:56:00', NULL),
-(157, 'QREFPEESIFMR', 1, 2, 26, 'sold', 'qr_codes/car-qr-tag/QREFPEESIFMR.svg', '2026-02-23 23:46:33', NULL, '2026-02-21 06:08:34', '2026-02-23 23:46:33', NULL),
-(158, 'QRERB5893KHR', 1, NULL, 28, 'sold', 'qr_codes/car-qr-tag/QRERB5893KHR.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:42', '2026-02-24 05:34:52', NULL),
-(159, 'QREKWXJPGJBU', 1, NULL, 28, 'sold', 'qr_codes/car-qr-tag/QREKWXJPGJBU.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:42', '2026-02-24 05:34:52', NULL),
-(160, 'QRCYU3IH4J9D', 1, NULL, 28, 'sold', 'qr_codes/car-qr-tag/QRCYU3IH4J9D.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:42', '2026-02-24 05:34:52', NULL),
-(161, 'QRLSK4AEPYRU', 1, 2, 29, 'sold', 'qr_codes/car-qr-tag/QRLSK4AEPYRU.svg', '2026-02-24 06:48:45', NULL, '2026-02-24 03:25:42', '2026-02-24 06:48:45', NULL),
-(162, 'QRG4J5BUGFDC', 1, 2, 29, 'sold', 'qr_codes/car-qr-tag/QRG4J5BUGFDC.svg', '2026-02-24 06:48:45', NULL, '2026-02-24 03:25:42', '2026-02-24 06:48:45', NULL),
-(163, 'QRAQR6L6GBVG', 2, NULL, 28, 'sold', 'qr_codes/bike-qr-tag/QRAQR6L6GBVG.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:59', '2026-02-24 05:34:52', NULL),
-(164, 'QRE5W5BBPECE', 2, NULL, 28, 'sold', 'qr_codes/bike-qr-tag/QRE5W5BBPECE.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:59', '2026-02-24 05:34:52', NULL),
-(165, 'QRLQV8RYNNIX', 2, NULL, NULL, 'available', 'qr_codes/bike-qr-tag/QRLQV8RYNNIX.svg', NULL, NULL, '2026-02-24 03:25:59', '2026-02-24 03:25:59', NULL),
-(166, 'QRDIYAEUZRTV', 2, NULL, NULL, 'available', 'qr_codes/bike-qr-tag/QRDIYAEUZRTV.svg', NULL, NULL, '2026-02-24 03:25:59', '2026-02-24 03:25:59', NULL),
-(167, 'QRHBUUKA4G61', 2, NULL, NULL, 'available', 'qr_codes/bike-qr-tag/QRHBUUKA4G61.svg', NULL, NULL, '2026-02-24 03:25:59', '2026-02-24 03:25:59', NULL),
-(168, 'QRADT62FLVMP', 3, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRADT62FLVMP.svg', NULL, NULL, '2026-02-24 03:26:09', '2026-02-24 03:26:09', NULL),
-(169, 'QRUAUG700CWV', 3, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRUAUG700CWV.svg', NULL, NULL, '2026-02-24 03:26:09', '2026-02-24 03:26:09', NULL),
-(170, 'QRGDDRE2VQPI', 3, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRGDDRE2VQPI.svg', NULL, NULL, '2026-02-24 03:26:09', '2026-02-24 03:26:09', NULL),
-(171, 'QREAIPD3CQKC', 3, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QREAIPD3CQKC.svg', NULL, NULL, '2026-02-24 03:26:10', '2026-02-24 03:26:10', NULL),
-(172, 'QRPFLCO5IZMR', 3, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRPFLCO5IZMR.svg', NULL, NULL, '2026-02-24 03:26:10', '2026-02-24 03:26:10', NULL),
-(173, 'QRMLMLQHZ8XI', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRMLMLQHZ8XI.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-24 03:26:18', NULL),
-(174, 'QRFEOBYRZFSK', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRFEOBYRZFSK.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-24 03:26:18', NULL),
-(175, 'QRR55ZATVLR2', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRR55ZATVLR2.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-24 03:26:18', NULL),
-(176, 'QRSFLQFKEXNB', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRSFLQFKEXNB.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-24 03:26:18', NULL),
-(177, 'QRNUBA2PQN3A', 4, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRNUBA2PQN3A.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-24 03:26:18', NULL),
-(178, 'QRAZFTOG1EIV', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRAZFTOG1EIV.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-24 03:26:29', NULL),
-(179, 'QRWHIVGCUMSW', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRWHIVGCUMSW.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-24 03:26:29', NULL),
-(180, 'QRVLESY0ECLB', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRVLESY0ECLB.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-24 03:26:29', NULL),
-(181, 'QRVETY2GYFLT', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRVETY2GYFLT.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-24 03:26:29', NULL),
-(182, 'QRM8LWKG69R4', 5, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRM8LWKG69R4.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-24 03:26:29', NULL),
-(183, 'QRBF84PQELL7', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRBF84PQELL7.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-24 03:26:38', NULL),
-(184, 'QR6PG3YCYOCV', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QR6PG3YCYOCV.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-24 03:26:38', NULL),
-(185, 'QRUJU6LQNQSU', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRUJU6LQNQSU.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-24 03:26:38', NULL),
-(186, 'QROO3CBOLUWS', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QROO3CBOLUWS.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-24 03:26:38', NULL),
-(187, 'QRNAXPNVYU6Y', 6, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRNAXPNVYU6Y.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-24 03:26:38', NULL),
-(188, 'QRMAZNC07UEG', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRMAZNC07UEG.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(189, 'QRXNDZWL9ELS', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRXNDZWL9ELS.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(190, 'QRNUOB0E8XHR', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRNUOB0E8XHR.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(191, 'QRRQJD9HMEOO', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRQJD9HMEOO.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(192, 'QRRETM4UY8G5', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRETM4UY8G5.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(193, 'QRZHUDACXZOQ', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRZHUDACXZOQ.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(194, 'QRX5WPZA0GYR', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRX5WPZA0GYR.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(195, 'QRSM9IEZ4L6B', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSM9IEZ4L6B.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(196, 'QRQQNMAPQXA5', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRQQNMAPQXA5.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL),
-(197, 'QRCHJ0FWS4XO', 1, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRCHJ0FWS4XO.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-26 05:01:20', NULL);
+INSERT INTO `qr_codes` (`id`, `qr_code`, `category_id`, `user_id`, `order_id`, `source`, `status`, `qr_image_path`, `assigned_at`, `registered_at`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(121, 'QRQ95U49CTMG', 1, NULL, 13, NULL, 'sold', 'qr_codes/car/QRQ95U49CTMG.svg', '2026-02-13 05:52:58', NULL, '2026-02-11 07:45:12', '2026-02-13 05:52:58', NULL),
+(122, 'QRLKCSQJ5F61', 2, NULL, 18, NULL, 'sold', 'qr_codes/bike/QRLKCSQJ5F61.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 03:30:19', '2026-02-17 02:47:18', NULL),
+(123, 'QRELCAINPQCT', 5, NULL, 18, NULL, 'active', 'qr_codes/children-qr-tag/QRELCAINPQCT.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:47:40', '2026-02-28 00:20:52', NULL),
+(124, 'QR647TEC0ZHQ', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QR647TEC0ZHQ.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(125, 'QR9CYZBBLGWT', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QR9CYZBBLGWT.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(126, 'QRPCDHIHKKKB', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRPCDHIHKKKB.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(127, 'QRPFN88LRK19', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRPFN88LRK19.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(128, 'QRWLBXTRIEH1', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRWLBXTRIEH1.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(129, 'QRIJ6BW7MHQ7', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRIJ6BW7MHQ7.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(130, 'QR9PLUEEZMJV', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QR9PLUEEZMJV.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(131, 'QRD78NHA0EIU', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRD78NHA0EIU.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(132, 'QRMPKMRTY0TL', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRMPKMRTY0TL.svg', NULL, NULL, '2026-02-12 05:47:40', '2026-02-20 03:53:44', '2026-02-20 03:53:44'),
+(133, 'QR6GZ7P6XCXA', 6, NULL, 16, NULL, 'sold', 'qr_codes/combo-qr-tags/QR6GZ7P6XCXA.svg', '2026-02-15 23:09:07', NULL, '2026-02-12 05:47:54', '2026-02-15 23:09:07', NULL),
+(134, 'QRJYFCRWTK2V', 6, NULL, 16, NULL, 'sold', 'qr_codes/combo-qr-tags/QRJYFCRWTK2V.svg', '2026-02-15 23:09:07', NULL, '2026-02-12 05:47:54', '2026-02-15 23:09:07', NULL),
+(135, 'QRGIKFZSD4WQ', 6, NULL, 18, NULL, 'sold', 'qr_codes/combo-qr-tags/QRGIKFZSD4WQ.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:47:54', '2026-02-17 02:47:18', NULL),
+(136, 'QRYOZNOZ86Y7', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRYOZNOZ86Y7.svg', NULL, NULL, '2026-02-12 05:47:54', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(137, 'QRPWJ10ZRXRF', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRPWJ10ZRXRF.svg', NULL, NULL, '2026-02-12 05:47:54', '2026-02-20 03:52:37', '2026-02-20 03:52:37'),
+(138, 'QR7WZP5GKGX8', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QR7WZP5GKGX8.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(139, 'QRALNCNGVEX1', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRALNCNGVEX1.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(140, 'QRNDZGAI3AM2', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRNDZGAI3AM2.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(141, 'QRUEYIAVXBY0', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRUEYIAVXBY0.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(142, 'QRCABYJDWPRQ', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRCABYJDWPRQ.svg', NULL, NULL, '2026-02-12 05:47:55', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(143, 'QR7XTEJYMGFS', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QR7XTEJYMGFS.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-12 06:24:21', '2026-02-12 06:24:21'),
+(144, 'QRQ0FFQNE9VS', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRQ0FFQNE9VS.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-12 06:28:01', '2026-02-12 06:28:01'),
+(145, 'QRBINEKFEJFI', 4, NULL, 18, NULL, 'sold', 'qr_codes/pet-qr-tag/QRBINEKFEJFI.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:48:04', '2026-02-17 02:47:18', NULL),
+(146, 'QRRRE201O9ZV', 4, NULL, 18, NULL, 'sold', 'qr_codes/pet-qr-tag/QRRRE201O9ZV.svg', '2026-02-17 02:47:18', NULL, '2026-02-12 05:48:04', '2026-02-17 02:47:18', NULL),
+(147, 'QRCXOMRN5FG2', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRCXOMRN5FG2.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
+(148, 'QRI9MK9CGQXX', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRI9MK9CGQXX.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
+(149, 'QRHFRYMLBYXW', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRHFRYMLBYXW.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
+(150, 'QRWBETX6NI8Z', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRWBETX6NI8Z.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
+(151, 'QRKMJNZNTFNN', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRKMJNZNTFNN.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:54:55', '2026-02-20 03:54:55'),
+(152, 'QRS8IMINEP9O', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRS8IMINEP9O.svg', NULL, NULL, '2026-02-12 05:48:04', '2026-02-20 03:53:27', '2026-02-20 03:53:27'),
+(153, 'QR6LWMFYLU6O', 1, NULL, 13, NULL, 'registered', 'qr_codes/car-qr-tag/QR6LWMFYLU6O.svg', '2026-02-13 05:52:58', '2026-02-16 03:26:25', '2026-02-12 08:07:14', '2026-02-16 03:26:25', NULL),
+(154, 'QRP8OFCOOB1Z', 1, NULL, 17, NULL, 'registered', 'qr_codes/car-qr-tag/QRP8OFCOOB1Z.svg', '2026-02-16 06:15:33', '2026-02-16 06:22:32', '2026-02-16 06:13:03', '2026-02-16 06:22:32', NULL),
+(155, 'QR3YSTTKN3FS', 1, NULL, 21, NULL, 'sold', 'qr_codes/car-qr-tag/QR3YSTTKN3FS.svg', '2026-02-19 08:15:09', NULL, '2026-02-19 03:45:48', '2026-02-19 08:15:09', NULL),
+(156, 'QRTHGVEYCF3T', 1, NULL, 24, NULL, 'sold', 'qr_codes/car-qr-tag/QRTHGVEYCF3T.svg', '2026-02-21 05:56:00', NULL, '2026-02-20 03:55:16', '2026-02-21 05:56:00', NULL),
+(157, 'QREFPEESIFMR', 1, 2, 26, NULL, 'sold', 'qr_codes/car-qr-tag/QREFPEESIFMR.svg', '2026-02-23 23:46:33', NULL, '2026-02-21 06:08:34', '2026-02-23 23:46:33', NULL),
+(158, 'QRERB5893KHR', 1, NULL, 28, NULL, 'sold', 'qr_codes/car-qr-tag/QRERB5893KHR.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:42', '2026-02-24 05:34:52', NULL),
+(159, 'QREKWXJPGJBU', 1, NULL, 28, NULL, 'sold', 'qr_codes/car-qr-tag/QREKWXJPGJBU.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:42', '2026-02-24 05:34:52', NULL),
+(160, 'QRCYU3IH4J9D', 1, NULL, 28, NULL, 'sold', 'qr_codes/car-qr-tag/QRCYU3IH4J9D.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:42', '2026-02-24 05:34:52', NULL),
+(161, 'QRLSK4AEPYRU', 1, 2, 29, NULL, 'sold', 'qr_codes/car-qr-tag/QRLSK4AEPYRU.svg', '2026-02-24 06:48:45', NULL, '2026-02-24 03:25:42', '2026-02-24 06:48:45', NULL),
+(162, 'QRG4J5BUGFDC', 1, 2, 29, NULL, 'sold', 'qr_codes/car-qr-tag/QRG4J5BUGFDC.svg', '2026-02-24 06:48:45', NULL, '2026-02-24 03:25:42', '2026-02-24 06:48:45', NULL),
+(163, 'QRAQR6L6GBVG', 2, NULL, 28, NULL, 'sold', 'qr_codes/bike-qr-tag/QRAQR6L6GBVG.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:59', '2026-02-24 05:34:52', NULL),
+(164, 'QRE5W5BBPECE', 2, NULL, 28, NULL, 'sold', 'qr_codes/bike-qr-tag/QRE5W5BBPECE.svg', '2026-02-24 05:34:52', NULL, '2026-02-24 03:25:59', '2026-02-24 05:34:52', NULL),
+(165, 'QRLQV8RYNNIX', 2, NULL, NULL, NULL, 'available', 'qr_codes/bike-qr-tag/QRLQV8RYNNIX.svg', NULL, NULL, '2026-02-24 03:25:59', '2026-02-28 02:36:30', '2026-02-28 02:36:30'),
+(166, 'QRDIYAEUZRTV', 2, NULL, NULL, NULL, 'available', 'qr_codes/bike-qr-tag/QRDIYAEUZRTV.svg', NULL, NULL, '2026-02-24 03:25:59', '2026-02-28 02:36:30', '2026-02-28 02:36:30'),
+(167, 'QRHBUUKA4G61', 2, NULL, NULL, NULL, 'available', 'qr_codes/bike-qr-tag/QRHBUUKA4G61.svg', NULL, NULL, '2026-02-24 03:25:59', '2026-02-28 02:36:44', '2026-02-28 02:36:44'),
+(168, 'QRADT62FLVMP', 3, NULL, 38, 'online_order', 'active', 'qr_codes/bag-qr-tag/QRADT62FLVMP.svg', '2026-02-27 05:50:14', NULL, '2026-02-24 03:26:09', '2026-02-28 00:30:16', NULL),
+(169, 'QRUAUG700CWV', 3, NULL, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRUAUG700CWV.svg', NULL, NULL, '2026-02-24 03:26:09', '2026-02-28 02:36:13', '2026-02-28 02:36:13'),
+(170, 'QRGDDRE2VQPI', 3, NULL, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRGDDRE2VQPI.svg', NULL, NULL, '2026-02-24 03:26:09', '2026-02-28 02:36:13', '2026-02-28 02:36:13'),
+(171, 'QREAIPD3CQKC', 3, NULL, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QREAIPD3CQKC.svg', NULL, NULL, '2026-02-24 03:26:10', '2026-02-28 02:36:13', '2026-02-28 02:36:13'),
+(172, 'QRPFLCO5IZMR', 3, NULL, NULL, NULL, 'available', 'qr_codes/bag-qr-tag/QRPFLCO5IZMR.svg', NULL, NULL, '2026-02-24 03:26:10', '2026-02-28 02:36:13', '2026-02-28 02:36:13'),
+(173, 'QRMLMLQHZ8XI', 4, 2, 31, 'online_order', 'sold', 'qr_codes/pet-qr-tag/QRMLMLQHZ8XI.svg', '2026-02-27 21:45:14', NULL, '2026-02-24 03:26:18', '2026-02-27 21:45:14', NULL),
+(174, 'QRFEOBYRZFSK', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRFEOBYRZFSK.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-28 02:36:03', '2026-02-28 02:36:03'),
+(175, 'QRR55ZATVLR2', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRR55ZATVLR2.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-28 02:36:03', '2026-02-28 02:36:03'),
+(176, 'QRSFLQFKEXNB', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRSFLQFKEXNB.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-28 02:36:03', '2026-02-28 02:36:03'),
+(177, 'QRNUBA2PQN3A', 4, NULL, NULL, NULL, 'available', 'qr_codes/pet-qr-tag/QRNUBA2PQN3A.svg', NULL, NULL, '2026-02-24 03:26:18', '2026-02-28 02:36:03', '2026-02-28 02:36:03'),
+(178, 'QRAZFTOG1EIV', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRAZFTOG1EIV.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-28 02:35:55', '2026-02-28 02:35:55'),
+(179, 'QRWHIVGCUMSW', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRWHIVGCUMSW.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-28 02:35:55', '2026-02-28 02:35:55'),
+(180, 'QRVLESY0ECLB', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRVLESY0ECLB.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-28 02:35:55', '2026-02-28 02:35:55'),
+(181, 'QRVETY2GYFLT', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRVETY2GYFLT.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-28 02:35:55', '2026-02-28 02:35:55'),
+(182, 'QRM8LWKG69R4', 5, NULL, NULL, NULL, 'available', 'qr_codes/children-qr-tag/QRM8LWKG69R4.svg', NULL, NULL, '2026-02-24 03:26:29', '2026-02-28 02:36:03', '2026-02-28 02:36:03'),
+(183, 'QRBF84PQELL7', 6, NULL, 36, 'online_order', 'registered', 'qr_codes/combo-qr-tags/QRBF84PQELL7.svg', '2026-02-27 07:29:30', NULL, '2026-02-24 03:26:38', '2026-02-28 04:16:47', NULL),
+(184, 'QR6PG3YCYOCV', 6, 3, 40, 'online_order', 'sold', 'qr_codes/combo-qr-tags/QR6PG3YCYOCV.svg', '2026-02-27 08:18:25', NULL, '2026-02-24 03:26:38', '2026-02-27 08:18:25', NULL),
+(185, 'QRUJU6LQNQSU', 6, 3, 40, 'online_order', 'sold', 'qr_codes/combo-qr-tags/QRUJU6LQNQSU.svg', '2026-02-27 08:18:25', NULL, '2026-02-24 03:26:38', '2026-02-27 08:18:25', NULL),
+(186, 'QROO3CBOLUWS', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QROO3CBOLUWS.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-28 02:35:55', '2026-02-28 02:35:55'),
+(187, 'QRNAXPNVYU6Y', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRNAXPNVYU6Y.svg', NULL, NULL, '2026-02-24 03:26:38', '2026-02-28 02:35:55', '2026-02-28 02:35:55'),
+(188, 'QRMAZNC07UEG', 1, NULL, 36, 'online_order', 'active', 'qr_codes/car-qr-tag/QRMAZNC07UEG.svg', '2026-02-27 07:29:30', NULL, '2026-02-26 05:01:20', '2026-02-28 00:11:37', NULL),
+(189, 'QRXNDZWL9ELS', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRXNDZWL9ELS.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(190, 'QRNUOB0E8XHR', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRNUOB0E8XHR.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(191, 'QRRQJD9HMEOO', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRQJD9HMEOO.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(192, 'QRRETM4UY8G5', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRETM4UY8G5.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(193, 'QRZHUDACXZOQ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRZHUDACXZOQ.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(194, 'QRX5WPZA0GYR', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRX5WPZA0GYR.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(195, 'QRSM9IEZ4L6B', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSM9IEZ4L6B.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(196, 'QRQQNMAPQXA5', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRQQNMAPQXA5.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(197, 'QRCHJ0FWS4XO', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRCHJ0FWS4XO.svg', NULL, NULL, '2026-02-26 05:01:20', '2026-02-28 02:35:49', '2026-02-28 02:35:49'),
+(198, 'QRCZB6H8XVOI', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRCZB6H8XVOI.svg', NULL, NULL, '2026-02-27 08:22:08', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(199, 'QRR0HTLUZVHK', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRR0HTLUZVHK.svg', NULL, NULL, '2026-02-27 08:22:23', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(200, 'QRY4G5OXMNQE', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRY4G5OXMNQE.svg', NULL, NULL, '2026-02-27 08:22:23', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(201, 'QRQQ7YLWG2AM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRQQ7YLWG2AM.svg', NULL, NULL, '2026-02-27 08:22:23', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(202, 'QRIS4JG09WYY', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRIS4JG09WYY.svg', NULL, NULL, '2026-02-27 08:22:23', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(203, 'QRBIEQBLIQD1', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRBIEQBLIQD1.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(204, 'QRSIBWKA9KRE', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSIBWKA9KRE.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(205, 'QR2B51INYY1E', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR2B51INYY1E.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(206, 'QRRVTAB79KVB', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRVTAB79KVB.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(207, 'QRMQET2F8CDE', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRMQET2F8CDE.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(208, 'QRR220IFF6TT', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRR220IFF6TT.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(209, 'QRTA4LCONS6T', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRTA4LCONS6T.svg', NULL, NULL, '2026-02-27 08:22:24', '2026-02-28 02:35:42', '2026-02-28 02:35:42'),
+(210, 'QRABSPQEZ8I6', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRABSPQEZ8I6.svg', NULL, NULL, '2026-02-27 08:22:25', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(211, 'QRYYDFXJA2EA', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRYYDFXJA2EA.svg', NULL, NULL, '2026-02-27 08:22:25', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(212, 'QRRUSJI9BDLM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRUSJI9BDLM.svg', NULL, NULL, '2026-02-27 08:22:25', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(213, 'QRKEOFE4I0AD', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRKEOFE4I0AD.svg', NULL, NULL, '2026-02-27 08:22:25', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(214, 'QRHBHCIWAE5T', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRHBHCIWAE5T.svg', NULL, NULL, '2026-02-27 08:22:26', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(215, 'QR6HNDEO3JSM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR6HNDEO3JSM.svg', NULL, NULL, '2026-02-27 08:22:26', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(216, 'QRMFJL03JLGR', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRMFJL03JLGR.svg', NULL, NULL, '2026-02-27 08:22:26', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(217, 'QRYGKPXZ9KZV', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRYGKPXZ9KZV.svg', NULL, NULL, '2026-02-27 08:22:26', '2026-02-28 02:35:36', '2026-02-28 02:35:36'),
+(218, 'QRVDRRR0AHDI', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVDRRR0AHDI.svg', NULL, NULL, '2026-02-27 08:22:27', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(219, 'QRMNBM1H8IC5', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRMNBM1H8IC5.svg', NULL, NULL, '2026-02-27 08:22:27', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(220, 'QRC3HEVKLBIS', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRC3HEVKLBIS.svg', NULL, NULL, '2026-02-27 08:22:28', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(221, 'QROUJX9JLNGW', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QROUJX9JLNGW.svg', NULL, NULL, '2026-02-27 08:22:28', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(222, 'QRAGPBBJ7CWM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRAGPBBJ7CWM.svg', NULL, NULL, '2026-02-27 08:22:28', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(223, 'QRIJW5CTCDDK', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRIJW5CTCDDK.svg', NULL, NULL, '2026-02-27 08:22:29', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(224, 'QRSIIGO9FYWS', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSIIGO9FYWS.svg', NULL, NULL, '2026-02-27 08:22:29', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(225, 'QR2PWZPQYIWM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR2PWZPQYIWM.svg', NULL, NULL, '2026-02-27 08:22:30', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(226, 'QRXRNXFNNSZS', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRXRNXFNNSZS.svg', NULL, NULL, '2026-02-27 08:22:30', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(227, 'QRHGU0Z7B6LM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRHGU0Z7B6LM.svg', NULL, NULL, '2026-02-27 08:22:31', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(228, 'QRWR450VP7DF', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRWR450VP7DF.svg', NULL, NULL, '2026-02-27 08:22:31', '2026-02-28 02:35:30', '2026-02-28 02:35:30'),
+(229, 'QRQTXS1C3XIH', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRQTXS1C3XIH.svg', NULL, NULL, '2026-02-27 08:22:32', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(230, 'QR1JLPXXUI2F', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR1JLPXXUI2F.svg', NULL, NULL, '2026-02-27 08:22:32', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(231, 'QRBJ9WCK9PSN', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRBJ9WCK9PSN.svg', NULL, NULL, '2026-02-27 08:22:33', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(232, 'QRZTOUDYYLMN', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRZTOUDYYLMN.svg', NULL, NULL, '2026-02-27 08:22:33', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(233, 'QROSFYWPYKVH', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QROSFYWPYKVH.svg', NULL, NULL, '2026-02-27 08:22:34', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(234, 'QRU0U22XKD29', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRU0U22XKD29.svg', NULL, NULL, '2026-02-27 08:22:34', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(235, 'QRRB7B5QEW1I', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRRB7B5QEW1I.svg', NULL, NULL, '2026-02-27 08:22:35', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(236, 'QRKS8ATYIV88', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRKS8ATYIV88.svg', NULL, NULL, '2026-02-27 08:22:36', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(237, 'QRQBSPHHUZF5', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRQBSPHHUZF5.svg', NULL, NULL, '2026-02-27 08:22:36', '2026-02-28 02:35:22', '2026-02-28 02:35:22'),
+(238, 'QRCOA1SCLST6', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRCOA1SCLST6.svg', NULL, NULL, '2026-02-27 08:22:37', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(239, 'QRVQY6KX6DKQ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVQY6KX6DKQ.svg', NULL, NULL, '2026-02-27 08:22:38', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(240, 'QRP0BZON7VUL', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRP0BZON7VUL.svg', NULL, NULL, '2026-02-27 08:22:38', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(241, 'QRARXUUSDPKB', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRARXUUSDPKB.svg', NULL, NULL, '2026-02-27 08:22:39', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(242, 'QRFYRLMZAAMV', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRFYRLMZAAMV.svg', NULL, NULL, '2026-02-27 08:22:40', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(243, 'QRKPLT3GMHOX', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRKPLT3GMHOX.svg', NULL, NULL, '2026-02-27 08:22:40', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(244, 'QRNYGOPWWI1A', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRNYGOPWWI1A.svg', NULL, NULL, '2026-02-27 08:22:41', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(245, 'QRVUEB6ERCP2', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVUEB6ERCP2.svg', NULL, NULL, '2026-02-27 08:22:42', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(246, 'QRB8LN4XZQU9', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRB8LN4XZQU9.svg', NULL, NULL, '2026-02-27 08:22:42', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(247, 'QRMS5KVETFJY', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRMS5KVETFJY.svg', NULL, NULL, '2026-02-27 08:22:43', '2026-02-28 02:35:15', '2026-02-28 02:35:15'),
+(248, 'QR6VEIHAPWRJ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR6VEIHAPWRJ.svg', NULL, NULL, '2026-02-27 08:22:44', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(249, 'QRM0QC3CSAIE', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRM0QC3CSAIE.svg', NULL, NULL, '2026-02-27 08:22:45', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(250, 'QRDZ0X6K5U61', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRDZ0X6K5U61.svg', NULL, NULL, '2026-02-27 08:22:45', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(251, 'QRTLK6KHBDMB', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRTLK6KHBDMB.svg', NULL, NULL, '2026-02-27 08:22:46', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(252, 'QR3NNTCCJWJB', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR3NNTCCJWJB.svg', NULL, NULL, '2026-02-27 08:22:47', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(253, 'QRVHACUM5189', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVHACUM5189.svg', NULL, NULL, '2026-02-27 08:22:48', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(254, 'QRO3QW4VAF04', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRO3QW4VAF04.svg', NULL, NULL, '2026-02-27 08:22:49', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(255, 'QRKQBGGPL2VD', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRKQBGGPL2VD.svg', NULL, NULL, '2026-02-27 08:22:50', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(256, 'QR4XAPGS2O0S', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR4XAPGS2O0S.svg', NULL, NULL, '2026-02-27 08:22:50', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(257, 'QRNV4IDURR5B', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRNV4IDURR5B.svg', NULL, NULL, '2026-02-27 08:22:51', '2026-02-28 02:35:09', '2026-02-28 02:35:09'),
+(258, 'QRYHUDSZSDSN', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRYHUDSZSDSN.svg', NULL, NULL, '2026-02-27 08:22:52', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(259, 'QRYPGUATAMLT', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRYPGUATAMLT.svg', NULL, NULL, '2026-02-27 08:22:53', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(260, 'QRMLXGMM4UDM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRMLXGMM4UDM.svg', NULL, NULL, '2026-02-27 08:22:54', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(261, 'QRPEPOQPDM0K', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRPEPOQPDM0K.svg', NULL, NULL, '2026-02-27 08:22:55', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(262, 'QRSUFC4PWFDI', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSUFC4PWFDI.svg', NULL, NULL, '2026-02-27 08:22:56', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(263, 'QRSMYK4WJ07B', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSMYK4WJ07B.svg', NULL, NULL, '2026-02-27 08:22:57', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(264, 'QRBJERB0UMTI', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRBJERB0UMTI.svg', NULL, NULL, '2026-02-27 08:22:58', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(265, 'QRX4MIQRM81U', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRX4MIQRM81U.svg', NULL, NULL, '2026-02-27 08:22:59', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(266, 'QRW09XFTAI7H', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRW09XFTAI7H.svg', NULL, NULL, '2026-02-27 08:23:00', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(267, 'QRI7WYP1WWGL', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRI7WYP1WWGL.svg', NULL, NULL, '2026-02-27 08:23:01', '2026-02-28 02:34:59', '2026-02-28 02:34:59'),
+(268, 'QR03GZWLIOI3', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR03GZWLIOI3.svg', NULL, NULL, '2026-02-27 08:23:02', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(269, 'QRKL4MP9JPLD', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRKL4MP9JPLD.svg', NULL, NULL, '2026-02-27 08:23:03', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(270, 'QRR1JFLEORTT', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRR1JFLEORTT.svg', NULL, NULL, '2026-02-27 08:23:31', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(271, 'QRXCPRZRLWGQ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRXCPRZRLWGQ.svg', NULL, NULL, '2026-02-27 08:23:31', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(272, 'QRZ9MMCT45LX', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRZ9MMCT45LX.svg', NULL, NULL, '2026-02-27 08:23:31', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(273, 'QRXUHIYNP7WU', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRXUHIYNP7WU.svg', NULL, NULL, '2026-02-27 08:23:31', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(274, 'QRLJETXLUDIG', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRLJETXLUDIG.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(275, 'QRVQWAGHQLAI', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVQWAGHQLAI.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(276, 'QRUAJDGFW1XE', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRUAJDGFW1XE.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(277, 'QR4EATAQIFC6', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR4EATAQIFC6.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(278, 'QRTX7AGI5KHM', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRTX7AGI5KHM.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(279, 'QRLMHJDBNB0I', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRLMHJDBNB0I.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(280, 'QRBXKQDDHUY2', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRBXKQDDHUY2.svg', NULL, NULL, '2026-02-27 08:23:32', '2026-02-28 02:34:52', '2026-02-28 02:34:52'),
+(281, 'QRXTGUDO1LMD', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRXTGUDO1LMD.svg', NULL, NULL, '2026-02-27 08:23:33', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(282, 'QRFTIVQSA8LY', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRFTIVQSA8LY.svg', NULL, NULL, '2026-02-27 08:23:33', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(283, 'QR9RDQVTJNOS', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR9RDQVTJNOS.svg', NULL, NULL, '2026-02-27 08:23:33', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(284, 'QRPOFLIBJBVG', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRPOFLIBJBVG.svg', NULL, NULL, '2026-02-27 08:23:33', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(285, 'QRTZZMDSGYBA', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRTZZMDSGYBA.svg', NULL, NULL, '2026-02-27 08:23:34', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(286, 'QRUGLEGMNG0S', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRUGLEGMNG0S.svg', NULL, NULL, '2026-02-27 08:23:34', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(287, 'QRG9U2WYUB06', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRG9U2WYUB06.svg', NULL, NULL, '2026-02-27 08:23:34', '2026-02-28 02:34:43', '2026-02-28 02:34:43'),
+(288, 'QRBROFHPHJZJ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRBROFHPHJZJ.svg', NULL, NULL, '2026-02-27 08:23:35', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(289, 'QRWJPIHNFMHD', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRWJPIHNFMHD.svg', NULL, NULL, '2026-02-27 08:23:35', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(290, 'QR1XKREJ0E01', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR1XKREJ0E01.svg', NULL, NULL, '2026-02-28 00:49:45', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(291, 'QRENXJSB1RKN', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRENXJSB1RKN.svg', NULL, NULL, '2026-02-28 00:49:45', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(292, 'QRPQCDE0L6QR', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRPQCDE0L6QR.svg', NULL, NULL, '2026-02-28 00:49:45', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(293, 'QRQNVTINQSHQ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRQNVTINQSHQ.svg', NULL, NULL, '2026-02-28 00:49:45', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(294, 'QRZHFLJADE5A', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRZHFLJADE5A.svg', NULL, NULL, '2026-02-28 00:49:45', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(295, 'QRH8DL30LUWF', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRH8DL30LUWF.svg', NULL, NULL, '2026-02-28 00:49:45', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(296, 'QRPK5O8FUZ8Q', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRPK5O8FUZ8Q.svg', NULL, NULL, '2026-02-28 00:49:46', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(297, 'QRD8AGHTR01X', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRD8AGHTR01X.svg', NULL, NULL, '2026-02-28 00:49:46', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(298, 'QRTKCF3P44VX', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRTKCF3P44VX.svg', NULL, NULL, '2026-02-28 00:49:46', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(299, 'QRVLRG4T191O', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVLRG4T191O.svg', NULL, NULL, '2026-02-28 00:49:46', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(300, 'QRTTSWSYTUHY', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRTTSWSYTUHY.svg', NULL, NULL, '2026-02-28 02:30:38', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(301, 'QRWTPVOZ2WTH', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRWTPVOZ2WTH.svg', NULL, NULL, '2026-02-28 02:32:39', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(302, 'QRKFMHSBXYAL', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRKFMHSBXYAL.svg', NULL, NULL, '2026-02-28 02:32:39', '2026-02-28 02:34:36', '2026-02-28 02:34:36'),
+(303, 'QRBOMJYAT23G', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRBOMJYAT23G.svg', NULL, NULL, '2026-02-28 02:32:39', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(304, 'QRCSPIZ0U1OQ', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRCSPIZ0U1OQ.svg', NULL, NULL, '2026-02-28 02:32:39', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(305, 'QRXYM6Y2SJU2', 6, NULL, NULL, NULL, 'available', 'qr_codes/combo-qr-tags/QRXYM6Y2SJU2.svg', NULL, NULL, '2026-02-28 02:32:39', '2026-02-28 02:33:24', '2026-02-28 02:33:24'),
+(306, 'QR6QUZQF2SUW', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QR6QUZQF2SUW.svg', NULL, NULL, '2026-02-28 02:37:21', '2026-02-28 02:46:48', '2026-02-28 02:46:48'),
+(307, 'QROETOSLZAYV', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QROETOSLZAYV.svg', NULL, NULL, '2026-02-28 02:37:21', '2026-02-28 02:46:48', '2026-02-28 02:46:48'),
+(308, 'QRYT7TEGZANP', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRYT7TEGZANP.svg', NULL, NULL, '2026-02-28 02:37:21', '2026-02-28 02:46:48', '2026-02-28 02:46:48'),
+(309, 'QREDGWLDVVWR', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QREDGWLDVVWR.svg', NULL, NULL, '2026-02-28 02:37:21', '2026-02-28 02:46:48', '2026-02-28 02:46:48'),
+(310, 'QRHQWMCNM50B', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRHQWMCNM50B.svg', NULL, NULL, '2026-02-28 02:37:21', '2026-02-28 02:46:48', '2026-02-28 02:46:48'),
+(311, 'QRKGY0CJ3QH2', 1, 3, 41, 'online_order', 'registered', 'qr_codes/car-qr-tag/QRKGY0CJ3QH2.svg', '2026-02-28 02:52:09', NULL, '2026-02-28 02:47:21', '2026-02-28 02:53:55', NULL),
+(312, 'QRVA8J5T1KZF', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRVA8J5T1KZF.svg', NULL, NULL, '2026-02-28 02:47:21', '2026-02-28 02:47:21', NULL),
+(313, 'QRHK3MVLOLVJ', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRHK3MVLOLVJ.svg', NULL, NULL, '2026-02-28 02:47:21', '2026-02-28 02:47:21', NULL),
+(314, 'QRSJVDBZ7YDE', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRSJVDBZ7YDE.svg', NULL, NULL, '2026-02-28 02:47:21', '2026-02-28 02:47:21', NULL),
+(315, 'QRCMMBFGHBO5', 1, NULL, NULL, NULL, 'available', 'qr_codes/car-qr-tag/QRCMMBFGHBO5.svg', NULL, NULL, '2026-02-28 02:47:21', '2026-02-28 02:47:21', NULL);
 
 -- --------------------------------------------------------
 
@@ -546,6 +696,9 @@ CREATE TABLE `qr_registrations` (
   `friend_family_2` varchar(255) DEFAULT NULL,
   `full_address` text DEFAULT NULL,
   `selected_tags` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`selected_tags`)),
+  `category_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`category_data`)),
+  `emergency_note` text DEFAULT NULL,
+  `photo_path` varchar(255) DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -556,9 +709,17 @@ CREATE TABLE `qr_registrations` (
 -- Dumping data for table `qr_registrations`
 --
 
-INSERT INTO `qr_registrations` (`id`, `qr_code_id`, `user_id`, `full_name`, `mobile_number`, `friend_family_1`, `friend_family_2`, `full_address`, `selected_tags`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 153, NULL, 'Sachin Verma', '7080032118', '7800060691', '7800060691', 'pratapgarh', '[\"car\"]', 1, '2026-02-16 03:26:25', '2026-02-16 03:26:25', NULL),
-(2, 154, NULL, 'Raj Kumar', '7800606501', '7800606501', '7800606503', 'uttar pradesh', '[\"car\"]', 1, '2026-02-16 06:22:32', '2026-02-19 03:26:03', NULL);
+INSERT INTO `qr_registrations` (`id`, `qr_code_id`, `user_id`, `full_name`, `mobile_number`, `friend_family_1`, `friend_family_2`, `full_address`, `selected_tags`, `category_data`, `emergency_note`, `photo_path`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 153, NULL, 'Sachin Verma', '7080032118', '7800060691', '7800060691', 'pratapgarh', '[\"car\"]', NULL, NULL, NULL, 1, '2026-02-16 03:26:25', '2026-02-16 03:26:25', NULL),
+(2, 154, NULL, 'Raj Kumar', '7800606501', '7800606501', '7800606503', 'uttar pradesh', '[\"car\"]', NULL, NULL, NULL, 1, '2026-02-16 06:22:32', '2026-02-19 03:26:03', NULL),
+(3, 188, NULL, 'Sachin Verma Verma', '7080032118', '1234568709', '1234568709', NULL, NULL, '{\"make\":\"Hero\",\"model\":\"2019\",\"vehicle_no\":\"up72 Aw9771\"}', 'nothing', NULL, 1, '2026-02-28 00:11:37', '2026-02-28 00:11:37', NULL),
+(4, 123, NULL, 'Sachin Verma Verma', '7080032118', '1234568709', '1234568709', NULL, NULL, '{\"child_name\":\"ram\",\"child_age\":\"10\"}', 'nothing', NULL, 1, '2026-02-28 00:20:52', '2026-02-28 00:20:52', NULL),
+(5, 123, NULL, 'Sachin Verma Verma', '7080032118', '1234568709', '1234568709', 'address', NULL, '{\"child_name\":\"ram\",\"child_age\":\"10\"}', 'nothing', NULL, 1, '2026-02-28 00:26:18', '2026-02-28 00:26:18', NULL),
+(6, 168, NULL, 'Sachin Verma Verma', '7080032118', '1234568709', '1234568709', 'pratapgarh', NULL, '[]', 'only test', NULL, 1, '2026-02-28 00:30:16', '2026-02-28 00:30:16', NULL),
+(9, 168, NULL, 'Sachin Verma Verma', '7080032118', '1234568709', '1234568709', 'pratapgarh', NULL, '[]', 'only test', NULL, 1, '2026-02-28 00:40:53', '2026-02-28 00:40:53', NULL),
+(10, 311, 3, 'Sachin Verma', '7080032118', '1234568709', '1234568709', 'hii', NULL, '{\"make\":\"Hero\",\"model\":\"2019\",\"vehicle_no\":\"up72 Aw9771\"}', 'tesdtdfgfd', NULL, 1, '2026-02-28 02:53:55', '2026-02-28 02:53:55', NULL),
+(11, 183, NULL, 'Ram', '7080032118', '1234568709', '1234568709', 'Address', NULL, '[]', 'Emergency Note', NULL, 1, '2026-02-28 04:16:47', '2026-02-28 04:16:47', NULL),
+(12, 183, NULL, 'Ram', '7080032118', '1234568709', '1234568709', 'Address', NULL, '[]', 'Emergency Note', NULL, 1, '2026-02-28 04:17:49', '2026-02-28 04:18:03', '2026-02-28 04:18:03');
 
 -- --------------------------------------------------------
 
@@ -604,7 +765,52 @@ INSERT INTO `qr_scans` (`id`, `qr_code_id`, `scanner_ip`, `scanner_user_agent`, 
 (20, 153, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', NULL, 'view', '2026-02-16 23:21:20', '2026-02-16 23:21:20'),
 (21, 153, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', NULL, 'whatsapp', '2026-02-16 23:27:15', '2026-02-16 23:27:15'),
 (22, 153, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', NULL, 'whatsapp', '2026-02-16 23:27:45', '2026-02-16 23:27:45'),
-(23, 153, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', NULL, 'view', '2026-02-17 02:13:44', '2026-02-17 02:13:44');
+(23, 153, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', NULL, 'view', '2026-02-17 02:13:44', '2026-02-17 02:13:44'),
+(24, 188, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-27 23:18:17', '2026-02-27 23:18:17'),
+(25, 188, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-27 23:22:44', '2026-02-27 23:22:44'),
+(26, 188, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-27 23:30:49', '2026-02-27 23:30:49'),
+(27, 188, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-27 23:34:57', '2026-02-27 23:34:57'),
+(28, 188, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 00:13:33', '2026-02-28 00:13:33'),
+(29, 188, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'whatsapp', '2026-02-28 00:13:46', '2026-02-28 00:13:46'),
+(30, 168, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 00:15:57', '2026-02-28 00:15:57'),
+(31, 123, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 00:19:45', '2026-02-28 00:19:45'),
+(32, 123, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 00:28:27', '2026-02-28 00:28:27'),
+(33, 123, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 00:28:52', '2026-02-28 00:28:52'),
+(34, 168, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 00:29:40', '2026-02-28 00:29:40'),
+(35, 123, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 01:30:33', '2026-02-28 01:30:33'),
+(36, 123, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 01:45:12', '2026-02-28 01:45:12'),
+(37, 168, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 01:45:18', '2026-02-28 01:45:18'),
+(38, 168, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 01:45:56', '2026-02-28 01:45:56'),
+(39, 158, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 01:51:30', '2026-02-28 01:51:30'),
+(40, 311, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 02:52:58', '2026-02-28 02:52:58'),
+(41, 311, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 02:54:39', '2026-02-28 02:54:39'),
+(42, 311, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 02:54:56', '2026-02-28 02:54:56'),
+(43, 311, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 02:55:07', '2026-02-28 02:55:07'),
+(44, 311, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 03:02:19', '2026-02-28 03:02:19'),
+(45, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:02:33', '2026-02-28 03:02:33'),
+(46, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:39:50', '2026-02-28 03:39:50'),
+(47, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:39:53', '2026-02-28 03:39:53'),
+(48, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:42:50', '2026-02-28 03:42:50'),
+(49, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:42:53', '2026-02-28 03:42:53'),
+(50, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:43:10', '2026-02-28 03:43:10'),
+(51, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:43:13', '2026-02-28 03:43:13'),
+(52, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 03:44:40', '2026-02-28 03:44:40'),
+(53, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:54:18', '2026-02-28 03:54:18'),
+(54, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:54:21', '2026-02-28 03:54:21'),
+(55, 311, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'whatsapp', '2026-02-28 03:54:33', '2026-02-28 03:54:33'),
+(56, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:55:13', '2026-02-28 03:55:13'),
+(57, 311, '127.0.0.1', 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/17.5 Mobile/15A5370a Safari/602.1', NULL, 'view', '2026-02-28 03:55:15', '2026-02-28 03:55:15'),
+(58, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 03:56:38', '2026-02-28 03:56:38'),
+(59, 183, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 03:57:40', '2026-02-28 03:57:40'),
+(60, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 03:58:23', '2026-02-28 03:58:23'),
+(61, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:01:51', '2026-02-28 04:01:51'),
+(62, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:01:52', '2026-02-28 04:01:52'),
+(63, 183, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:14:06', '2026-02-28 04:14:06'),
+(64, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:14:15', '2026-02-28 04:14:15'),
+(65, 183, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:15:36', '2026-02-28 04:15:36'),
+(66, 183, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:17:28', '2026-02-28 04:17:28'),
+(67, 183, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:39:01', '2026-02-28 04:39:01'),
+(68, 312, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', NULL, 'view', '2026-02-28 04:39:10', '2026-02-28 04:39:10');
 
 -- --------------------------------------------------------
 
@@ -662,6 +868,7 @@ CREATE TABLE `users` (
   `google_id` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
   `is_admin` tinyint(1) NOT NULL DEFAULT 0,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
@@ -674,9 +881,10 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `google_id`, `phone`, `is_admin`, `email_verified_at`, `password`, `avatar`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Super Admin', 'admin@example.com', NULL, '7800060691', 1, NULL, '$2y$12$asOU0LcHSCV3lXrNi69XPOzKDrfEJxYanQWEwqPqX7PM3HExriur2', NULL, NULL, '2026-02-11 02:47:46', '2026-02-11 02:47:46'),
-(2, 'Sachin Verma Verma', 'digiempsachin@gmail.com', NULL, '7080032118', 0, NULL, '$2y$12$imM7YsVtYDHyeO931N6OHOigVfhqYYQjdZZJ8yqx6D62mCzpXUbTO', NULL, 'p8C5GzYD43MLypnCEylerSPG64Cc3osjYRymZlDUtOI1JiMfPmYmWXz4AU6I', '2026-02-23 08:10:06', '2026-02-25 00:36:50');
+INSERT INTO `users` (`id`, `name`, `email`, `google_id`, `phone`, `is_admin`, `is_active`, `email_verified_at`, `password`, `avatar`, `remember_token`, `created_at`, `updated_at`) VALUES
+(1, 'Super Admin', 'admin@example.com', NULL, '7800060691', 1, 1, NULL, '$2y$12$asOU0LcHSCV3lXrNi69XPOzKDrfEJxYanQWEwqPqX7PM3HExriur2', NULL, NULL, '2026-02-11 02:47:46', '2026-02-11 02:47:46'),
+(2, 'Sachin Verma Verma', 'digiempsachin@gmail.com', NULL, '7080032118', 0, 1, NULL, '$2y$12$imM7YsVtYDHyeO931N6OHOigVfhqYYQjdZZJ8yqx6D62mCzpXUbTO', NULL, 'WYB1TZ2AkbcBDkCtnch01QE8sjtUNgFQ3SZkConlpVxSxoBJ0X7DIqBxDTrV', '2026-02-23 08:10:06', '2026-02-25 00:36:50'),
+(3, 'name', 'sachinve4@gmail.com', NULL, '7080032118', 0, 1, NULL, '$2y$12$1DUZS2IMChg6i84HY7i8oOr8Ck0Q61wKNOPAmTovZGrdotTY1pEUq', NULL, NULL, '2026-02-27 08:10:20', '2026-02-28 00:45:40');
 
 --
 -- Indexes for dumped tables
@@ -802,7 +1010,8 @@ ALTER TABLE `qr_codes`
   ADD KEY `qr_codes_category_id_foreign` (`category_id`),
   ADD KEY `qr_codes_user_id_foreign` (`user_id`),
   ADD KEY `qr_codes_status_category_id_index` (`status`,`category_id`),
-  ADD KEY `qr_codes_qr_code_index` (`qr_code`);
+  ADD KEY `qr_codes_qr_code_index` (`qr_code`),
+  ADD KEY `qr_codes_source_index` (`source`);
 
 --
 -- Indexes for table `qr_registrations`
@@ -886,19 +1095,19 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -922,19 +1131,19 @@ ALTER TABLE `privacy_policies`
 -- AUTO_INCREMENT for table `qr_codes`
 --
 ALTER TABLE `qr_codes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=198;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=316;
 
 --
 -- AUTO_INCREMENT for table `qr_registrations`
 --
 ALTER TABLE `qr_registrations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `qr_scans`
 --
 ALTER TABLE `qr_scans`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
 
 --
 -- AUTO_INCREMENT for table `sliders`
@@ -946,7 +1155,7 @@ ALTER TABLE `sliders`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
