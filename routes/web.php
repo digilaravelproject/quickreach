@@ -21,6 +21,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\QrScanController;
 use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\TwilioWebhookController;
+use App\Http\Controllers\CallController;
+
 use chillerlan\QRCode\QRCode;
 
 /*
@@ -31,6 +33,11 @@ use chillerlan\QRCode\QRCode;
 
 Route::get('auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+
+
+Route::post('/initiate-call', [CallController::class, 'initiateCall']);
+Route::post('/call-routing',  [CallController::class, 'callRouting']);
+Route::post('/call/owner/{qrId}', [CallController::class, 'callOwner'])->name('call.owner');
 
 Route::get('/', function () {
     return redirect()->route('user.products');

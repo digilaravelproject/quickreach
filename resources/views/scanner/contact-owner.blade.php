@@ -5,20 +5,19 @@
         class="min-h-[calc(100vh-64px)] bg-[#F5F3FA] flex flex-col items-center px-4 py-6 font-sans pb-12">
         <div class="max-w-md w-full">
 
-
-
             <div class="space-y-4">
+
                 {{-- 1. Call Owner Button (Dark Purple) --}}
-                <a href="tel:{{ $ownerDetails->mobile_number }}"
+                <button @click="openCallModal('{{ $ownerDetails->mobile_number }}', 'Owner')"
                     class="w-full bg-[#4B3D76] hover:bg-[#3c315e] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                     <svg class="w-5 h-5 text-[#86D657]" fill="currentColor" viewBox="0 0 20 20">
                         <path
                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                     </svg>
                     Call Owner
-                </a>
+                </button>
 
-                {{-- 2. WhatsApp Button (Included for safety, styled matching) --}}
+                {{-- 2. WhatsApp Button --}}
                 <a href="{{ route('qr.whatsapp', $qrCode->id) }}" target="_blank"
                     class="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-green-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -58,7 +57,7 @@
                             Emergency Services</p>
                     </div>
 
-                    {{-- SOS Links --}}
+                    {{-- SOS Links (Direct tel: - ye government numbers hain, Bonvoice ki zaroorat nahi) --}}
                     <div class="space-y-3">
                         <a href="tel:100"
                             class="flex items-center justify-between w-full bg-[#4B3D76] text-white py-3.5 px-5 rounded-2xl font-black text-sm shadow-md transition-all active:scale-[0.98]">
@@ -136,12 +135,74 @@
             </div>
         </div>
 
-        {{-- Personal Emergency Modal (Redesigned for new theme) --}}
+        {{-- =============================================
+             CALL MODAL - Caller ka number maango
+             (Call Owner + Emergency dono iske liye)
+             ============================================= --}}
+        <div x-show="showCallModal" x-transition.opacity
+            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
+            style="display: none;">
+            <div @click.away="closeCallModal()"
+                class="bg-white rounded-[2.5rem] p-6 max-w-xs w-full shadow-2xl border border-[#F5F3FA]">
+
+                {{-- Modal Header --}}
+                <div class="text-center mb-5">
+                    <div
+                        class="inline-flex items-center justify-center w-12 h-12 bg-[#EBE5F7] rounded-2xl mb-3 shadow-inner">
+                        <svg class="w-6 h-6 text-[#4B3D76]" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-black text-gray-900">Connect Call</h3>
+                    <p class="text-[11px] text-gray-500 font-semibold mt-1">
+                        Calling: <span class="text-[#4B3D76]" x-text="callTargetName"></span>
+                    </p>
+                </div>
+
+                {{-- Caller Number Input --}}
+                <div class="mb-4">
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1 block">
+                        Your Mobile Number
+                    </label>
+                    <input x-model="callerNumber" type="tel" maxlength="10" placeholder="Enter your 10-digit number"
+                        class="w-full border-2 border-[#EBE5F7] focus:border-[#4B3D76] rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none transition-all">
+                    <p x-show="callError" x-text="callError" class="text-[10px] text-red-500 font-bold mt-1"></p>
+                </div>
+
+                {{-- Connect Button --}}
+                <button @click="confirmCall()" :disabled="calling"
+                    class="w-full py-3.5 bg-[#4B3D76] text-white rounded-xl font-black text-sm hover:bg-[#3c315e] transition-all active:scale-95 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                    <svg x-show="!calling" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                    {{-- Spinner --}}
+                    <svg x-show="calling" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                    <span x-text="calling ? 'Connecting...' : 'Connect Call'"></span>
+                </button>
+
+                {{-- Cancel --}}
+                <button @click="closeCallModal()"
+                    class="w-full py-3 mt-2 bg-gray-100 text-gray-500 rounded-xl font-black text-xs hover:bg-gray-200 transition-all">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+        {{-- =============================================
+             EMERGENCY CONTACTS MODAL
+             ============================================= --}}
         <div x-show="showEmergency" x-transition.opacity
             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
             style="display: none;">
             <div @click.away="showEmergency = false"
                 class="bg-white rounded-[2.5rem] p-6 max-w-xs w-full shadow-2xl border border-[#F5F3FA]">
+
                 <div class="text-center mb-4">
                     <div class="inline-flex items-center justify-center w-12 h-12 bg-red-50 rounded-2xl mb-2 shadow-inner">
                         <svg class="w-6 h-6 text-[#F05252]" fill="currentColor" viewBox="0 0 20 20">
@@ -156,19 +217,24 @@
                 <div class="space-y-2 mb-6">
                     @if (!empty($ownerDetails->emergency_contacts))
                         @foreach ($ownerDetails->emergency_contacts as $contact)
-                            <a href="tel:{{ $contact['number'] }}"
-                                class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#4B3D76]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">
-                                <div>
+                            {{-- Har contact pe click se Call Modal khulega --}}
+                            <button
+                                @click="
+                                    showEmergency = false;
+                                    openCallModal('{{ $contact['number'] }}', '{{ $contact['name'] }}')
+                                "
+                                class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#F05252]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">
+                                <div class="text-left">
                                     <p class="font-black text-gray-800 text-xs tracking-tight">{{ $contact['name'] }}</p>
                                     <p class="text-[10px] font-bold text-[#4B3D76]">{{ $contact['number'] }}</p>
                                 </div>
                                 <div class="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm">
-                                    <svg class="w-3 h-3 text-[#4B3D76]" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-3 h-3 text-[#F05252]" fill="currentColor" viewBox="0 0 20 20">
                                         <path
                                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                     </svg>
                                 </div>
-                            </a>
+                            </button>
                         @endforeach
                     @else
                         <div class="text-center py-4 bg-gray-50 rounded-2xl">
@@ -183,13 +249,87 @@
                 </button>
             </div>
         </div>
+
     </div>
 
     <script>
         function contactOwner() {
             return {
-                lang: 'en',
-                showEmergency: false
+                // Emergency modal
+                showEmergency: false,
+
+                // Call modal
+                showCallModal: false,
+                callTargetNumber: '', // Jise call karni hai (owner ya emergency contact)
+                callTargetName: '', // Display name
+                callerNumber: '', // Jo call kar raha hai (user ka number)
+                calling: false,
+                callError: '',
+
+                // Call modal open karo
+                openCallModal(targetNumber, targetName) {
+                    this.callTargetNumber = targetNumber;
+                    this.callTargetName = targetName;
+                    this.callerNumber = '';
+                    this.callError = '';
+                    this.calling = false;
+                    this.showCallModal = true;
+                },
+
+                // Call modal close karo
+                closeCallModal() {
+                    this.showCallModal = false;
+                    this.callTargetNumber = '';
+                    this.callTargetName = '';
+                    this.callerNumber = '';
+                    this.callError = '';
+                    this.calling = false;
+                },
+
+                // Call confirm karo aur API hit karo
+                confirmCall() {
+                    this.callError = '';
+
+                    // Validation
+                    const num = this.callerNumber.trim();
+                    if (!num || num.length < 10) {
+                        this.callError = 'Please enter a valid 10-digit mobile number';
+                        return;
+                    }
+
+                    this.calling = true;
+
+                    fetch('{{ route('call.owner', $qrCode->id) }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                caller_number: num,
+                                agent_number: this.callTargetNumber
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            this.calling = false;
+                            if (data.success) {
+                                this.closeCallModal();
+                                // Success toast / alert
+                                alert('✅ Call connecting to ' + this.callTargetName + '! Please wait...');
+                            } else {
+                                // Bonvoice fail hua toh direct call fallback
+                                this.closeCallModal();
+                                window.location.href = 'tel:' + this.callTargetNumber;
+                            }
+                        })
+                        .catch(() => {
+                            this.calling = false;
+                            // Network error fallback - direct call
+                            this.closeCallModal();
+                            window.location.href = 'tel:' + this.callTargetNumber;
+                        });
+                }
             }
         }
     </script>
