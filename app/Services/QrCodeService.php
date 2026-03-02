@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Models\QrCode as QrCodeModel;
+use App\Models\QrBatch;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use chillerlan\QRCode\QRCode;
@@ -15,16 +16,24 @@ use chillerlan\QRCode\Output\QROutputInterface;
 class QrCodeService
 {
     /**
-     * Generate bulk QR codes
+     * Generate bulk QR codes with Batch tracking
      */
     public function generateBulkQrCodes(int $categoryId, int $quantity): array
     {
         $category = Category::findOrFail($categoryId);
+
+        // 1. Create a new Batch record
+        $batch = QrBatch::create([
+            'batch_code' => QrBatch::generateBatchCode($category->name, $quantity),
+            'category_id' => $category->id,
+            'quantity' => $quantity
+        ]);
+
         $qrCodes = [];
 
         for ($i = 0; $i < $quantity; $i++) {
-            // ✅ FIX: Generator har iteration mein fresh banao - shared instance state cache karta hai
-            $qrCodes[] = $this->generateSingleQrCode($category);
+            // ✅ Pass the batch ID to the single generator
+            $qrCodes[] = $this->generateSingleQrCode($category, $batch->id);
         }
 
         return $qrCodes;
@@ -33,9 +42,9 @@ class QrCodeService
     /**
      * Generate single QR code
      */
-    public function generateSingleQrCode(Category $category, $generator = null): QrCodeModel
+    public function generateSingleQrCode(Category $category, $batchId = null): QrCodeModel
     {
-        // ✅ FIX: Har call pe fresh options aur fresh generator instance
+        // ✅ Har call pe fresh options aur fresh generator instance
         $options = new QROptions([
             'version'              => Version::AUTO,
             'outputType'           => QROutputInterface::MARKUP_SVG,
@@ -47,10 +56,9 @@ class QrCodeService
             'connectPaths'         => true,
         ]);
 
-        // ✅ FIX: Passed generator ignore karo, har baar naya banao
         $freshGenerator = new QRCode($options);
 
-        // ✅ FIX: Unique code DB check ke saath
+        // ✅ Unique code DB check ke saath
         do {
             $uniqueCode = 'QR' . strtoupper(Str::random(10));
         } while (QrCodeModel::where('qr_code', $uniqueCode)->exists());
@@ -59,7 +67,7 @@ class QrCodeService
 
         if (ob_get_length()) ob_clean();
 
-        // ✅ FIX: Fresh generator pe render karo
+        // ✅ Fresh generator pe render karo
         $qrSvgData = (string)$freshGenerator->render($scanUrl);
 
         $folderName = $category->slug ?? $category->id;
@@ -70,6 +78,7 @@ class QrCodeService
         return QrCodeModel::create([
             'qr_code'       => $uniqueCode,
             'category_id'   => $category->id,
+            'qr_batch_id'   => $batchId, // ✅ Assigned to the new batch
             'status'        => 'available',
             'qr_image_path' => $filename,
         ]);

@@ -7,7 +7,7 @@
             <div class="card"
                 style="margin: 0 0 15px 0; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-radius: var(--radius); border: 1px solid var(--border);">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <a href="{{ route('admin.qr-codes.index') }}" class="btn-outline"
+                    <a href="{{ route('admin.qr-batches.index') }}" class="btn-outline"
                         style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:14px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"

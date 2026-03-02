@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\QrCodeController as AdminQrCodeController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\QrBatchController as AdminQrBatchController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QrRegistrationController;
 use App\Http\Controllers\Admin\SliderController;
@@ -242,11 +243,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
 
     // QR Inventory
-    Route::resource('qr-codes', AdminQrCodeController::class);
-    Route::post('qr-codes/bulk-delete', [AdminQrCodeController::class, 'bulkDestroy'])->name('qr-codes.bulk-destroy');
-    Route::post('qr-codes/{qrCode}/update-status', [AdminQrCodeController::class, 'updateStatus'])->name('qr-codes.update-status');
-    Route::post('qr-codes/download-bulk', [AdminQrCodeController::class, 'downloadBulk'])->name('qr-codes.download-bulk');
-    Route::get('qr-codes/export/csv', [AdminQrCodeController::class, 'exportCsv'])->name('qr-codes.export-csv');
+    // Route::resource('qr-codes', AdminQrCodeController::class);
+    // Route::post('qr-codes/bulk-delete', [AdminQrCodeController::class, 'bulkDestroy'])->name('qr-codes.bulk-destroy');
+    // Route::post('qr-codes/{qrCode}/update-status', [AdminQrCodeController::class, 'updateStatus'])->name('qr-codes.update-status');
+    // Route::post('qr-codes/download-bulk', [AdminQrCodeController::class, 'downloadBulk'])->name('qr-codes.download-bulk');
+    // Route::get('qr-codes/export/csv', [AdminQrCodeController::class, 'exportCsv'])->name('qr-codes.export-csv');
 
     // Payments
     // Route::get('payments', [AdminPaymentController::class, 'index'])->name('payments.index');
@@ -273,6 +274,56 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');
 });
+
+
+
+// ============================================================
+//  QR BATCH ROUTES  (Batches ki list, show, download, delete)
+// ============================================================
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
+
+    // ── QR Batches (naya flow: pehle batch list) ─────────────
+    Route::get('qr-batches', [AdminQrBatchController::class, 'index'])
+        ->name('qr-batches.index');
+
+    Route::get('qr-batches/{qrBatch}', [AdminQrBatchController::class, 'show'])
+        ->name('qr-batches.show');
+
+    Route::get('qr-batches/{qrBatch}/download', [AdminQrBatchController::class, 'download'])
+        ->name('qr-batches.download');
+
+    Route::delete('qr-batches/{qrBatch}', [AdminQrBatchController::class, 'destroy'])
+        ->name('qr-batches.destroy');
+
+    // ── QR Codes (generate + single QR detail) ────────────────
+    // Resource se sirf create/store/show/destroy rakhna hai,
+    // index ab batches handle karta hai.
+    Route::get('qr-codes/create', [AdminQrCodeController::class, 'create'])
+        ->name('qr-codes.create');
+
+    Route::post('qr-codes', [AdminQrCodeController::class, 'store'])
+        ->name('qr-codes.store');
+
+    Route::get('qr-codes/{qrCode}', [AdminQrCodeController::class, 'show'])
+        ->name('qr-codes.show');
+
+    Route::delete('qr-codes/{qrCode}', [AdminQrCodeController::class, 'destroy'])
+        ->name('qr-codes.destroy');
+
+    Route::post('qr-codes/bulk-delete', [AdminQrCodeController::class, 'bulkDestroy'])
+        ->name('qr-codes.bulk-destroy');
+
+    Route::post('qr-codes/{qrCode}/update-status', [AdminQrCodeController::class, 'updateStatus'])
+        ->name('qr-codes.update-status');
+
+    Route::post('qr-codes/download-bulk', [AdminQrCodeController::class, 'downloadBulk'])
+        ->name('qr-codes.download-bulk');
+
+    Route::get('qr-codes/export/csv', [AdminQrCodeController::class, 'exportCsv'])
+        ->name('qr-codes.export-csv');
+});
+
+
 
 /*
 |--------------------------------------------------------------------------

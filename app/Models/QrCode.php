@@ -16,6 +16,7 @@ class QrCode extends Model
     protected $fillable = [
         'qr_code',
         'category_id',
+        'qr_batch_id',
         'user_id',
         'qr_image_path',
         'order_id',

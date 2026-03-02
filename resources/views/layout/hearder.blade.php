@@ -11,8 +11,8 @@
                 class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Home</a>
             <a href="{{ route('admin.analytics') }}"
                 class="{{ request()->routeIs('admin.analytics') ? 'active' : '' }}">Analytics</a>
-            <a href="{{ route('admin.qr-codes.index') }}"
-                class="{{ request()->routeIs('admin.qr-codes.*') ? 'active' : '' }}">Inventory</a>
+            <a href="{{ route('admin.qr-batches.index') }}"
+                class="{{ request()->routeIs('admin.qr-batches.*') ? 'active' : '' }}">Inventory</a>
         </nav>
     </div>
 

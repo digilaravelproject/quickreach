@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\QrCode;
+use App\Models\QrBatch;
 use App\Services\QrCodeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -25,9 +26,12 @@ class QrCodeController extends Controller
      */
     public function index(Request $request)
     {
-        $query = QrCode::with(['category', 'registration']);
+        $query = QrCode::with(['category', 'registration', 'batch']);
 
         // Filters
+        if ($request->filled('qr_batch_id')) {
+            $query->where('qr_batch_id', $request->qr_batch_id);
+        }
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
@@ -46,7 +50,9 @@ class QrCodeController extends Controller
         }
 
         $categories = Category::active()->ordered()->get();
-        return view('admin.qr-codes.index', compact('categories'));
+        $batches = QrBatch::latest()->get();
+
+        return view('admin.qr-codes.index', compact('categories', 'batches'));
     }
 
     /**
@@ -61,9 +67,32 @@ class QrCodeController extends Controller
     /**
      * Generate bulk QR codes
      */
+    // public function store(Request $request)
+    // {
+
+    //     $request->validate([
+    //         'category_id' => 'required|exists:categories,id',
+    //         'quantity'    => 'required|integer|min:1|max:1000',
+    //     ]);
+
+    //     try {
+    //         $qrCodes = $this->qrCodeService->generateBulkQrCodes(
+    //             $request->category_id,
+    //             $request->quantity
+    //         );
+
+    //         return redirect()
+    //             ->route('admin.qr-codes.index')
+    //             ->with('success', count($qrCodes) . ' QR codes generated successfully!');
+    //     } catch (\Exception $e) {
+    //         return redirect()
+    //             ->back()
+    //             ->with('error', 'Failed to generate QR codes: ' . $e->getMessage());
+    //     }
+    // }
+
     public function store(Request $request)
     {
-
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'quantity'    => 'required|integer|min:1|max:1000',
@@ -76,7 +105,7 @@ class QrCodeController extends Controller
             );
 
             return redirect()
-                ->route('admin.qr-codes.index')
+                ->route('admin.qr-batches.index')  // ← SIRF YE LINE BADLI HAI
                 ->with('success', count($qrCodes) . ' QR codes generated successfully!');
         } catch (\Exception $e) {
             return redirect()
@@ -85,9 +114,6 @@ class QrCodeController extends Controller
         }
     }
 
-    /**
-     * Show single QR code details
-     */
     /**
      * Show single QR code details
      */
@@ -131,12 +157,33 @@ class QrCodeController extends Controller
 
         $qrCodes = QrCode::whereIn('id', $request->qr_code_ids)->get();
 
+        return $this->generateZipResponse($qrCodes, 'qr_codes_' . time() . '.zip');
+    }
+
+    /**
+     * Download specific batch as ZIP
+     */
+    public function downloadBatch(QrBatch $batch)
+    {
+        $qrCodes = $batch->qrCodes;
+
+        if ($qrCodes->isEmpty()) {
+            return redirect()->back()->with('error', 'No QR codes found in this batch.');
+        }
+
+        return $this->generateZipResponse($qrCodes, $batch->batch_code . '.zip');
+    }
+
+    /**
+     * Internal helper to handle ZIP creation
+     */
+    protected function generateZipResponse($qrCodes, $zipFileName)
+    {
         $tempDir = storage_path('app/temp/qr_exports');
         if (!file_exists($tempDir)) {
             mkdir($tempDir, 0755, true);
         }
 
-        $zipFileName = 'qr_codes_' . time() . '.zip';
         $zipFilePath = $tempDir . '/' . $zipFileName;
 
         $zip = new ZipArchive();
