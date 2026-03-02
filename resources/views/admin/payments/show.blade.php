@@ -31,10 +31,15 @@
                         style="padding: 5px 14px; border-radius: 10px; font-size: 10px; font-weight: 800; background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;">
                         Cash on Delivery
                     </span>
+                @elseif ($payment->payment_method === 'offline')
+                    <span
+                        style="padding: 5px 14px; border-radius: 10px; font-size: 10px; font-weight: 800; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0;">
+                        Offline/cash
+                    </span>
                 @else
                     <span
                         style="padding: 5px 14px; border-radius: 10px; font-size: 10px; font-weight: 800; background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE;">
-                        Online Payment
+                        {{ $payment->payment_method === 'bank_transfer' ? 'Bank Transfer' : 'Online Payment' }}
                     </span>
                 @endif
             </div>
@@ -68,11 +73,11 @@
                                 <div>
                                     <p
                                         style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 4px;">
-                                        {{ $payment->payment_method === 'cod' ? 'Payment Type' : 'Payment ID' }}
+                                        {{ in_array($payment->payment_method, ['cod', 'offline', 'bank_transfer']) ? 'Payment Type' : 'Payment ID' }}
                                     </p>
                                     <p
                                         style="font-family: monospace; font-size: 13px; color: var(--text); word-break: break-all;">
-                                        {{ $payment->razorpay_payment_id ?? ($payment->payment_method === 'cod' ? 'Cash on Delivery' : 'N/A') }}
+                                        {{ $payment->razorpay_order_id ?? ($payment->payment_method === 'cod' ? 'Cash on Delivery' : ($payment->payment_method === 'offline' ? 'Offline / Cash' : ($payment->payment_method === 'bank_transfer' ? 'Bank Transfer' : 'N/A'))) }}
                                     </p>
                                 </div>
                                 <div>

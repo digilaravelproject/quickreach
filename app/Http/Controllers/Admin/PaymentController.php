@@ -118,19 +118,29 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id'        => 'required|exists:users,id',
+            'user_id'        => 'required',
+            'customer_name'  => 'required_if:user_id,other|string|max:255|nullable',
             'category_id'    => 'required|exists:categories,id',
+            'quantity'       => 'required|integer|min:1',
             'final_amount'   => 'required|numeric|min:1',
             'payment_method' => 'required|in:offline,bank_transfer,razorpay',
             'transaction_id' => 'nullable|string|max:255',
         ]);
 
+        if ($request->user_id !== 'other') {
+            $request->validate(['user_id' => 'exists:users,id']);
+        }
+
         $category = Category::findOrFail($request->category_id);
 
         DB::beginTransaction();
         try {
+            $isOtherUser = $request->user_id === 'other';
+            $actualUserId = $isOtherUser ? null : $request->user_id;
+            $shippingData = $isOtherUser ? ['full_name' => $request->customer_name] : [];
+
             $order = Order::create([
-                'user_id'             => $request->user_id,
+                'user_id'             => $actualUserId,
                 'order_number'        => $request->order_id ?? ('ORD-' . strtoupper(\Str::random(8))),
                 'subtotal'            => $request->final_amount,
                 'tax'                 => 0,
@@ -138,34 +148,40 @@ class PaymentController extends Controller
                 'total_amount'        => $request->final_amount,
                 'status'              => 'confirmed',
                 'payment_status'      => 'completed',
-                'payment_method'      => 'online',
+                'payment_method'      => $request->payment_method,
                 'razorpay_order_id'   => $request->transaction_id,
                 'paid_at'             => now(),
-                'shipping_data'       => [],
+                'shipping_data'       => $shippingData,
             ]);
 
             \App\Models\OrderItem::create([
                 'order_id'    => $order->id,
                 'category_id' => $category->id,
-                'quantity'    => 1,
-                'price'       => $request->final_amount,
+                'quantity'    => $request->quantity,
+                'price'       => $category->price,
                 'subtotal'    => $request->final_amount,
             ]);
 
-            // Assign QR code
-            $qr = QrCode::where('status', 'available')
+            // Assign QR codes based on quantity
+            $qrCodes = QrCode::where('status', 'available')
                 ->where('category_id', $category->id)
                 ->where(function ($q) {
                     $q->whereNull('source')->orWhere('source', 'online_order');
                 })
                 ->lockForUpdate()
-                ->first();
+                ->limit($request->quantity)
+                ->get();
 
-            if ($qr) {
+            if ($qrCodes->count() < $request->quantity) {
+                DB::rollBack();
+                return back()->with('error', "Not enough QR codes available in stock for {$category->name}. Required: {$request->quantity}, Available: {$qrCodes->count()}.")->withInput();
+            }
+
+            foreach ($qrCodes as $qr) {
                 $qr->update([
                     'status'      => 'sold',
                     'order_id'    => $order->id,
-                    'user_id'     => $request->user_id,
+                    'user_id'     => $actualUserId,
                     'source'      => 'online_order',
                     'assigned_at' => now(),
                 ]);

@@ -27,7 +27,7 @@
 
             {{-- ── FORM AREA ── --}}
             <div class="card"
-                style="padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); max-width: 800px;">
+                style="padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); max-width: 1000px;">
                 <form action="{{ route('admin.payments.store') }}" method="POST">
                     @csrf
 
@@ -39,13 +39,24 @@
                                 style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
                                 Select Customer <span style="color: #dc2626;">*</span>
                             </label>
-                            <select name="user_id" required
+                            <select id="user_id" name="user_id" required
                                 style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none; appearance: auto;">
                                 <option value="">Choose User...</option>
+                                <option value="other">Other (Manual Entry)</option>
                                 @foreach ($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        {{-- Manual Customer Name (Hidden initially) --}}
+                        <div id="manual_customer_wrapper" style="display: none;">
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Customer Name <span style="color: #dc2626;">*</span>
+                            </label>
+                            <input type="text" id="customer_name" name="customer_name" placeholder="Enter full name"
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none;">
                         </div>
 
                         {{-- QR Category --}}
@@ -64,6 +75,16 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        {{-- Quantity --}}
+                        <div>
+                            <label
+                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
+                                Quantity <span style="color: #dc2626;">*</span>
+                            </label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" step="1" required
+                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 16px; color: var(--text); font-weight: 600; outline: none;">
                         </div>
 
                         {{-- Order ID --}}
@@ -136,12 +157,37 @@
     </div>
 
     <script>
-        // Auto-fill price when category is selected
-        document.getElementById('category_id').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            const price = selectedOption.getAttribute('data-price');
-            if (price) {
-                document.getElementById('final_amount').value = price;
+        // Calculate final amount based on category price and quantity
+        function updateTotalAmount() {
+            const categorySelect = document.getElementById('category_id');
+            const quantityInput = document.getElementById('quantity');
+            const finalAmountInput = document.getElementById('final_amount');
+            
+            if (categorySelect.selectedIndex > 0) {
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+                const quantity = parseInt(quantityInput.value) || 1;
+                
+                finalAmountInput.value = (price * quantity).toFixed(2);
+            } else {
+                finalAmountInput.value = '';
+            }
+        }
+
+        document.getElementById('category_id').addEventListener('change', updateTotalAmount);
+        document.getElementById('quantity').addEventListener('input', updateTotalAmount);
+
+        // Toggle Manual Customer Name field
+        document.getElementById('user_id').addEventListener('change', function() {
+            const wrapper = document.getElementById('manual_customer_wrapper');
+            const input = document.getElementById('customer_name');
+            if (this.value === 'other') {
+                wrapper.style.display = 'block';
+                input.required = true;
+            } else {
+                wrapper.style.display = 'none';
+                input.required = false;
+                input.value = '';
             }
         });
     </script>

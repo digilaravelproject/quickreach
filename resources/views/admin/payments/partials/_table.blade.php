@@ -100,9 +100,13 @@
                                 style="display: inline-block; white-space: nowrap; padding: 3px 10px; border-radius: 8px; font-size: 9px; font-weight: 800; background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;">
                                 Cash on Delivery
                             </span>
-                            <span x-show="order.payment_method !== 'cod'"
+                            <span x-show="order.payment_method === 'offline'"
+                                style="display: inline-block; white-space: nowrap; padding: 3px 10px; border-radius: 8px; font-size: 9px; font-weight: 800; background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0;">
+                                Offline/cash
+                            </span>
+                            <span x-show="!['cod', 'offline'].includes(order.payment_method)"
                                 style="display: inline-block; white-space: nowrap; padding: 3px 10px; border-radius: 8px; font-size: 9px; font-weight: 800; background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE;">
-                                Online
+                                <span x-text="order.payment_method === 'bank_transfer' ? 'Bank Transfer' : 'Online'"></span>
                             </span>
                         </td>
 

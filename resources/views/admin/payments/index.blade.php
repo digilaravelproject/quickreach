@@ -82,6 +82,7 @@
                         style="height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 10px; font-weight: 700; font-size: 12px; color: var(--text);">
                         <option value="">All Methods</option>
                         <option value="online">Online</option>
+                        <option value="offline">Offline/cash</option>
                         <option value="cod">Cash on Delivery</option>
                     </select>
 
