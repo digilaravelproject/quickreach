@@ -33,29 +33,13 @@
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
 
-                        {{-- Select Customer --}}
+                        {{-- Customer Name --}}
                         <div>
-                            <label
-                                style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
-                                Select Customer <span style="color: #dc2626;">*</span>
-                            </label>
-                            <select id="user_id" name="user_id" required
-                                style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none; appearance: auto;">
-                                <option value="">Choose User...</option>
-                                <option value="other">Other (Manual Entry)</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Manual Customer Name (Hidden initially) --}}
-                        <div id="manual_customer_wrapper" style="display: none;">
                             <label
                                 style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; display: block;">
                                 Customer Name <span style="color: #dc2626;">*</span>
                             </label>
-                            <input type="text" id="customer_name" name="customer_name" placeholder="Enter full name"
+                            <input type="text" name="customer_name" placeholder="Enter customer name" required
                                 style="width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 15px; font-size: 13px; color: var(--text); font-weight: 600; outline: none;">
                         </div>
 
@@ -176,19 +160,5 @@
 
         document.getElementById('category_id').addEventListener('change', updateTotalAmount);
         document.getElementById('quantity').addEventListener('input', updateTotalAmount);
-
-        // Toggle Manual Customer Name field
-        document.getElementById('user_id').addEventListener('change', function() {
-            const wrapper = document.getElementById('manual_customer_wrapper');
-            const input = document.getElementById('customer_name');
-            if (this.value === 'other') {
-                wrapper.style.display = 'block';
-                input.required = true;
-            } else {
-                wrapper.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        });
     </script>
 @endsection

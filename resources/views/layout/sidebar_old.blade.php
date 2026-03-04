@@ -1,15 +1,7 @@
 <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     class="fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 shadow-2xl flex flex-col">
     <div class="h-20 flex items-center px-8 border-b border-slate-800">
-        <div
-            class="w-10 h-10 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mr-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-            </svg>
-        </div>
-        <span class="text-xl font-bold tracking-tight">QwickReach</span>
+        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 35px; width: auto; object-fit: contain;">
     </div>
 
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
@@ -88,6 +80,17 @@
                 </path>
             </svg>
             <span class="font-medium">Analytics</span>
+        </a>
+
+        <a href="{{ route('admin.coupons.index') }}"
+            class="flex items-center px-4 py-3 {{ request()->routeIs('admin.coupons.*') ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-800' }} rounded-xl transition-all group">
+            <svg class="w-5 h-5 mr-3 {{ request()->routeIs('admin.coupons.*') ? 'text-white' : 'group-hover:text-brand-400' }}" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z">
+                </path>
+            </svg>
+            <span class="font-medium">Coupon Codes</span>
         </a>
 
         <a href="#"

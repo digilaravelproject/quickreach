@@ -73,9 +73,6 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
-        Route::post('/create-order',        [UserController::class, 'createOrder'])->name('create.order');
-
         // Verify payment signature after Razorpay callback
         Route::post('/verify-payment',      [UserController::class, 'verifyPayment'])->name('verify.payment');
 
@@ -174,9 +171,10 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::post('/user/register', [QrScanController::class, 'storeRegistration'])->name('store-registration');
 
 
-    // Route::post('/order/create', [UserController::class, 'createOrder'])->name('create.order');
-    // Route::post('/payment/verify', [UserController::class, 'verifyPayment'])->name('verify.payment');
-    // Route::get('/order/success', [UserController::class, 'orderSuccess'])->name('order.success');
+    Route::post('/apply-coupon', [UserController::class, 'applyCoupon'])->name('apply.coupon');
+    Route::post('/create-order', [UserController::class, 'createOrder'])->name('create.order');
+    Route::post('/payment/verify', [UserController::class, 'verifyPayment'])->name('verify.payment');
+    Route::get('/order/success', [UserController::class, 'orderSuccess'])->name('order.success');
 
     // --- QR Registration (For Owners) ---
     Route::get('/register-qr/{qrCode}', [UserQrRegistrationController::class, 'showRegistrationForm'])->name('register-qr');
@@ -273,6 +271,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('payments/{order}/mark-paid', [AdminPaymentController::class, 'markCodPaid'])->name('payments.mark-paid');
 
     Route::get('analytics', [DashboardController::class, 'analytics'])->name('analytics');
+
+    // Coupon Codes
+    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+    Route::post('coupons/{coupon}/toggle-status', [\App\Http\Controllers\Admin\CouponController::class, 'toggleStatus'])->name('coupons.toggle-status');
 });
 
 
@@ -298,6 +300,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // ── QR Codes (generate + single QR detail) ────────────────
     // Resource se sirf create/store/show/destroy rakhna hai,
     // index ab batches handle karta hai.
+    Route::get('qr-codes/index', [AdminQrCodeController::class, 'index'])
+        ->name('qr-codes.index');
+
     Route::get('qr-codes/create', [AdminQrCodeController::class, 'create'])
         ->name('qr-codes.create');
 

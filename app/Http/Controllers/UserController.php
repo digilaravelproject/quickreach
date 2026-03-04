@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\QrCode;
@@ -216,6 +217,52 @@ class UserController extends Controller
     //     }
     // }
 
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+            'subtotal' => 'required|numeric|min:1'
+        ]);
+
+        $userId = Auth::id();
+        $coupon = Coupon::where('code', $request->code)->first();
+
+        // 1. Coupon Exists?
+        if (!$coupon) {
+            return response()->json(['success' => false, 'message' => 'Invalid coupon code.'], 404);
+        }
+
+        // 2. Coupon Active?
+        if (!$coupon->is_active) {
+            return response()->json(['success' => false, 'message' => 'This coupon code is inactive.'], 400);
+        }
+
+        // 3. Trying to apply own coupon? (Admin assigning to self, etc)
+        if ($userId && $coupon->user_id === $userId) {
+            return response()->json(['success' => false, 'message' => 'You cannot apply your own coupon.'], 403);
+        }
+
+        // 4. Coupon Expired?
+        if ($coupon->expires_at && $coupon->expires_at->isPast()) {
+            return response()->json(['success' => false, 'message' => 'This coupon code has expired.'], 400);
+        }
+
+        // Calculate Discount
+        $discountAmount = 0;
+        if ($coupon->discount_type === 'fixed') {
+            $discountAmount = min($coupon->discount_amount, $request->subtotal);
+        } elseif ($coupon->discount_type === 'percentage') {
+            $discountAmount = ($request->subtotal * $coupon->discount_amount) / 100;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Coupon applied successfully!',
+            'discount' => round($discountAmount, 2),
+            'coupon_code' => $coupon->code
+        ]);
+    }
+
     public function createOrder(Request $request)
     {
         $request->validate([
@@ -233,17 +280,43 @@ class UserController extends Controller
         $shippingData  = $request->shipping_data;
         $paymentMethod = $request->payment_method;
         $subtotal      = collect($cartItems)->sum(fn($i) => $i['price'] * $i['quantity']);
+        
+        $discount      = 0;
+        $appliedCoupon = null;
+        $appliedCouponId = null;
+
+        if ($request->filled('coupon_code')) {
+            $coupon = Coupon::where('code', $request->coupon_code)->where('is_active', true)->first();
+            
+            // Validate: Exists, is not the their own coupon, and is not expired
+            if ($coupon && (!$user || $coupon->user_id !== $user->id) && (!$coupon->expires_at || !$coupon->expires_at->isPast())) {
+                $appliedCoupon = $coupon->code;
+                $appliedCouponId = $coupon->id;
+                if ($coupon->discount_type === 'fixed') {
+                    $discount = min($coupon->discount_amount, $subtotal);
+                } elseif ($coupon->discount_type === 'percentage') {
+                    $discount = ($subtotal * $coupon->discount_amount) / 100;
+                }
+            }
+        }
+
+        $totalPay = max(0, $subtotal - $discount);
 
         DB::beginTransaction();
         try {
+            // Include discount details in shipping_data for tracking
+            $shippingData['coupon_code'] = $appliedCoupon;
+            $shippingData['discount'] = round($discount, 2);
+
             // 1. Create Order
             $order = Order::create([
-                'user_id'        => $user->id,
+                'user_id'        => $user ? $user->id : null,
+                'coupon_id'      => $appliedCouponId,
                 'order_number'   => 'QR-' . strtoupper(Str::random(8)),
                 'subtotal'       => $subtotal,
                 'tax'            => 0,
                 'shipping_cost'  => 0,
-                'total_amount'   => $subtotal,
+                'total_amount'   => $totalPay,
                 'status'         => 'pending',
                 'payment_status' => 'pending',   // always starts as 'pending'
                 'payment_method' => $paymentMethod,
@@ -274,8 +347,58 @@ class UserController extends Controller
 
             // 4. Online — create Razorpay order
             $razorpay      = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            
+            // If totalPay becomes 0 after discount, handle it by bypassing Razorpay entirely
+            if ($totalPay <= 0 && $paymentMethod === 'online') {
+                $order->update([
+                    'payment_status' => 'completed',
+                    'status' => 'confirmed',
+                    'paid_at' => now(),
+                ]);
+
+                // Auto-assign QR codes since payment is "free"
+                foreach ($order->items as $orderItem) {
+                    $needed = $orderItem->quantity;
+                    $qrQuery = QrCode::where('status', 'available')
+                        ->where('category_id', $orderItem->category_id)
+                        ->lockForUpdate()
+                        ->limit($needed);
+
+                    if (\Schema::hasColumn('qr_codes', 'source')) {
+                        $qrQuery->where(function ($q) {
+                            $q->whereNull('source')
+                                ->orWhere('source', 'online_order');
+                        });
+                    }
+                    $qrCodes = $qrQuery->get();
+                    if ($qrCodes->count() < $needed) {
+                        throw new \Exception("Stock error during processing. Contact support.");
+                    }
+                    foreach ($qrCodes as $qr) {
+                        $updateData = [
+                            'status'      => 'sold',
+                            'order_id'    => $order->id,
+                            'user_id'     => $order->user_id,
+                            'assigned_at' => now(),
+                        ];
+                        if (\Schema::hasColumn('qr_codes', 'source')) {
+                            $updateData['source'] = 'online_order';
+                        }
+                        $qr->update($updateData);
+                    }
+                }
+
+                DB::commit();
+                return response()->json([
+                    'success'  => true,
+                    'order_id' => $order->id,
+                    'is_free'  => true,
+                    'message'  => 'Your order was fully discounted and processed successfully.',
+                ]);
+            }
+
             $razorpayOrder = $razorpay->order->create([
-                'amount'   => $subtotal * 100,
+                'amount'   => round($totalPay * 100),
                 'currency' => 'INR',
                 'receipt'  => $order->order_number,
             ]);
@@ -285,9 +408,10 @@ class UserController extends Controller
             return response()->json([
                 'success'           => true,
                 'razorpay_key'      => config('services.razorpay.key'),
-                'amount'            => $subtotal * 100,
+                'amount'            => round($totalPay * 100),
                 'order_id'          => $razorpayOrder->id,
                 'internal_order_id' => $order->id,
+                'is_free'           => false
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

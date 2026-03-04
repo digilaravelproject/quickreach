@@ -25,8 +25,9 @@
     <div class="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8" x-data="{ loading: false }">
 
         <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-8">
-            <h2 class="text-4xl font-black tracking-tight" style="color: #1A1A3E;">Qwick<span
-                    style="color: #5B6FE8;">Reach</span></h2>
+            <div class="flex justify-center mb-4">
+                <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 60px; width: auto; object-fit: contain;">
+            </div>
             <p class="mt-2 text-sm font-bold text-gray-400 uppercase tracking-[0.2em]">Start your journey with us</p>
         </div>
 

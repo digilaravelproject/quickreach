@@ -306,10 +306,8 @@
     <div class="card">
 
         <!-- Logo -->
-        <div class="logo">
-            <h1>
-                <span class="dark">Qwick</span><span class="blue">Reach</span>
-            </h1>
+        <div class="logo" style="display: flex; justify-content: center;">
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 60px; width: auto; object-fit: contain;">
         </div>
 
         <!-- Lock Icon -->

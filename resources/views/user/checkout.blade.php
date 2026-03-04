@@ -28,7 +28,7 @@
         </div>
 
         <!-- Login Required Modal -->
-        <div x-show="showLoginModal" x-transition.opacity style="display: none;"
+        {{-- <div x-show="showLoginModal" x-transition.opacity style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center p-6"
             style="background: rgba(26, 26, 62, 0.6); backdrop-filter: blur(6px);">
             <div class="w-full max-w-sm rounded-[32px] p-8 text-center"
@@ -54,7 +54,7 @@
                     Cancel
                 </button>
             </div>
-        </div>
+        </div> --}}
 
         <!-- COD Confirmation Modal -->
         <div x-show="showCodModal" x-transition.opacity style="display: none;"
@@ -185,51 +185,74 @@
             <div class="space-y-4 mb-8">
                 <div class="space-y-3 p-5 rounded-[24px] border border-[#DDDDF0] bg-[#EAEAF8]">
                     <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Personal Info</p>
-                    <input type="text" x-model="shippingData.full_name" placeholder="Full Name" required
-                        class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                        style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                        onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                    <input type="email" x-model="shippingData.email" placeholder="Email Address" required
-                        class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                        style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                        onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                    <input type="tel" x-model="shippingData.mobile_number" placeholder="Mobile Number (10 Digit)"
-                        required pattern="[0-9]{10}"
-                        class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                        style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                        onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                    <div class="mb-3">
+                        <input type="text" x-model="shippingData.full_name" @input="errors.full_name = null" placeholder="Full Name" required
+                            class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                        <p x-show="errors.full_name" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.full_name"></p>
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" x-model="shippingData.email" @input="errors.email = null" placeholder="Email Address" required
+                            class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                        <p x-show="errors.email" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.email"></p>
+                    </div>
+                    <div class="mb-3">
+                        <input type="tel" x-model="shippingData.mobile_number" @input="errors.mobile_number = null" placeholder="Mobile Number (10 Digit)"
+                            required pattern="[0-9]{10,13}" minlength="10" maxlength="13"
+                            class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                        <p x-show="errors.mobile_number" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.mobile_number"></p>
+                    </div>
                 </div>
 
                 <div class="space-y-3 p-5 rounded-[24px] border border-[#DDDDF0] bg-[#EAEAF8]">
                     <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Address</p>
-                    <input type="text" x-model="shippingData.address_line1" placeholder="Flat, House no., Building"
-                        required class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                        style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                        onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                    <div class="mb-3">
+                        <input type="text" x-model="shippingData.address_line1" @input="errors.address_line1 = null" placeholder="Flat, House no., Building"
+                            required class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                        <p x-show="errors.address_line1" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.address_line1"></p>
+                    </div>
                     <input type="text" x-model="shippingData.address_line2"
                         placeholder="Area, Street, Sector (Optional)"
                         class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                    <div class="flex gap-3">
-                        <input type="text" x-model="shippingData.city" placeholder="City / Town" required
-                            class="w-1/2 p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        <input type="text" x-model="shippingData.pincode" placeholder="Pincode" required
-                            pattern="[0-9]{6}" class="w-1/2 p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                    <div class="mb-3">
+                        <div class="flex gap-3">
+                            <div class="w-1/2">
+                                <input type="text" x-model="shippingData.city" @input="errors.city = null" placeholder="City / Town" required
+                                    class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                                    style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                                    onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                                <p x-show="errors.city" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.city"></p>
+                            </div>
+                            <div class="w-1/2">
+                                <input type="text" x-model="shippingData.pincode" @input="errors.pincode = null" placeholder="Pincode" required
+                                    pattern="[0-9]{6}" class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                                    style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                                    onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                                <p x-show="errors.pincode" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.pincode"></p>
+                            </div>
+                        </div>
                     </div>
-                    <input type="text" x-model="shippingData.state" placeholder="State" required
-                        class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
-                        style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
-                        onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                    <div class="mb-3">
+                        <input type="text" x-model="shippingData.state" @input="errors.state = null" placeholder="State" required
+                            class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                            style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                            onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                        <p x-show="errors.state" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.state"></p>
+                    </div>
                 </div>
             </div>
 
             @guest
-                <div class="flex items-center gap-3 p-4 rounded-[16px] mb-5"
+                {{-- <div class="flex items-center gap-3 p-4 rounded-[16px] mb-5"
                     style="background:#FFF7ED; border: 1.5px solid #FED7AA;">
                     <svg width="18" height="18" fill="none" stroke="#F97316" stroke-width="2"
                         viewBox="0 0 24 24" class="shrink-0">
@@ -239,7 +262,7 @@
                     </svg>
                     <p class="text-xs font-bold" style="color:#C2410C;">Login is required to proceed with payment. Your data
                         will be saved!</p>
-                </div>
+                </div> --}}
             @endguest
 
             <button @click="goToPayment()"
@@ -296,8 +319,32 @@
                 <div class="flex justify-between text-2xl font-display font-black pt-4"
                     style="color:#1A1A3E; border-top: 1px dashed #DDDDF0;">
                     <span>Total Pay</span>
-                    <span x-text="'₹' + subtotal().toLocaleString()"></span>
+                    <span x-text="'₹' + totalPay().toLocaleString()"></span>
                 </div>
+            </div>
+
+            <!-- ── COUPON CODE SECTION ── -->
+            <div class="mb-6">
+                <p class="text-[10px] font-black uppercase tracking-widest mb-3" style="color:#9B9BB4;">Have a Coupon?</p>
+                <div class="relative flex items-center">
+                    <input type="text" x-model="coupon.code" :disabled="coupon.applied" placeholder="Enter code here..."
+                        class="w-full p-4 pr-24 rounded-xl font-bold text-sm outline-none transition-all uppercase"
+                        style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
+                        onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
+                        
+                    <button x-show="!coupon.applied" @click="applyCoupon()" :disabled="applyingCoupon"
+                        class="absolute right-2 px-4 py-2 bg-[#1A1A3E] text-white rounded-lg text-xs font-black uppercase tracking-wider active:scale-95 transition-transform"
+                        x-text="applyingCoupon ? '...' : 'Apply'">
+                    </button>
+                    
+                    <button x-show="coupon.applied" @click="removeCoupon()"
+                        class="absolute right-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg text-xs font-black uppercase tracking-wider active:scale-95 transition-transform">
+                        Remove
+                    </button>
+                </div>
+                <p x-show="coupon.message" class="text-xs font-bold mt-2 pl-1"
+                   :class="coupon.type === 'error' ? 'text-red-500' : 'text-green-500'" 
+                   x-text="coupon.message"></p>
             </div>
 
             <!-- ── PAYMENT METHOD SELECTOR ── -->
@@ -346,7 +393,7 @@
             <button x-show="paymentMethod === 'online'" @click="initiateRazorpay()"
                 class="w-full text-white py-5 rounded-[20px] font-black text-lg shadow-xl active:scale-95 transition-all mb-3 flex items-center justify-center gap-3"
                 style="background-color:#1A1A3E; border-bottom: 4px solid #5B5BDB; display:none;">
-                <span x-text="'Pay ₹' + subtotal().toLocaleString()"></span>
+                <span x-text="'Pay ₹' + totalPay().toLocaleString()"></span>
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
                     <path d="M5 12h14M12 5l7 7-7 7" />
@@ -359,7 +406,7 @@
             <button x-show="paymentMethod === 'cod'" @click="showCodModal = true"
                 class="w-full text-white py-5 rounded-[20px] font-black text-lg shadow-xl active:scale-95 transition-all mb-3 flex items-center justify-center gap-3"
                 style="background-color:#F97316; border-bottom: 4px solid #C2410C; display:none;">
-                <span>📦 Place COD Order — ₹<span x-text="subtotal().toLocaleString()"></span></span>
+                <span>📦 Place COD Order — ₹<span x-text="totalPay().toLocaleString()"></span></span>
             </button>
             <p x-show="paymentMethod === 'cod'" class="text-center text-[10px] font-bold text-[#9B9BB4] mb-6"
                 style="display:none;">Pay in cash when your order arrives at your door</p>
@@ -377,12 +424,19 @@
 
             let initialStep = 1;
             let restoredShipping = null;
+            let restoredCoupon = null;
 
             if (returnedFromLogin && isLoggedIn && savedShipping) {
                 try {
                     restoredShipping = JSON.parse(savedShipping);
                     initialStep = 3;
                     localStorage.removeItem('qr_pending_shipping');
+                    
+                    const savedCoupon = localStorage.getItem('qr_pending_coupon');
+                    if (savedCoupon) {
+                        restoredCoupon = JSON.parse(savedCoupon);
+                        localStorage.removeItem('qr_pending_coupon');
+                    }
                 } catch (e) {}
             }
 
@@ -397,6 +451,23 @@
                     show: false,
                     message: '',
                     type: 'error'
+                },
+                errors: {
+                    full_name: null,
+                    email: null,
+                    mobile_number: null,
+                    address_line1: null,
+                    city: null,
+                    pincode: null,
+                    state: null
+                },
+                applyingCoupon: false,
+                coupon: restoredCoupon || {
+                    code: '',
+                    discount: 0,
+                    message: '',
+                    type: '',
+                    applied: false
                 },
                 shippingData: restoredShipping || {
                     full_name: window.__AUTH__.name || '',
@@ -469,6 +540,59 @@
                     return this.cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
                 },
 
+                totalPay() {
+                    return Math.max(0, this.subtotal() - this.coupon.discount);
+                },
+
+                async applyCoupon() {
+                    if (!this.coupon.code) {
+                        this.coupon.message = 'Please enter a coupon code.';
+                        this.coupon.type = 'error';
+                        return;
+                    }
+                    if (this.subtotal() <= 0) return;
+
+                    this.applyingCoupon = true;
+                    this.coupon.message = '';
+
+                    try {
+                        const response = await fetch('{{ route('user.apply.coupon') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                code: this.coupon.code,
+                                subtotal: this.subtotal()
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            this.coupon.discount = data.discount;
+                            this.coupon.message = data.message + ' (-₹' + data.discount + ')';
+                            this.coupon.type = 'success';
+                            this.coupon.applied = true;
+                        } else {
+                            this.coupon.message = data.message;
+                            this.coupon.type = 'error';
+                            this.coupon.discount = 0;
+                            this.coupon.applied = false;
+                        }
+                    } catch (error) {
+                        this.coupon.message = 'Something went wrong verifying the coupon.';
+                        this.coupon.type = 'error';
+                    } finally {
+                        this.applyingCoupon = false;
+                    }
+                },
+
+                removeCoupon() {
+                    this.coupon = { code: '', discount: 0, message: '', type: '', applied: false };
+                },
+
                 goToShipping() {
                     if (this.cartItems.length === 0) return this.showToast('Your cart is empty!', 'error');
                     this.step = 2;
@@ -480,19 +604,38 @@
 
                 goToPayment() {
                     const s = this.shippingData;
-                    if (!s.full_name || !s.email || !s.mobile_number || !s.address_line1 || !s.city || !s.state || !s
-                        .pincode) {
-                        return this.showToast('Please fill all required fields!', 'error');
-                    }
-                    if (s.mobile_number.length < 10) return this.showToast('Please enter a valid 10-digit mobile number.',
-                        'error');
-                    if (s.pincode.length < 6) return this.showToast('Please enter a valid 6-digit pincode.', 'error');
+                    let isValid = true;
+                    this.errors = {
+                        full_name: null, email: null, mobile_number: null,
+                        address_line1: null, city: null, pincode: null, state: null
+                    };
 
-                    if (!window.__AUTH__.isLoggedIn) {
-                        localStorage.setItem('qr_pending_shipping', JSON.stringify(this.shippingData));
-                        this.showLoginModal = true;
-                        return;
+                    if (!s.full_name) { this.errors.full_name = 'Full Name is required'; isValid = false; }
+                    if (!s.email) { this.errors.email = 'Email Address is required'; isValid = false; }
+                    
+                    if (!s.mobile_number) { 
+                        this.errors.mobile_number = 'Mobile Number is required'; isValid = false; 
+                    } else if (s.mobile_number.length < 10) { 
+                        this.errors.mobile_number = 'Enter a valid 10-digit number'; isValid = false; 
                     }
+
+                    if (!s.address_line1) { this.errors.address_line1 = 'Address is required'; isValid = false; }
+                    if (!s.city) { this.errors.city = 'City is required'; isValid = false; }
+                    if (!s.state) { this.errors.state = 'State is required'; isValid = false; }
+                    
+                    if (!s.pincode) { 
+                        this.errors.pincode = 'Pincode is required'; isValid = false; 
+                    } else if (s.pincode.length < 6) { 
+                        this.errors.pincode = 'Enter a valid 6-digit pincode'; isValid = false; 
+                    }
+
+                    if (!isValid) return;
+
+                    // if (!window.__AUTH__.isLoggedIn) {
+                    //     localStorage.setItem('qr_pending_shipping', JSON.stringify(this.shippingData));
+                    //     this.showLoginModal = true;
+                    //     return;
+                    // }
 
                     this.step = 3;
                     window.scrollTo({
@@ -516,8 +659,9 @@
                             body: JSON.stringify({
                                 cart_items: this.cartItems,
                                 shipping_data: this.shippingData,
-                                amount: this.subtotal(),
-                                payment_method: 'cod' // ← flag for backend
+                                amount: this.totalPay(),
+                                payment_method: 'cod', // ← flag for backend
+                                coupon_code: this.coupon.applied ? this.coupon.code : null
                             })
                         });
 
@@ -544,10 +688,10 @@
                 // ── Razorpay Online Payment ──
                 async initiateRazorpay() {
                     if (this.cartItems.length === 0) return this.showToast('Cart is empty', 'error');
-                    if (!window.__AUTH__.isLoggedIn) {
-                        this.showLoginModal = true;
-                        return;
-                    }
+                    // if (!window.__AUTH__.isLoggedIn) {
+                    //     this.showLoginModal = true;
+                    //     return;
+                    // }
 
                     try {
                         const response = await fetch('{{ route('user.create.order') }}', {
@@ -559,13 +703,21 @@
                             body: JSON.stringify({
                                 cart_items: this.cartItems,
                                 shipping_data: this.shippingData,
-                                amount: this.subtotal(),
-                                payment_method: 'online'
+                                amount: this.totalPay(),
+                                payment_method: 'online',
+                                coupon_code: this.coupon.applied ? this.coupon.code : null
                             })
                         });
 
                         const data = await response.json();
                         if (!data.success) return this.showToast('Error: ' + data.message, 'error');
+                        
+                        // Handle 100% Free order bypass Razorpay Modal
+                        if (data.is_free) {
+                           localStorage.removeItem('quickreach_cart');
+                           window.location.href = '{{ route('user.order.success') }}?order_id=' + data.order_id;
+                           return;
+                        }
 
                         const options = {
                             "key": data.razorpay_key,

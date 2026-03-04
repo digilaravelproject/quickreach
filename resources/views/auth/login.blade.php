@@ -151,9 +151,8 @@
             <div class="blob blob-1"></div>
             <div class="relative z-10 px-14 max-w-xl">
                 <div class="mb-10">
-                    <div class="mb-6">
-                        <span class="text-[2.5rem] font-extrabold italic tracking-tight text-white">Qwick<span
-                                style="color: #8A2BE2;">Reach</span></span>
+                    <div class="mb-6 flex justify-center md:justify-start">
+                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 60px; width: auto; object-fit: contain;">
                     </div>
                     <h1 class="text-5xl font-bold text-white leading-tight mb-4">Secure Access<br />Portal
                     </h1>
@@ -173,9 +172,8 @@
                     style="border-color: #E4E4E7; box-shadow: 0 25px 50px -12px rgba(138, 43, 226, 0.1);">
 
                     <!-- Mobile Logo (Shows only on mobile view) -->
-                    <div class="md:hidden mb-6 text-center">
-                        <span class="text-[2rem] font-extrabold italic tracking-tight"
-                            style="color: #000000;">Qwick<span style="color: #8A2BE2;">Reach</span></span>
+                    <div class="md:hidden mb-6 text-center flex justify-center">
+                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 50px; width: auto; object-fit: contain;">
                     </div>
 
                     <!-- Centered Header -->

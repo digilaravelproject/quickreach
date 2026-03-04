@@ -127,9 +127,9 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="text-center pt-6 pb-2">
-                    <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.15em]">
-                        Powered by <span class="text-[#4B3D76]">QwickReach</span>
+                <div class="text-center pt-6 pb-2 flex justify-center">
+                    <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-2 justify-center">
+                        Powered by <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 15px; width: auto; object-fit: contain;">
                     </p>
                 </div>
             </div>

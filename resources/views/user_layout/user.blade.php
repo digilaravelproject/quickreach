@@ -479,9 +479,7 @@
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
     <div class="menu-drawer" id="menuDrawer">
         <div class="drawer-header">
-            <span class="header-brand" style="font-size: 18px;">
-                Qwick<span>Reach</span>
-            </span>
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 35px; width: auto; object-fit: contain;">
             <button class="drawer-close-btn" onclick="closeMenu()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
@@ -585,7 +583,7 @@
                     stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
                 </svg></button>
-            <span class="header-brand">Qwick<span>Reach</span></span>
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 30px; width: auto; object-fit: contain;">
             <button class="header-bell-btn" onclick="openAnnouncement()">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24">

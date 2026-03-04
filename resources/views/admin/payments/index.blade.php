@@ -86,6 +86,14 @@
                         <option value="cod">Cash on Delivery</option>
                     </select>
 
+                    {{-- Start Date --}}
+                    <input type="date" x-model="filters.start_date" @change="filters.page = 1; fetchData()"
+                        style="height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 10px; font-weight: 700; font-size: 12px; color: var(--text);">
+
+                    {{-- End Date --}}
+                    <input type="date" x-model="filters.end_date" @change="filters.page = 1; fetchData()"
+                        style="height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--card2); padding: 0 10px; font-weight: 700; font-size: 12px; color: var(--text);">
+
                     {{-- Reset --}}
                     <button @click="resetFilters()" class="btn-outline"
                         style="height: 40px; padding: 0 15px; border-radius: 10px; font-weight: 700; font-size: 11px;">
@@ -125,12 +133,15 @@
                 orders: [],
                 loading: false,
                 exporting: false,
-                filters: {
-                    search: '',
-                    status: '',
-                    payment_method: '',
-                    page: 1,
-                },
+                    filters: {
+                        search: '',
+                        status: '',
+                        payment_method: '',
+                        start_date: '',
+                        end_date: '',
+                        page: 1,
+                    },
+                    selectedIds: [],
                 pagination: {
                     current_page: 1,
                     last_page: 1,
@@ -147,6 +158,9 @@
                     Object.entries(this.filters).forEach(([k, v]) => {
                         if (v) params.set(k, v);
                     });
+
+                    // Reset selected IDs when fetching new data
+                    this.selectedIds = [];
 
                     try {
                         const response = await fetch(`{{ route('admin.payments.index') }}?${params.toString()}`, {
@@ -194,13 +208,16 @@
 
                 exportCSV() {
                     this.exporting = true;
-                    const params = new URLSearchParams({
-                        search: this.filters.search,
-                        status: this.filters.status,
-                        payment_method: this.filters.payment_method,
-                    }).toString();
+                    const params = new URLSearchParams();
+                    Object.entries(this.filters).forEach(([k, v]) => {
+                        if (v) params.set(k, v);
+                    });
+                    // Include selected IDs if any
+                    if (this.selectedIds.length) {
+                        params.set('selected_ids', this.selectedIds.join(','));
+                    }
                     const a = document.createElement('a');
-                    a.href = `{{ route('admin.payments.export') }}?${params}`;
+                    a.href = `{{ route('admin.payments.export') }}?${params.toString()}`;
                     a.download = '';
                     document.body.appendChild(a);
                     a.click();
@@ -251,6 +268,22 @@
                     el.style.background = type === 'success' ? '#16a34a' : '#dc2626';
                     el.style.display = 'block';
                     setTimeout(() => el.style.display = 'none', 4000);
+                },
+
+                toggleOrderSelect(orderId) {
+                    if (this.selectedIds.includes(orderId)) {
+                        this.selectedIds = this.selectedIds.filter(id => id !== orderId);
+                    } else {
+                        this.selectedIds.push(orderId);
+                    }
+                },
+
+                selectAllOrdersToggle() {
+                    if (this.selectedIds.length === this.orders.length) {
+                        this.selectedIds = [];
+                    } else {
+                        this.selectedIds = this.orders.map(o => o.id);
+                    }
                 },
             }
         }

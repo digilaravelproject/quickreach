@@ -26,6 +26,12 @@
         <table class="data-table" style="width: 100%; min-width: 960px; border-collapse: collapse;">
             <thead>
                 <tr style="background: var(--card2); border-bottom: 1px solid var(--border);">
+                    {{-- Select All Checkbox --}}
+                    <th style="padding: 14px 20px; text-align: center; width: 50px;">
+                        <input type="checkbox" @change="selectAllOrdersToggle()"
+                            :checked="orders.length > 0 && selectedIds.length === orders.length"
+                            style="width: 14px; height: 14px; cursor: pointer; accent-color: var(--blue);">
+                    </th>
                     <th
                         style="padding: 14px 20px; text-align: left; font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase;">
                         Order</th>
@@ -55,6 +61,12 @@
             <tbody>
                 <template x-for="order in orders" :key="order.id">
                     <tr style="border-bottom: 1px solid var(--border);">
+
+                        {{-- Checkbox --}}
+                        <td style="padding: 15px 20px; text-align: center;">
+                            <input type="checkbox" @change="toggleOrderSelect(order.id)" :checked="selectedIds.includes(order.id)"
+                                style="width: 14px; height: 14px; cursor: pointer; accent-color: var(--blue);">
+                        </td>
 
                         {{-- Order --}}
                         <td style="padding: 15px 20px;">

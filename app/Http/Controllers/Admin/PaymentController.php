@@ -43,6 +43,15 @@ class PaymentController extends Controller
             $query->where('payment_method', $request->payment_method);
         }
 
+        // Date range filters (start_date, end_date)
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
         $orders = $query->latest()->paginate(10);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -302,6 +311,23 @@ class PaymentController extends Controller
 
         if ($request->filled('payment_method')) {
             $query->where('payment_method', $request->payment_method);
+        }
+
+        // Date range filters for export
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // If selected_ids is provided (CSV export for selected rows), filter by those ids
+        if ($request->filled('selected_ids')) {
+            $ids = array_filter(explode(',', $request->selected_ids));
+            if (!empty($ids)) {
+                $query->whereIn('id', $ids);
+            }
         }
 
         $orders = $query->latest()->get();
