@@ -280,14 +280,14 @@ class UserController extends Controller
         $shippingData  = $request->shipping_data;
         $paymentMethod = $request->payment_method;
         $subtotal      = collect($cartItems)->sum(fn($i) => $i['price'] * $i['quantity']);
-        
+
         $discount      = 0;
         $appliedCoupon = null;
         $appliedCouponId = null;
 
         if ($request->filled('coupon_code')) {
             $coupon = Coupon::where('code', $request->coupon_code)->where('is_active', true)->first();
-            
+
             // Validate: Exists, is not the their own coupon, and is not expired
             if ($coupon && (!$user || $coupon->user_id !== $user->id) && (!$coupon->expires_at || !$coupon->expires_at->isPast())) {
                 $appliedCoupon = $coupon->code;
@@ -347,7 +347,7 @@ class UserController extends Controller
 
             // 4. Online — create Razorpay order
             $razorpay      = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
-            
+
             // If totalPay becomes 0 after discount, handle it by bypassing Razorpay entirely
             if ($totalPay <= 0 && $paymentMethod === 'online') {
                 $order->update([
@@ -424,69 +424,105 @@ class UserController extends Controller
     }
 
 
+    // public function verifyPayment(Request $request)
+    // {
+    //     // 1. Validate only existing fields (Removed signature and payment_id from validation)
+    //     $request->validate([
+    //         'order_id'          => 'required|string',
+    //         'internal_order_id' => 'required|integer|exists:orders,id',
+    //     ]);
+
+    //     // 2. Load order
+    //     $order = Order::with('items.category')->findOrFail($request->internal_order_id);
+
+    //     DB::beginTransaction();
+    //     try {
+    //         // 3. Mark order as completed
+    //         // NOTE: Removed 'razorpay_payment_id' and 'payment_id' because they don't exist in your DB
+    //         $order->update([
+    //             'payment_status' => 'completed',
+    //             'status'         => 'confirmed',
+    //             'paid_at'        => now(),
+    //         ]);
+
+    //         // 4. Assign QR codes
+    //         foreach ($order->items as $orderItem) {
+    //             $needed = $orderItem->quantity;
+
+    //             $qrQuery = QrCode::where('status', 'available')
+    //                 ->where('category_id', $orderItem->category_id)
+    //                 ->lockForUpdate()
+    //                 ->limit($needed);
+
+    //             // Apply source filter only if 'source' column exists
+    //             if (\Schema::hasColumn('qr_codes', 'source')) {
+    //                 $qrQuery->where(function ($q) {
+    //                     $q->whereNull('source')
+    //                         ->orWhere('source', 'online_order');
+    //                 });
+    //             }
+
+    //             $qrCodes = $qrQuery->get();
+
+    //             if ($qrCodes->count() < $needed) {
+    //                 DB::rollBack();
+    //                 return response()->json([
+    //                     'success' => false,
+    //                     'message' => "Stock error during processing. Contact support.",
+    //                 ], 422);
+    //             }
+
+    //             foreach ($qrCodes as $qr) {
+    //                 $updateData = [
+    //                     'status'      => 'sold',
+    //                     'order_id'    => $order->id,
+    //                     'user_id'     => $order->user_id,
+    //                     'assigned_at' => now(),
+    //                 ];
+
+    //                 if (\Schema::hasColumn('qr_codes', 'source')) {
+    //                     $updateData['source'] = 'online_order';
+    //                 }
+
+    //                 $qr->update($updateData);
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'success'  => true,
+    //             'order_id' => $order->id,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         \Log::error('verifyPayment failed: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Payment verification failed. Please contact support.',
+    //         ], 500);
+    //     }
+    // }
+
     public function verifyPayment(Request $request)
     {
-        // 1. Validate only existing fields (Removed signature and payment_id from validation)
+        // 1. Validate only existing fields
         $request->validate([
             'order_id'          => 'required|string',
             'internal_order_id' => 'required|integer|exists:orders,id',
         ]);
 
         // 2. Load order
-        $order = Order::with('items.category')->findOrFail($request->internal_order_id);
+        $order = Order::findOrFail($request->internal_order_id);
 
         DB::beginTransaction();
         try {
             // 3. Mark order as completed
-            // NOTE: Removed 'razorpay_payment_id' and 'payment_id' because they don't exist in your DB
             $order->update([
                 'payment_status' => 'completed',
                 'status'         => 'confirmed',
                 'paid_at'        => now(),
             ]);
-
-            // 4. Assign QR codes
-            foreach ($order->items as $orderItem) {
-                $needed = $orderItem->quantity;
-
-                $qrQuery = QrCode::where('status', 'available')
-                    ->where('category_id', $orderItem->category_id)
-                    ->lockForUpdate()
-                    ->limit($needed);
-
-                // Apply source filter only if 'source' column exists
-                if (\Schema::hasColumn('qr_codes', 'source')) {
-                    $qrQuery->where(function ($q) {
-                        $q->whereNull('source')
-                            ->orWhere('source', 'online_order');
-                    });
-                }
-
-                $qrCodes = $qrQuery->get();
-
-                if ($qrCodes->count() < $needed) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Stock error during processing. Contact support.",
-                    ], 422);
-                }
-
-                foreach ($qrCodes as $qr) {
-                    $updateData = [
-                        'status'      => 'sold',
-                        'order_id'    => $order->id,
-                        'user_id'     => $order->user_id,
-                        'assigned_at' => now(),
-                    ];
-
-                    if (\Schema::hasColumn('qr_codes', 'source')) {
-                        $updateData['source'] = 'online_order';
-                    }
-
-                    $qr->update($updateData);
-                }
-            }
 
             DB::commit();
 
