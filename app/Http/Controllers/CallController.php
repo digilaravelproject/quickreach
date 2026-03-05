@@ -4,67 +4,119 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use App\Models\QrCode;
+use App\Models\QrRegistration;
 use App\Models\CallLog;
 
 class CallController extends Controller
 {
-    // Step 1: Frontend se call aata hai - Owner ko call karo
     public function callOwner(Request $request, $qrId)
     {
-        $qrCode = QrCode::with('owner')->findOrFail($qrId);
+        // 1. Find QR Code
+        $qrCode = QrCode::findOrFail($qrId);
 
-        $callerMobile = $request->input('caller_number');
+        // 2. Find Owner Registration
+        $registration = QrRegistration::where('qr_code_id', $qrCode->id)->first();
 
-        // Agar emergency contact number aaya toh use karo, warna owner ka number
-        $agentMobile = $request->input('agent_number')
-            ?? $qrCode->owner->mobile_number;
+        if (!$registration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Owner registration not found',
+            ], 404);
+        }
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('BONVOICE_API_TOKEN'),
-            'Content-Type'  => 'application/json',
-        ])->post(env('BONVOICE_BASE_URL') . '/click-to-call', [
-            'did'      => env('BONVOICE_DID'),
-            'agent'    => $agentMobile,
-            'customer' => $callerMobile,
+        // 3. Get Numbers
+        $callerMobile = trim($request->input('caller_number')); 
+        $agentMobile  = trim($request->input('agent_number')) ?: $registration->mobile_number;
+
+        // 4. Clean and Format Numbers (Ensure 91 prefix)
+        $formatNumber = function($number) {
+            $clean = preg_replace('/\D/', '', $number);
+            // If it's 10 digits, add 91
+            if (strlen($clean) === 10) {
+                return '91' . $clean;
+            }
+            // If it starts with 0 and then 10 digits
+            if (strlen($clean) === 11 && str_starts_with($clean, '0')) {
+                return '91' . substr($clean, 1);
+            }
+            // If it's already 12 digits starting with 91, leave it
+            return $clean;
+        };
+
+        $destination  = $formatNumber($callerMobile);
+        $destinationB = $formatNumber($agentMobile);
+
+        Log::info('MSG91 CTC Request', [
+            'qr_id'        => $qrId,
+            'destination'  => $destination,
+            'destinationB' => $destinationB,
         ]);
 
-        CallLog::create([
-            'qr_id'    => $qrId,
-            'caller'   => $callerMobile,
-            'agent'    => $agentMobile,
-            'status'   => $response->successful() ? 'initiated' : 'failed',
-            'response' => $response->body(),
-        ]);
+        // 5. MSG91 Click-to-Call API
+        try {
+            $response = Http::withHeaders([
+                'authkey'      => config('services.msg91.auth_key'),
+                'accept'       => 'application/json',
+                'content-type' => 'application/json',
+            ])->post('https://control.msg91.com/api/v5/voice/call/ctc', [
+                'caller_id'    => config('services.msg91.caller_id'),
+                'destination'  => $destination,
+                'destinationB' => [$destinationB],
+            ]);
 
-        return response()->json([
-            'success' => $response->successful(),
-            'message' => $response->successful() ? 'Call connecting...' : 'Call failed'
-        ]);
+            $responseData = $response->json();
+
+            Log::info('MSG91 CTC Response', [
+                'http_status' => $response->status(),
+                'body'        => $response->body(),
+            ]);
+
+            // MSG91 returns 'type' => 'success' on success
+            $isSuccess = $response->successful() && isset($responseData['type']) && $responseData['type'] === 'success';
+
+            // 6. Create Call log
+            CallLog::create([
+                'qr_id'    => $qrId,
+                'caller'   => $destination,
+                'agent'    => $destinationB,
+                'status'   => $isSuccess ? 'initiated' : 'failed',
+                'response' => $response->body(),
+            ]);
+
+            return response()->json([
+                'success' => $isSuccess,
+                'message' => $isSuccess
+                    ? 'Call aa rahi hai aapke number pe!'
+                    : 'Call failed: ' . ($responseData['message'] ?? 'API Error'),
+                'debug'   => $responseData,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('MSG91 Exception', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
-    // Step 2: Bonvoice Webhook - Incoming call pe agent route karo
     public function callRouting(Request $request)
     {
-        $did    = $request->input('did');
-        $caller = $request->input('from');
+        $did = $request->input('did');
+        $registration = QrRegistration::where('did_number', $did)->first();
 
-        // QR code se owner dhundo jiska DID match kare
-        $qrCode = QrCode::whereHas('owner', function ($q) use ($did) {
-            $q->where('did_number', $did);
-        })->with('owner')->first();
-
-        if ($qrCode) {
+        if ($registration) {
             return response()->json([
                 'status'      => '1',
-                'destination' => $qrCode->owner->mobile_number,
+                'destination' => $registration->mobile_number,
             ]);
         }
 
-        // Fallback
         return response()->json([
             'status'      => '1',
-            'destination' => env('DEFAULT_AGENT'),
+            'destination' => config('services.msg91.default_agent'),
         ]);
     }
 }
