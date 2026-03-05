@@ -23,11 +23,11 @@ class QrScanController extends Controller
             ->firstOrFail();
 
         // Scan log karo
-        $this->logScan($qrCode, $request);
-        if ($qrCode->status === 'available') {
-            return view('scanner.not-active', compact('qrCode'))
-                ->with('info', 'This tag is available for purchase.');
-        }
+        // $this->logScan($qrCode, $request);
+        // if ($qrCode->status === 'available') {
+        //     return view('scanner.not-active', compact('qrCode'))
+        //         ->with('info', 'This tag is available for purchase.');
+        // }
 
 
         $registration = QrRegistration::where('qr_code_id', $qrCode->id)->first();

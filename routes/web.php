@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ContactControllerAdmin;
 use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\UserNewController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
+use App\Http\Controllers\Admin\UseCaseController;
 
 use App\Http\Controllers\UserQrRegistrationController;
 use App\Http\Controllers\ContactController;
@@ -73,11 +74,7 @@ Route::middleware('auth')->prefix('user')->name('user.')->group(
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        // Verify payment signature after Razorpay callback
-        Route::post('/verify-payment',      [UserController::class, 'verifyPayment'])->name('verify.payment');
 
-        // Order success page
-        Route::get('/order-success',        [UserController::class, 'orderSuccess'])->name('order.success');
 
         // ── User Dashboard ───────────────────────────────────────────
         Route::get('/my-qrs',               [UserController::class, 'myQrs'])->name('my-qrs');
@@ -156,6 +153,11 @@ Route::prefix('scan')->name('qr.')->group(function () {
 // });
 
 Route::prefix('user')->name('user.')->group(function () {
+    // Verify payment signature after Razorpay callback
+    Route::post('/verify-payment',      [UserController::class, 'verifyPayment'])->name('verify.payment');
+
+    // Order success page
+    Route::get('/order-success',        [UserController::class, 'orderSuccess'])->name('order.success');
 
     // --- Public Store Routes ---
     Route::get('/privacy-policy', [PrivacyPolicyController::class, 'index'])->name('privacy.index');
@@ -206,6 +208,23 @@ Route::get('payments/export', [AdminPaymentController::class, 'export'])
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::controller(UseCaseController::class)->group(function () {
+        // List and Search (Index)
+        Route::get('use-cases', 'index')->name('use-cases.index');
+
+        // Create/Store
+        Route::post('use-cases', 'store')->name('use-cases.store');
+
+        // Update (AJAX/Patch)
+        Route::patch('use-cases/{useCase}', 'update')->name('use-cases.update');
+
+        // Delete
+        Route::delete('use-cases/{useCase}', 'destroy')->name('use-cases.destroy');
+
+        // Optional: Bulk Delete (Agar aapko zarurat ho)
+        Route::post('use-cases/bulk-destroy', 'bulkDestroy')->name('use-cases.bulk-destroy');
+    });
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/contacts', [ContactControllerAdmin::class, 'index'])->name('contacts.index');
