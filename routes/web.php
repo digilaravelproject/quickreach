@@ -16,6 +16,8 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\Admin\UserNewController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\UseCaseController;
+use App\Http\Controllers\Admin\EmergencyController;
+use App\Http\Controllers\Admin\HowItWorksController;
 
 use App\Http\Controllers\UserQrRegistrationController;
 use App\Http\Controllers\ContactController;
@@ -209,6 +211,22 @@ Route::get('payments/export', [AdminPaymentController::class, 'export'])
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
+    Route::resource('how-it-works', HowItWorksController::class);
+
+    // Everyday Emergencies Routes
+    Route::controller(EmergencyController::class)->group(function () {
+        // List and AJAX Search
+        Route::get('emergencies', 'index')->name('emergencies.index');
+
+        // Add new point
+        Route::post('emergencies', 'store')->name('emergencies.store');
+
+        // Update existing point (Standard Patch for redirect)
+        Route::patch('emergencies/{emergency}', 'update')->name('emergencies.update');
+
+        // Delete point
+        Route::delete('emergencies/{emergency}', 'destroy')->name('emergencies.destroy');
+    });
     Route::controller(UseCaseController::class)->group(function () {
         // List and Search (Index)
         Route::get('use-cases', 'index')->name('use-cases.index');
