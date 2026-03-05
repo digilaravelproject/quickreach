@@ -28,7 +28,7 @@
         };
     </script>
 
-    <div class="p-6 pb-32 max-w-md mx-auto" x-data="checkoutFlow()" style="background-color: #F0F0FA; min-height: 100vh;">
+    <div class="p-6 pb-32 max-w-md" x-data="checkoutFlow()" style="background-color: #F0F0FA; min-height: 100vh;">
 
         <!-- Toast Notification -->
         <div x-show="toast.show" x-transition.opacity.duration.300ms

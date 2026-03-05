@@ -152,7 +152,7 @@
             <div class="relative z-10 px-14 max-w-xl">
                 <div class="mb-10">
                     <div class="mb-6 flex justify-center md:justify-start">
-                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 60px; width: auto; object-fit: contain;">
+                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 60px; width: auto; object-fit: contain;">
                     </div>
                     <h1 class="text-5xl font-bold text-white leading-tight mb-4">Secure Access<br />Portal
                     </h1>
@@ -173,7 +173,7 @@
 
                     <!-- Mobile Logo (Shows only on mobile view) -->
                     <div class="md:hidden mb-6 text-center flex justify-center">
-                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 50px; width: auto; object-fit: contain;">
+                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 50px; width: auto; object-fit: contain;">
                     </div>
 
                     <!-- Centered Header -->

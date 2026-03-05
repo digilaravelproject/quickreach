@@ -7,7 +7,7 @@
     </button>
 
     <div class="brand-wrap">
-        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="brand-name" style="height: 35px; width: auto; object-fit: contain;">
+        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" class="brand-name" style="height: 35px; width: auto; object-fit: contain;">
     </div>
 
     <div class="nav-scroll">

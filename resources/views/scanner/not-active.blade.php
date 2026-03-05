@@ -44,7 +44,7 @@
             {{-- ── FOOTER BRAND ── --}}
             <div class="mt-16 opacity-40 flex justify-center">
                 <p class="font-sans text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] flex items-center gap-2">
-                    <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 15px; width: auto; object-fit: contain;">
+                    <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 15px; width: auto; object-fit: contain;">
                     Security
                 </p>
             </div>

@@ -3,36 +3,45 @@
     <div class="px-4 pt-6 pb-24 max-w-md mx-auto min-h-screen" style="background-color: #F0F0FA;">
 
         {{-- ── HERO SWIPER ── --}}
-        <div class="swiper heroSwiper mb-8 rounded-2xl overflow-hidden shadow-xl"
-            style="height: 205px; width: 100%; position: relative;">
-            <div class="swiper-wrapper" style="display: flex;">
+        <div class="swiper heroSwiper mb-8 rounded-2xl overflow-hidden shadow-xl">
+
+            <div class="swiper-wrapper">
+        
                 @forelse ($sliders as $slider)
-                    <div class="swiper-slide relative w-full h-full flex-shrink-0">
-                        <div class="absolute inset-0">
-                            <img src="{{ asset('storage/' . $slider->image_path) }}" class="w-full h-full object-cover"
-                                style="object-position: center 20%; display: block;" alt="Banner"
-                                onerror="this.src='https://placehold.co/600x400?text=QwickReach+Banner'">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent">
-                            </div>
-                        </div>
-                        @if ($slider->link)
-                            <div class="relative p-6 flex flex-col justify-end h-full z-10">
-                                <a href="{{ $slider->link }}"
-                                    class="inline-block w-fit text-white text-[11px] font-black px-6 py-2.5 rounded-full shadow-2xl active:scale-95 transition-all"
-                                    style="background-color: #1A1A3E; border: 1px solid rgba(255,255,255,0.2);">
-                                    SHOP NOW
-                                </a>
-                            </div>
-                        @endif
+                <div class="swiper-slide relative">
+        
+                    <img
+                        src="{{ asset('storage/'.$slider->image_path) }}"
+                        alt="Banner"
+                        class="w-full banner-img object-contain"
+                        onerror="this.src='https://placehold.co/600x400?text=QwickReach+Banner'"
+                    >
+        
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+        
+                    @if($slider->link)
+                    <div class="absolute bottom-5 left-5">
+                        <a href="{{ $slider->link }}"
+                           class="text-white text-[11px] font-black px-6 py-2 rounded-full"
+                           style="background:#1A1A3E;">
+                           SHOP NOW
+                        </a>
                     </div>
+                    @endif
+        
+                </div>
                 @empty
-                    <div class="swiper-slide flex items-center justify-center" style="background:#E8E8F8;">
-                        <p class="font-bold uppercase text-[10px] tracking-widest" style="color:#9B9BB4;">Promotion
-                            Banners</p>
-                    </div>
+                <div class="swiper-slide flex items-center justify-center bg-[#E8E8F8] banner-img">
+                    <p class="font-bold text-[10px] text-[#9B9BB4] uppercase tracking-widest">
+                        Promotion Banners
+                    </p>
+                </div>
                 @endforelse
+        
             </div>
+        
             <div class="swiper-pagination"></div>
+        
         </div>
 
         {{-- ── CATEGORIES CHIPS ── --}}
@@ -175,6 +184,29 @@
 
         .product-card.hidden-card {
             display: none;
+        }
+        
+        .heroSwiper {
+            width: 100%;
+        }
+        
+        /* Mobile */
+        .banner-img{
+            width:100%;
+            height:205px;
+            object-fit:contain;
+        }
+        
+        /* Desktop */
+        @media (min-width:768px){
+        
+            .banner-img{
+                width:100%;
+                height:auto;
+                max-height:420px;
+                object-fit:contain;
+            }
+        
         }
     </style>
 

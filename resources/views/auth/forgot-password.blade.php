@@ -307,7 +307,7 @@
 
         <!-- Logo -->
         <div class="logo" style="display: flex; justify-content: center;">
-            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 60px; width: auto; object-fit: contain;">
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 60px; width: auto; object-fit: contain;">
         </div>
 
         <!-- Lock Icon -->

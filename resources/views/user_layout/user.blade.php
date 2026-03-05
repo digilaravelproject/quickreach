@@ -38,6 +38,13 @@
             justify-content: center;
         }
 
+        @media (min-width: 769px) {
+            body {
+                display: grid;
+                grid-template-columns: 280px 1fr;
+            }
+        }
+
         .app-shell {
             width: 100%;
             max-width: 430px;
@@ -46,6 +53,20 @@
             min-height: 100vh;
             position: relative;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            padding-bottom: 70px;
+        }
+
+        @media (min-width: 769px) {
+            .app-shell {
+                max-width: 100%;
+                margin: 0;
+                box-shadow: none;
+                padding-bottom: 0;
+                grid-column: 2;
+                grid-row: 1;
+                display: flex;
+                flex-direction: column;
+            }
         }
 
         /* ── TOP HEADER ── */
@@ -63,6 +84,14 @@
             align-items: center;
             justify-content: space-between;
             padding: 12px 20px;
+        }
+
+        @media (min-width: 769px) {
+            .top-header {
+                max-width: 100%;
+                padding: 16px 40px;
+                justify-content: flex-end;
+            }
         }
 
         .header-menu-btn {
@@ -324,7 +353,7 @@
             transform: translateX(0);
         }
 
-        @media (min-width: 431px) {
+        @media (min-width: 431px) and (max-width: 768px) {
             .menu-drawer {
                 left: 50%;
                 transform: translateX(-215px) translateX(-100%);
@@ -332,6 +361,20 @@
 
             .menu-drawer.open {
                 transform: translateX(-215px) translateX(0);
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu-drawer {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 280px;
+                height: 100vh;
+                transform: translateX(0);
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                border-right: 1px solid var(--brand-border);
+                border-radius: 0;
             }
         }
 
@@ -370,6 +413,12 @@
             cursor: pointer;
             color: var(--brand-navy);
             transition: all 0.2s ease;
+        }
+
+        @media (min-width: 769px) {
+            .drawer-close-btn {
+                display: none;
+            }
         }
 
         .menu-item {
@@ -418,6 +467,17 @@
 
         .no-scrollbar::-webkit-scrollbar {
             display: none;
+        }
+        
+        .max-w-md {
+            max-width: 60rem !important;
+        }
+
+        /* Hide bottom navbar on desktop */
+        @media (min-width: 768px) {
+            .bottom-nav, .header-menu-btn, .qw_logo {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -479,7 +539,7 @@
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
     <div class="menu-drawer" id="menuDrawer">
         <div class="drawer-header">
-            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 35px; width: auto; object-fit: contain;">
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 35px; width: auto; object-fit: contain;">
             <button class="drawer-close-btn" onclick="closeMenu()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
@@ -583,7 +643,7 @@
                     stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
                 </svg></button>
-            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 30px; width: auto; object-fit: contain;">
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 30px; width: auto; object-fit: contain;">
             <button class="header-bell-btn" onclick="openAnnouncement()">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24">

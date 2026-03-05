@@ -1,7 +1,7 @@
 <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     class="fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 shadow-2xl flex flex-col">
     <div class="h-20 flex items-center px-8 border-b border-slate-800">
-        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 35px; width: auto; object-fit: contain;">
+        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 35px; width: auto; object-fit: contain;">
     </div>
 
     <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">

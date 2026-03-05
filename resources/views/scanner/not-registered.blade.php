@@ -55,7 +55,7 @@
 
                 <div class="mt-8 pt-6 border-t border-gray-100 flex justify-center">
                     <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-2">
-                        Powered by <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" style="height: 15px; width: auto; object-fit: contain;">
+                        Powered by <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 15px; width: auto; object-fit: contain;">
                     </p>
                 </div>
             </div>
