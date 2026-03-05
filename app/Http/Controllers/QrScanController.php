@@ -21,9 +21,8 @@ class QrScanController extends Controller
         $qrCode = QrCode::with(['category'])
             ->where('qr_code', $code)
             ->firstOrFail();
-
+        $this->logScan($qrCode, $request);
         // Scan log karo
-        // $this->logScan($qrCode, $request);
         // if ($qrCode->status === 'available') {
         //     return view('scanner.not-active', compact('qrCode'))
         //         ->with('info', 'This tag is available for purchase.');
