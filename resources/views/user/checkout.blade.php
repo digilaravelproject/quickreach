@@ -1,6 +1,15 @@
 @extends('user_layout.user')
 
 @section('content')
+    <style>
+        .top-2 {
+            top: -0.5rem !important;
+        }
+
+        .right-2 {
+            right: -0.5rem !important;
+        }
+    </style>
     <script>
         window.__AUTH__ = {
             isLoggedIn: {{ Auth::check() ? 'true' : 'false' }},
@@ -130,8 +139,17 @@
         <div x-show="step === 1" x-transition.opacity>
             <div class="space-y-4 mb-8">
                 <template x-for="(item, index) in cartItems" :key="item.id">
-                    <div class="flex items-center gap-4 p-4 rounded-[24px] border"
+                    <div class="flex items-center gap-4 p-4 rounded-[24px] border relative"
                         style="background:#EAEAF8; border-color:#DDDDF0;">
+                        <!-- Remove Cross Icon -->
+                        <button @click="removeItem(index)"
+                            class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-white hover:scale-110 transition-transform active:scale-95"
+                            style="background-color:#EF4444; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);"
+                            title="Remove item">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                            </svg>
+                        </button>
                         <div class="w-16 h-16 rounded-xl flex items-center justify-center p-2" style="background:#ffffff;">
                             <img :src="item.icon" class="w-full h-full object-contain">
                         </div>

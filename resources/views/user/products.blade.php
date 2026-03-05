@@ -99,9 +99,13 @@
                             onclick="event.stopPropagation(); addToCart({{ $category->id }}, '{{ addslashes($category->name) }}', {{ $category->price }}, '{{ asset($category->icon ?? 'images/bag-qr.png') }}')"
                             class="absolute bottom-2 right-2 w-9 h-9 text-white rounded-full shadow-xl flex items-center justify-center font-bold transition-transform active:scale-75"
                             style="background-color:#1A1A3E; border: 2px solid #ffffff;">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
                                 viewBox="0 0 24 24">
-                                <path d="M12 5v14m-7-7h14" stroke-linecap="round" />
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M1 1h4l2.68 12.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6">
+                                </path>
                             </svg>
                         </button>
                     </div>
