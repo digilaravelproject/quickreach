@@ -33,10 +33,30 @@ class UserController extends Controller
 
     // --- 1. Public Store Pages ---
 
+    // public function products()
+    // {
+
+    //     $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
+    //     $sliders = Slider::where('is_active', true)->orderBy('order_priority', 'asc')->get();
+
+    //     // Check stock availability for each category
+    //     $categories->each(function ($category) {
+    //         $category->in_stock = QrCode::where('category_id', $category->id)
+    //             ->where('status', 'available')
+    //             ->exists();
+    //     });
+
+    //     return view('user.products', compact('categories', 'sliders'));
+    // }
     public function products()
     {
         $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
         $sliders = Slider::where('is_active', true)->orderBy('order_priority', 'asc')->get();
+
+        // Naye Modules ka data fetch karein
+        $useCases = \App\Models\UseCase::all();
+        $emergencies = \App\Models\Emergency::all(); // Model name check kar lein
+        $howItWorks = \App\Models\HowItWork::orderBy('step_order', 'asc')->get();
 
         // Check stock availability for each category
         $categories->each(function ($category) {
@@ -45,7 +65,7 @@ class UserController extends Controller
                 ->exists();
         });
 
-        return view('user.products', compact('categories', 'sliders'));
+        return view('user.products', compact('categories', 'sliders', 'useCases', 'emergencies', 'howItWorks'));
     }
 
     public function showCategory(Category $category)

@@ -27,11 +27,11 @@ class CallController extends Controller
         }
 
         // 3. Get Numbers
-        $callerMobile = trim($request->input('caller_number')); 
+        $callerMobile = trim($request->input('caller_number'));
         $agentMobile  = trim($request->input('agent_number')) ?: $registration->mobile_number;
 
         // 4. Clean and Format Numbers (Ensure 91 prefix)
-        $formatNumber = function($number) {
+        $formatNumber = function ($number) {
             $clean = preg_replace('/\D/', '', $number);
             // If it's 10 digits, add 91
             if (strlen($clean) === 10) {
@@ -45,12 +45,13 @@ class CallController extends Controller
             return $clean;
         };
 
-        $destination  = $formatNumber($callerMobile);
-        $destinationB = $formatNumber($agentMobile);
+        $destination  = $formatNumber($agentMobile);
+        $destinationB = $formatNumber($callerMobile);
+        $owner_phone = $formatNumber($registration->mobile_number);
 
         Log::info('MSG91 CTC Request', [
             'qr_id'        => $qrId,
-            'destination'  => $destination,
+            'destination'  => $owner_phone,
             'destinationB' => $destinationB,
         ]);
 
@@ -62,7 +63,7 @@ class CallController extends Controller
                 'content-type' => 'application/json',
             ])->post('https://control.msg91.com/api/v5/voice/call/ctc', [
                 'caller_id'    => config('services.msg91.caller_id'),
-                'destination'  => $destination,
+                'destination'  => $owner_phone,
                 'destinationB' => [$destinationB],
             ]);
 
@@ -79,8 +80,8 @@ class CallController extends Controller
             // 6. Create Call log
             CallLog::create([
                 'qr_id'    => $qrId,
-                'caller'   => $destination,
-                'agent'    => $destinationB,
+                'caller'   => $owner_phone,
+                'agent'    => $owner_phone,
                 'status'   => $isSuccess ? 'initiated' : 'failed',
                 'response' => $response->body(),
             ]);
@@ -92,7 +93,6 @@ class CallController extends Controller
                     : 'Call failed: ' . ($responseData['message'] ?? 'API Error'),
                 'debug'   => $responseData,
             ]);
-
         } catch (\Exception $e) {
             Log::error('MSG91 Exception', ['error' => $e->getMessage()]);
             return response()->json([
