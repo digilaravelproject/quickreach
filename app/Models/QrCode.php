@@ -16,7 +16,6 @@ class QrCode extends Model
     protected $fillable = [
         'qr_code',
         'category_id',
-        'qr_batch_id',
         'user_id',
         'qr_image_path',
         'order_id',
@@ -43,14 +42,23 @@ class QrCode extends Model
         return $this->belongsTo(Order::class);
     }
 
+    public function owner()
+    {
+        return $this->hasOne(QrRegistration::class, 'qr_code_id', 'id');
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function registration(): HasOne
+    // public function registration(): HasOne
+    // {
+    //     return $this->hasOne(QrRegistration::class, 'qr_code_id', 'id');
+    // }
+    public function registration()
     {
-        return $this->hasOne(QrRegistration::class, 'qr_code_id', 'id');
+        return $this->hasOne(QrRegistration::class, 'qr_code_id');
     }
 
     public function scans(): HasMany

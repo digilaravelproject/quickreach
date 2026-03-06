@@ -128,8 +128,10 @@
 
                 {{-- Footer --}}
                 <div class="text-center pt-6 pb-2 flex justify-center">
-                    <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-2 justify-center">
-                        Powered by <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 15px; width: auto; object-fit: contain;">
+                    <p
+                        class="text-gray-400 text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-2 justify-center">
+                        Powered by <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo"
+                            class="qw_logo" style="height: 15px; width: auto; object-fit: contain;">
                     </p>
                 </div>
             </div>
