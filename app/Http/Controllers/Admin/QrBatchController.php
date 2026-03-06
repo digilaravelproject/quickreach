@@ -240,6 +240,7 @@ class QrBatchController extends Controller
   <div class="scan-btn">
     <div class="scan-label">SCAN TO</div>
     <div class="contact-text">CONTACT OWNER</div>
+    <div class="qr-code-text">' . $code . '</div>
   </div>
 
   <div class="features">
@@ -415,6 +416,7 @@ class QrBatchController extends Controller
   }
   .scan-label::before, .scan-label::after { content:""; flex:1; height:0.5px; background:rgba(255,255,255,0.3); }
   .contact-text { font-size:14px; font-weight:900; color:#fff; letter-spacing:1px; }
+  .qr-code-text { font-size:7.5px; font-weight:700; color:rgba(255,255,255,0.65); letter-spacing:2px; margin-top:3px; text-align:center; }
 
   /* ---- features ---- */
   .features {
