@@ -166,6 +166,7 @@ Route::prefix('user')->name('user.')->group(function () {
     Route::get('/category/{category}', [UserController::class, 'showCategory'])->name('category');
     Route::get('/checkout', [UserController::class, 'cartCheckout'])->name('checkout');
     Route::get('/about-us', [AboutController::class, 'index'])->name('about.index');
+    Route::get('/privacy-refund', [AboutController::class, 'refund'])->name('privacy-refund.index');
     // User routes for Contact Page
     Route::get('/contact-us', [ContactController::class, 'index'])->name('contact.index');
     Route::post('/contact-us', [ContactController::class, 'store'])->name('contact.store');

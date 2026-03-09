@@ -468,14 +468,17 @@
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-        
+
         .max-w-md {
             max-width: 60rem !important;
         }
 
         /* Hide bottom navbar on desktop */
         @media (min-width: 768px) {
-            .bottom-nav, .header-menu-btn, .qw_logo {
+
+            .bottom-nav,
+            .header-menu-btn,
+            .qw_logo {
                 display: none !important;
             }
         }
@@ -539,7 +542,8 @@
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
     <div class="menu-drawer" id="menuDrawer">
         <div class="drawer-header">
-            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 35px; width: auto; object-fit: contain;">
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo"
+                style="height: 35px; width: auto; object-fit: contain;">
             <button class="drawer-close-btn" onclick="closeMenu()">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"
                     viewBox="0 0 24 24">
@@ -604,6 +608,15 @@
                     </div>
                     Privacy Policy
                 </a>
+                <a href="{{ route('user.privacy-refund.index') }}" class="menu-item">
+                    <div class="menu-icon">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    Privacy & Refund Policy
+                </a>
 
                 {{-- <a href="{{ route('user.new.orders.index') }}" class="menu-item">
                     <div class="menu-icon">
@@ -618,7 +631,7 @@
             </div>
         </div>
         <div class="drawer-footer">
-            @if (Auth::check())
+            {{-- @if (Auth::check())
                 <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit"
                         class="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 border border-red-100"
                         style="background: #FEF2F2; color: #DC2626;"><svg width="16" height="16"
@@ -632,7 +645,7 @@
                     style="background: var(--brand-navy); color: #ffffff;">
                     Login
                 </a>
-            @endif
+            @endif --}}
             <p class="text-center text-[10px] mt-4 font-bold text-gray-400">QwickReach v2.0 · © 2026</p>
         </div>
     </div>
@@ -643,7 +656,8 @@
                     stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
                 </svg></button>
-            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo" style="height: 30px; width: auto; object-fit: contain;">
+            <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}" alt="QwickReach Logo" class="qw_logo"
+                style="height: 30px; width: auto; object-fit: contain;">
             <button class="header-bell-btn" onclick="openAnnouncement()">
                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                     viewBox="0 0 24 24">
