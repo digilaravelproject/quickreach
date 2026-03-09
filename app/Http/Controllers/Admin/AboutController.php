@@ -15,6 +15,12 @@ class AboutController extends Controller
         return view('admin.about.edit', compact('about'));
     }
 
+    public function refund()
+    {
+
+        return view('user.privacy-refund');
+    }
+
     // Admin: Update Logic
     public function update(Request $request)
     {
