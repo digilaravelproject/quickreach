@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\QrCode;
 use App\Models\CallLog;
+use Illuminate\Support\Facades\Cache;
 
 class CallController extends Controller
 {
@@ -65,6 +66,48 @@ class CallController extends Controller
         return response()->json([
             'status'      => '1',
             'destination' => env('DEFAULT_AGENT'),
+        ]);
+    }
+    
+    public function addOwnerMobileNoInSession($id)
+    {
+        $qrCode = QrCode::with('owner')->find($id);
+    
+        if ($qrCode && $qrCode->owner) {
+    
+            Cache::put('owner_call_number', $qrCode->owner->mobile_number, now()->addMinutes(10));
+    
+            return response()->json([
+                'msg' => $qrCode->owner->mobile_number . ' mobile number stored',
+            ]);
+            
+            $this->getOwnerMobileNo();
+        }
+    
+        return response()->json([
+            'msg' => 'mobile number not found',
+        ]);
+    }
+
+    public function getOwnerMobileNo()
+    {
+        $ownerMobile = Cache::get('owner_call_number');
+    
+        if ($ownerMobile) {
+    
+            $ownerMobile = preg_replace('/\D/', '', $ownerMobile);
+    
+            if (!str_starts_with($ownerMobile, '91') && strlen($ownerMobile) == 10) {
+                $ownerMobile = '91' . $ownerMobile;
+            }
+    
+            return response()->json([
+                'destination' => $ownerMobile
+            ]);
+        }
+    
+        return response()->json([
+            'msg' => 'mobile number not found',
         ]);
     }
 }

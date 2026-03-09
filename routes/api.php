@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QrScanController;
-
+use App\Http\Controllers\CallController;
 /*
 |--------------------------------------------------------------------------
 | API Routes for QR Scanning
@@ -11,6 +11,10 @@ use App\Http\Controllers\QrScanController;
 | These routes handle AJAX requests from the contact owner page
 |
 */
+
+// Get call to owner
+Route::get('/owner_session/{id}', [CallController::class, 'addOwnerMobileNoInSession'])->name('api.owner.session');
+Route::get('/owner_call', [CallController::class, 'getOwnerMobileNo'])->name('api.owner.mobile');
 
 // QR Code Scan Actions (No authentication required - public access)
 Route::prefix('qr')->group(function () {
@@ -31,3 +35,4 @@ Route::prefix('qr')->group(function () {
     Route::post('/{qrCode}/emergency-call', [QrScanController::class, 'initiateEmergencyCall'])
         ->name('api.qr.emergency-call');
 });
+
