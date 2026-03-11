@@ -334,6 +334,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     Route::delete('qr-batches/{qrBatch}', [AdminQrBatchController::class, 'destroy'])
         ->name('qr-batches.destroy');
+    Route::patch('qr-codes/{qrCode}/toggle-inactive', [AdminQrBatchController::class, 'toggleInactive'])
+        ->name('qr-codes.toggle-inactive');
 
     // ── QR Codes (generate + single QR detail) ────────────────
     // Resource se sirf create/store/show/destroy rakhna hai,

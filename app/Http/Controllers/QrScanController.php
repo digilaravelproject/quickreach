@@ -27,6 +27,9 @@ class QrScanController extends Controller
         //     return view('scanner.not-active', compact('qrCode'))
         //         ->with('info', 'This tag is available for purchase.');
         // }
+        if ($qrCode->status === 'inactive') {
+            return view('scanner.not-active', compact('qrCode'));
+        }
 
 
         $registration = QrRegistration::where('qr_code_id', $qrCode->id)->first();

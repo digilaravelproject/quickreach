@@ -57,6 +57,11 @@
                             'value' => $qrBatch->qrCodes()->where('status', 'registered')->count(),
                             'color' => 'var(--red)',
                         ],
+                        [
+                            'label' => 'Inactive',
+                            'value' => $qrBatch->qrCodes()->where('status', 'inactive')->count(),
+                            'color' => 'var(--text3)',
+                        ],
                     ];
                 @endphp
                 @foreach ($stats as $stat)
@@ -94,6 +99,7 @@
                             <option value="available">Available</option>
                             <option value="assigned">Assigned</option>
                             <option value="registered">Registered</option>
+                            <option value="inactive">Inactive</option>
                         </select>
 
                         <button @click="resetFilters()" class="btn-outline"
@@ -172,7 +178,8 @@
                                                 :class="{
                                                     'badge-paid': qr.status === 'available',
                                                     'badge-pending': qr.status === 'assigned',
-                                                    'badge-failed': qr.status === 'registered'
+                                                    'badge-failed': qr.status === 'registered',
+                                                    'badge-inactive': qr.status === 'inactive'
                                                 }"
                                                 style="padding: 4px 10px; font-size: 9px; font-weight: 800; text-transform: uppercase;"
                                                 x-text="qr.status"></span>
@@ -227,6 +234,31 @@
                                                     </svg>
                                                 </a>
 
+                                                {{-- Toggle Inactive / Activate (sirf available ya inactive) --}}
+                                                <button @click="toggleInactive(qr)"
+                                                    x-show="qr.status === 'available' || qr.status === 'inactive'"
+                                                    class="icon-btn"
+                                                    :title="qr.status === 'inactive' ? 'Activate' : 'Deactivate'"
+                                                    :style="`background: var(--card2); width: 30px; height: 30px; border: none; cursor: pointer; color: ${qr.status === 'inactive' ? 'var(--green)' : 'var(--text3)'};`">
+                                                    {{-- Eye-off = deactivate, Eye = activate --}}
+                                                    <template x-if="qr.status !== 'inactive'">
+                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                            style="width:14px;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2.5"
+                                                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95M6.938 6.938A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-1.357 2.598M6.938 6.938L3 3m3.938 3.938l10.124 10.124M3 3l18 18" />
+                                                        </svg>
+                                                    </template>
+                                                    <template x-if="qr.status === 'inactive'">
+                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                                            style="width:14px;">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2.5"
+                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                    </template>
+                                                </button>
+
                                                 {{-- Delete (sirf available) --}}
                                                 <button @click="deleteSingle(qr.id)" x-show="qr.status === 'available'"
                                                     class="icon-btn"
@@ -275,7 +307,7 @@
                     {{-- Empty --}}
                     <div x-show="!loading && qrCodes.length === 0" x-cloak
                         style="padding: 80px 0; text-align: center; color: var(--text3); font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                        Is batch mein koi QR code nahi mila.
+                        No QR codes found in this batch.
                     </div>
                 </div>
             </div>
@@ -368,8 +400,25 @@
                     this.selected = this.allSelected ? this.qrCodes.map(q => q.id) : [];
                 },
 
+                async toggleInactive(qr) {
+                    const action = qr.status === 'inactive' ? 'activate' : 'deactivate';
+                    if (!confirm(`Are you sure you want to ${action} this QR code?`)) return;
+                    try {
+                        const response = await fetch(`/admin/qr-codes/${qr.id}/toggle-inactive`, {
+                            method: 'PATCH',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        if (response.ok) this.fetchData();
+                    } catch (e) {
+                        alert('Toggle failed');
+                    }
+                },
+
                 async deleteSingle(id) {
-                    if (!confirm('Kya aap ye QR code delete karna chahte hain?')) return;
+                    if (!confirm('Are you sure you want to delete this QR code?')) return;
                     try {
                         const response = await fetch(`/admin/qr-codes/${id}`, {
                             method: 'DELETE',
@@ -385,7 +434,7 @@
                 },
 
                 async bulkDelete() {
-                    if (!confirm(`${this.selected.length} QR codes delete karna chahte hain?`)) return;
+                    if (!confirm(`Are you sure you want to delete ${this.selected.length} QR codes?`)) return;
                     try {
                         const response = await fetch("{{ route('admin.qr-codes.bulk-destroy') }}", {
                             method: 'POST',
@@ -426,6 +475,14 @@
             border-radius: 4px;
             border: 2px solid var(--border);
             cursor: pointer;
+        }
+
+        /* ── Inactive badge ── */
+        .badge-inactive {
+            background: rgba(120, 120, 140, 0.15);
+            color: var(--text3);
+            border: 1px solid rgba(120, 120, 140, 0.3);
+            border-radius: 50px;
         }
 
         @keyframes spin {
