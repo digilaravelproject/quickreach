@@ -264,6 +264,15 @@
     
     <script>
         function callOwnerSession(id, type) {
+            
+            // let callerNumber = prompt("Enter your mobile number");
+
+            // if (!callerNumber || callerNumber.length !== 10) {
+            //     alert("Please enter valid 10 digit mobile number");
+            //     return;
+            // }
+    
+            // fetch(`/api/owner_session/${id}?caller_number=${callerNumber}`)
             fetch(`/api/owner_session/${id}`)
                 .then(response => response.json())
                 .then(data => {
@@ -287,6 +296,15 @@
         }
         
         function callOwnerEmegSession(id, key, type) {
+            
+            // let EmegcallerNumber = prompt("Enter your mobile number");
+
+            // if (!EmegcallerNumber || EmegcallerNumber.length !== 10) {
+            //     alert("Please enter valid 10 digit mobile number");
+            //     return;
+            // }
+            
+            // fetch(`/api/owner_emeg_session/${id}/${key}?emeg_caller_number=${EmegcallerNumber}`)
             fetch(`/api/owner_emeg_session/${id}/${key}`)
                 .then(response => response.json())
                 .then(data => {

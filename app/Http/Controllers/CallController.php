@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\QrCode;
+use App\Models\FraudDetection;
 use App\Models\CallLog;
 use Illuminate\Support\Facades\Cache;
 
@@ -76,6 +77,30 @@ class CallController extends Controller
         if ($qrCode && $qrCode->owner) {
     
             Cache::put('owner_call_number', $qrCode->owner->mobile_number, now()->addMinute());
+            
+            $caller_number = '919999999999';
+            
+            // $caller_number = request()->caller_number;
+            
+            // if ($caller_number) {
+    
+            //     $caller_number = preg_replace('/\D/', '', $caller_number);
+        
+            //     if (!str_starts_with($caller_number, '91') && strlen($caller_number) == 10) {
+            //         $caller_number = '91' . $caller_number;
+            //     }
+            // }
+
+            // Save call initiated record
+            $fraud = FraudDetection::create([
+                'from_number' => $caller_number,
+                'qr_code_id' => $qrCode->qr_code,
+                'type' => 'normal_call',
+                'call_started_at' => now()
+            ]);
+
+            // Store ID in cache to update later
+            Cache::put('fraud_detection_id', $fraud->id, now()->addMinute());
     
             return response()->json([
                 'status' => true,
@@ -92,7 +117,7 @@ class CallController extends Controller
         ]);
     }
     
-    public function addOwnerEmegMobileNoInSession($id=null, $k=null)
+    public function addOwnerEmegMobileNoInSession($id=null, $k=null, Request $request)
     {
         $qrCode = QrCode::with('owner')->find($id);
     
@@ -101,6 +126,30 @@ class CallController extends Controller
             $eme_mobile = $qrCode->owner->{'friend_family_'.$k};
     
             Cache::put('owner_call_number', $eme_mobile, now()->addMinute());
+            
+            $emeg_caller_number = '919999999999';
+            
+            // $emeg_caller_number = request()->emeg_caller_number;
+            
+            // if ($emeg_caller_number) {
+    
+            //     $emeg_caller_number = preg_replace('/\D/', '', $emeg_caller_number);
+        
+            //     if (!str_starts_with($emeg_caller_number, '91') && strlen($emeg_caller_number) == 10) {
+            //         $emeg_caller_number = '91' . $emeg_caller_number;
+            //     }
+            // }
+
+            // Save call initiated record
+            $fraud = FraudDetection::create([
+                'from_number' => $emeg_caller_number,
+                'qr_code_id' => $qrCode->qr_code,
+                'type' => 'emergency_call',
+                'call_started_at' => now()
+            ]);
+
+            // Store ID in cache to update later
+            Cache::put('fraud_detection_id', $fraud->id, now()->addMinute());
     
             return response()->json([
                 'status' => true,
@@ -127,6 +176,17 @@ class CallController extends Controller
     
             if (!str_starts_with($ownerMobile, '91') && strlen($ownerMobile) == 10) {
                 $ownerMobile = '91' . $ownerMobile;
+            }
+
+            // Get fraud record id
+            $fraudId = Cache::get('fraud_detection_id');
+
+            if ($fraudId) {
+
+                FraudDetection::where('id', $fraudId)->update([
+                    'to_number' => $ownerMobile,
+                    'call_ended_at' => now()
+                ]);
             }
     
             return response()->json([
