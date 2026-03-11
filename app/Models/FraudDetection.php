@@ -11,6 +11,7 @@ class FraudDetection extends Model
         'to_number',
         'type',
         'qr_code_id',
+        'fraud',
         'call_started_at',
         'call_ended_at'
     ];

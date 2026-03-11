@@ -91,13 +91,23 @@ class CallController extends Controller
             //     }
             // }
 
+            // Count calls for this number in current month
+            $monthlyCount = FraudDetection::where('to_number', $qrCode->owner->mobile_number)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count();
+
+            // If already 5 calls exist then mark next as fraud
+            $fraudFlag = ($monthlyCount > 5) ? 1 : 0;
+
             // Save call initiated record
             $fraud = FraudDetection::create([
                 'from_number' => $caller_number,
                 'to_number' => $qrCode->owner->mobile_number,
                 'qr_code_id' => $qrCode->qr_code,
                 'type' => 'normal_call',
-                'call_started_at' => now()
+                'call_started_at' => now(),
+                'fraud' => $fraudFlag
             ]);
 
             // Store ID in cache to update later
@@ -141,13 +151,23 @@ class CallController extends Controller
             //     }
             // }
 
+            // Count calls for this number in current month
+            $monthlyCount = FraudDetection::where('to_number', $eme_mobile)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count();
+
+            // If already 5 calls exist then mark next as fraud
+            $fraudFlag = ($monthlyCount > 5) ? 1 : 0;
+
             // Save call initiated record
             $fraud = FraudDetection::create([
                 'from_number' => $emeg_caller_number,
                 'to_number' => $eme_mobile,
                 'qr_code_id' => $qrCode->qr_code,
                 'type' => 'emergency_call',
-                'call_started_at' => now()
+                'call_started_at' => now(),
+                'fraud' => $fraudFlag
             ]);
 
             // Store ID in cache to update later
