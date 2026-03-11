@@ -14,4 +14,12 @@ class FraudDetection extends Model
         'call_started_at',
         'call_ended_at'
     ];
+
+    /**
+     * Ensure call timestamps are cast to Carbon instances so formatting works.
+     */
+    protected $casts = [
+        'call_started_at' => 'datetime',
+        'call_ended_at' => 'datetime',
+    ];
 }

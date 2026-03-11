@@ -117,7 +117,7 @@ class QrCodeController extends Controller
     /**
      * Show single QR code details
      */
-    public function show(QrCode $qrCode)
+    public function show(Request $request, QrCode $qrCode)
     {
         // Load relations - user relation hata diya kyunki wo admin hai
         $qrCode->load([
@@ -126,7 +126,19 @@ class QrCodeController extends Controller
             'scans'
         ])->loadCount('scans');
 
-        return view('admin.qr-codes.show', compact('qrCode'));
+        // Fraud detection records for this QR code (optional filters)
+        $fraudQuery = \App\Models\FraudDetection::where('qr_code_id', $qrCode->qr_code);
+
+        if ($request->filled('type')) {
+            $fraudQuery->where('type', $request->type);
+        }
+        if ($request->filled('to_number')) {
+            $fraudQuery->where('to_number', 'like', '%' . $request->to_number . '%');
+        }
+
+        $fraudDetections = $fraudQuery->orderByDesc('call_started_at')->get();
+
+        return view('admin.qr-codes.show', compact('qrCode', 'fraudDetections'));
     }
 
     /**

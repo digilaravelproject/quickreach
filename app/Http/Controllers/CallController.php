@@ -94,6 +94,7 @@ class CallController extends Controller
             // Save call initiated record
             $fraud = FraudDetection::create([
                 'from_number' => $caller_number,
+                'to_number' => $qrCode->owner->mobile_number,
                 'qr_code_id' => $qrCode->qr_code,
                 'type' => 'normal_call',
                 'call_started_at' => now()
@@ -143,6 +144,7 @@ class CallController extends Controller
             // Save call initiated record
             $fraud = FraudDetection::create([
                 'from_number' => $emeg_caller_number,
+                'to_number' => $eme_mobile,
                 'qr_code_id' => $qrCode->qr_code,
                 'type' => 'emergency_call',
                 'call_started_at' => now()
@@ -184,7 +186,6 @@ class CallController extends Controller
             if ($fraudId) {
 
                 FraudDetection::where('id', $fraudId)->update([
-                    'to_number' => $ownerMobile,
                     'call_ended_at' => now()
                 ]);
             }
