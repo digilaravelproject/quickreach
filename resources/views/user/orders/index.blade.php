@@ -95,6 +95,74 @@
                 {{ $orders->links() }}
             </div>
 
+            {{-- ── MY QR CODES SECTION ── --}}
+            <div style="margin-top:40px; margin-bottom:8px;">
+                <p class="f-display"
+                    style="font-size:10px;font-weight:600;color:#ADADAD;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px">
+                    QwickReach Tags</p>
+                <h2 class="f-display"
+                    style="font-size:24px;font-weight:900;color:#0A0A0A;line-height:1.2;margin-bottom:20px">
+                    My QR Codes</h2>
+
+                @forelse($qrCodes as $qr)
+                    <div
+                        style="background:#fff; border-radius:28px; border:1px solid rgba(0,0,0,.07); padding:20px; box-shadow:0 15px 35px -10px rgba(0,0,0,0.05); margin-bottom:16px; display:flex; align-items:center; gap:16px;">
+
+                        {{-- QR Icon --}}
+                        <div
+                            style="width:52px; height:52px; background:#F5F5F3; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; border:1px solid rgba(0,0,0,0.05)">
+                            🏷️
+                        </div>
+
+                        {{-- Info --}}
+                        <div style="flex:1; min-width:0;">
+                            <p
+                                style="font-size:9px; color:#ADADAD; font-weight:700; text-transform:uppercase; letter-spacing:.12em; margin-bottom:3px;">
+                                {{ $qr->category->name ?? 'N/A' }}</p>
+                            <p
+                                style="font-size:14px; font-weight:800; color:#0A0A0A; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                {{ $qr->qr_code }}</p>
+                            <p style="font-size:10px; color:#ADADAD; font-weight:600; margin-top:2px;">
+                                {{ $qr->created_at->format('d M, Y') }}</p>
+                        </div>
+
+                        {{-- Status Pill --}}
+                        <div
+                            style="flex-shrink:0; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                            <span
+                                style="display:inline-flex; align-items:center; gap:5px; padding:5px 10px; border-radius:100px; font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+                                @if ($qr->status === 'registered') background:#F0FDF4; color:#16A34A; border:1px solid #DCFCE7;
+                                @elseif($qr->status === 'assigned') background:#FFF7ED; color:#EA580C; border:1px solid #FFEDD5;
+                                @elseif($qr->status === 'inactive') background:#F3F4F6; color:#6B7280; border:1px solid #E5E7EB;
+                                @else background:#EFF6FF; color:#2563EB; border:1px solid #DBEAFE; @endif">
+                                <span
+                                    style="width:5px; height:5px; border-radius:50%;
+                                    @if ($qr->status === 'registered') background:#22C55E;
+                                    @elseif($qr->status === 'assigned') background:#F97316;
+                                    @elseif($qr->status === 'inactive') background:#9CA3AF;
+                                    @else background:#3B82F6; @endif"></span>
+                                {{ $qr->status }}
+                            </span>
+                        </div>
+                    </div>
+                @empty
+                    <div
+                        style="background:#fff; border-radius:28px; border:1px solid rgba(0,0,0,.07); padding:50px 20px; text-align:center; box-shadow:0 20px 30px -10px rgba(0,0,0,0.07)">
+                        <div
+                            style="width:56px; height:56px; background:#F5F5F3; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px">
+                            🏷️</div>
+                        <h3 style="font-size:16px; font-weight:800; color:#0A0A0A; margin-bottom:6px">No QR codes found</h3>
+                        <p style="font-size:12px; color:#ADADAD; font-weight:600;">Your QR tags will appear here once
+                            assigned.</p>
+                    </div>
+                @endforelse
+
+                {{-- QR Codes Pagination --}}
+                <div class="mt-6 px-2">
+                    {{ $qrCodes->links() }}
+                </div>
+            </div>
+
             {{-- Footer Branding --}}
             <div style="display:flex; align-items:center; gap:14px; justify-content:center; padding:32px 0 20px">
                 <div style="height:1px; flex:1; background:linear-gradient(to right,transparent,rgba(0,0,0,.09))"></div>

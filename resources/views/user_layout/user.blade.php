@@ -114,7 +114,6 @@
             background: var(--brand-lavender);
         }
 
-        /* LOGO FIX: Removed stretched Syne font, added nowrap so it doesn't squish */
         .header-brand {
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 21px;
@@ -482,6 +481,68 @@
                 display: none !important;
             }
         }
+
+        /* ── PROFILE MODAL ── */
+        .profile-overlay {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .profile-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .profile-sheet {
+            width: 100%;
+            max-width: 430px;
+            background: #ffffff;
+            border-radius: 28px 28px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.38s cubic-bezier(0.34, 1.1, 0.64, 1);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-overlay.open .profile-sheet {
+            transform: translateY(0);
+        }
+
+        .profile-input {
+            width: 100%;
+            padding: 13px 16px 13px 44px;
+            background: #F5F5F3;
+            border: 1.5px solid transparent;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #0A0A0A;
+            outline: none;
+            transition: all 0.2s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .profile-input:focus {
+            border-color: #5B5BDB;
+            background: #fff;
+        }
     </style>
 </head>
 
@@ -553,17 +614,27 @@
         </div>
         <div class="drawer-scroll-area">
             <div class="px-4 pb-2">
-                <div class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 shadow-sm bg-white">
+                {{-- Clickable profile card --}}
+                <button onclick="openProfileModal()"
+                    class="w-full flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 shadow-sm bg-white transition-all active:scale-[0.97] hover:border-indigo-200"
+                    style="cursor: pointer;">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-white text-base flex-shrink-0"
                         style="background: var(--brand-navy);">
                         {{ strtoupper(substr(Auth::check() ? Auth::user()->name : 'G', 0, 1)) }}</div>
-                    <div>
-                        <p class="font-bold text-sm" style="color: var(--brand-navy);">
+                    <div class="text-left flex-1 min-w-0">
+                        <p class="font-bold text-sm truncate" style="color: var(--brand-navy);">
                             {{ Auth::check() ? Auth::user()->name : 'Guest User' }}</p>
-                        <p class="text-[11px] mt-0.5 text-gray-500">
+                        <p class="text-[11px] mt-0.5 text-gray-500 truncate">
                             {{ Auth::check() ? Auth::user()->email : 'Login to sync data' }}</p>
                     </div>
-                </div>
+                    <svg width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2.5"
+                        viewBox="0 0 24 24" flex-shrink="0">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
             </div>
 
             <div class="mt-2">
@@ -631,7 +702,7 @@
             </div>
         </div>
         <div class="drawer-footer">
-            {{-- @if (Auth::check())
+            @if (Auth::check())
                 <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit"
                         class="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95 border border-red-100"
                         style="background: #FEF2F2; color: #DC2626;"><svg width="16" height="16"
@@ -645,10 +716,149 @@
                     style="background: var(--brand-navy); color: #ffffff;">
                     Login
                 </a>
-            @endif --}}
+            @endif
             <p class="text-center text-[10px] mt-4 font-bold text-gray-400">QwickReach v2.0 · © 2026</p>
         </div>
     </div>
+
+    {{-- ── PROFILE UPDATE MODAL ── --}}
+    @if (Auth::check())
+        <div class="profile-overlay" id="profileOverlay" onclick="closeProfileModal()">
+            <div class="profile-sheet" onclick="event.stopPropagation()">
+
+                {{-- Sheet Handle --}}
+                <div style="display:flex; justify-content:center; padding:12px 0 4px;">
+                    <div style="width:40px; height:4px; border-radius:10px; background:#E5E7EB;"></div>
+                </div>
+
+                {{-- Header --}}
+                <div
+                    style="display:flex; align-items:center; justify-content:space-between; padding:12px 20px 16px; border-bottom:1px solid #F3F4F6;">
+                    <div>
+                        <p
+                            style="font-size:10px; font-weight:700; color:#ADADAD; text-transform:uppercase; letter-spacing:.12em; margin-bottom:2px;">
+                            Account</p>
+                        <h3 style="font-size:18px; font-weight:800; color:#0A0A0A; margin:0;">Edit Profile</h3>
+                    </div>
+                    <button onclick="closeProfileModal()"
+                        style="width:32px; height:32px; border-radius:10px; background:#F3F4F6; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#374151;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Form --}}
+                <div style="overflow-y:auto; flex:1; padding:20px;">
+
+                    {{-- Success / Error flash --}}
+                    @if (session('profile_success'))
+                        <div
+                            style="background:#F0FDF4; border:1px solid #DCFCE7; border-radius:12px; padding:12px 16px; margin-bottom:16px; font-size:13px; font-weight:600; color:#16A34A;">
+                            ✅ {{ session('profile_success') }}
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('user.profile.update') }}" id="profileForm">
+                        @csrf
+                        @method('PATCH')
+
+                        {{-- Name --}}
+                        <div style="margin-bottom:14px; position:relative;">
+                            <div
+                                style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#BDBDBD;">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                                </svg>
+                            </div>
+                            <input type="text" name="name" value="{{ Auth::user()->name }}" required
+                                placeholder="Full Name" class="profile-input">
+                            @error('name')
+                                <p style="font-size:11px; color:#DC2626; margin-top:4px; font-weight:600;">
+                                    {{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Email --}}
+                        <div style="margin-bottom:14px; position:relative;">
+                            <div
+                                style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#BDBDBD;">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
+                            </div>
+                            <input type="email" name="email" value="{{ Auth::user()->email }}" required
+                                placeholder="Email Address" class="profile-input">
+                            @error('email')
+                                <p style="font-size:11px; color:#DC2626; margin-top:4px; font-weight:600;">
+                                    {{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Phone --}}
+                        <div style="margin-bottom:14px; position:relative;">
+                            <div
+                                style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#BDBDBD; font-size:12px; font-weight:700;">
+                                +91</div>
+                            <input type="tel" name="phone" value="{{ Auth::user()->phone }}"
+                                placeholder="Mobile Number" class="profile-input" style="padding-left:52px;">
+                            @error('phone')
+                                <p style="font-size:11px; color:#DC2626; margin-top:4px; font-weight:600;">
+                                    {{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div
+                            style="height:1px; background:linear-gradient(to right,transparent,rgba(0,0,0,.07),transparent); margin:18px 0;">
+                        </div>
+                        <p
+                            style="font-size:10px; font-weight:700; color:#ADADAD; text-transform:uppercase; letter-spacing:.12em; margin-bottom:14px;">
+                            Change Password <span style="font-weight:500;">(leave blank to keep current)</span></p>
+
+                        {{-- New Password --}}
+                        <div style="margin-bottom:14px; position:relative;">
+                            <div
+                                style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#BDBDBD;">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input type="password" name="password" placeholder="New Password" class="profile-input">
+                            @error('password')
+                                <p style="font-size:11px; color:#DC2626; margin-top:4px; font-weight:600;">
+                                    {{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Confirm Password --}}
+                        <div style="margin-bottom:24px; position:relative;">
+                            <div
+                                style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#BDBDBD;">
+                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input type="password" name="password_confirmation" placeholder="Confirm New Password"
+                                class="profile-input">
+                        </div>
+
+                        <button type="submit"
+                            style="width:100%; padding:15px; background:#1A1A3E; color:#fff; border:none; border-radius:16px; font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:800; cursor:pointer; transition:all .2s ease; border-bottom:3px solid #5B5BDB;"
+                            onmousedown="this.style.transform='scale(.97)'"
+                            onmouseup="this.style.transform='scale(1)'">
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="app-shell pb-22"> <!-- Adjusted bottom padding -->
         <header class="top-header">
@@ -727,12 +937,38 @@
             document.getElementById('announcementOverlay').classList.remove('open');
             document.body.style.overflow = '';
         }
+
+        function openProfileModal() {
+            closeMenu();
+            setTimeout(() => {
+                document.getElementById('profileOverlay').classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }, 200);
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeMenu();
                 closeAnnouncement();
+                closeProfileModal();
             }
         });
+
+        // Auto open profile modal if validation errors exist
+        @if ($errors->hasAny(['name', 'email', 'phone', 'password']))
+            document.addEventListener('DOMContentLoaded', () => openProfileModal());
+        @endif
+
+        // Auto open if profile_success flash
+        @if (session('profile_success'))
+            document.addEventListener('DOMContentLoaded', () => openProfileModal());
+        @endif
+
         let startX = 0;
         const drawer = document.getElementById('menuDrawer');
         drawer.addEventListener('touchstart', (e) => {
@@ -749,6 +985,20 @@
         annPanel.addEventListener('touchend', (e) => {
             if (startY - e.changedTouches[0].clientY < -80) closeAnnouncement();
         });
+
+        // Swipe down to close profile sheet
+        @if (Auth::check())
+            let profileStartY = 0;
+            const profileSheet = document.querySelector('.profile-sheet');
+            if (profileSheet) {
+                profileSheet.addEventListener('touchstart', (e) => {
+                    profileStartY = e.touches[0].clientY;
+                });
+                profileSheet.addEventListener('touchend', (e) => {
+                    if (e.changedTouches[0].clientY - profileStartY > 80) closeProfileModal();
+                });
+            }
+        @endif
     </script>
 </body>
 

@@ -21,6 +21,19 @@
                     Call Owner
                 </button>
 
+                {{-- Disclaimer --}}
+                <div class="flex items-start gap-2 bg-[#FEF9E8] border border-[#FDE89F] rounded-2xl px-4 py-3">
+                    <svg class="w-4 h-4 text-[#D97706] shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p class="text-[11px] font-semibold text-[#92400E] leading-snug">
+                        This contact feature is strictly for emergencies or genuine concerns. Misuse or prank calls may be
+                        tracked and reported.
+                    </p>
+                </div>
+
                 {{-- 2. Emergency Button (Red) --}}
                 <button @click="showEmergency = true"
                     class="w-full bg-[#F05252] hover:bg-[#d94444] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-red-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
@@ -100,7 +113,7 @@
                                 </path>
                             </svg>
                         </a>
-                        <a href="tel:181"
+                        <a href="tel:1091"
                             class="flex items-center justify-between w-full bg-[#FDF2F8] border-2 border-[#EC4899] text-[#EC4899] py-3.5 px-5 rounded-2xl font-black text-sm shadow-sm transition-all active:scale-[0.98]">
                             <div class="flex items-center gap-3">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +121,7 @@
                                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
                                     </path>
                                 </svg>
-                                WOMEN HELPLINE 181
+                                WOMEN HELPLINE 1091
                             </div>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -274,15 +287,6 @@
 
     <script>
         function callOwnerSession(id, type) {
-            
-            // let callerNumber = prompt("Enter your mobile number");
-
-            // if (!callerNumber || callerNumber.length !== 10) {
-            //     alert("Please enter valid 10 digit mobile number");
-            //     return;
-            // }
-    
-            // fetch(`/api/owner_session/${id}?caller_number=${callerNumber}`)
             fetch(`/api/owner_session/${id}`)
                 .then(response => response.json())
                 .then(data => {
@@ -306,15 +310,6 @@
         }
 
         function callOwnerEmegSession(id, key, type) {
-            
-            // let EmegcallerNumber = prompt("Enter your mobile number");
-
-            // if (!EmegcallerNumber || EmegcallerNumber.length !== 10) {
-            //     alert("Please enter valid 10 digit mobile number");
-            //     return;
-            // }
-            
-            // fetch(`/api/owner_emeg_session/${id}/${key}?emeg_caller_number=${EmegcallerNumber}`)
             fetch(`/api/owner_emeg_session/${id}/${key}`)
                 .then(response => response.json())
                 .then(data => {

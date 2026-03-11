@@ -76,7 +76,7 @@ class QrBatchController extends Controller
      */
     public function toggleInactive(QrCode $qrCode)
     {
-        if (!in_array($qrCode->status, ['available', 'inactive'])) {
+        if (!in_array($qrCode->status, ['registered', 'inactive'])) {
             $message = 'Sirf available ya inactive QR code ka status toggle ho sakta hai.';
 
             if (request()->ajax() || request()->wantsJson()) {
@@ -86,7 +86,7 @@ class QrBatchController extends Controller
             return redirect()->back()->with('error', $message);
         }
 
-        $qrCode->status = $qrCode->status === 'inactive' ? 'available' : 'inactive';
+        $qrCode->status = $qrCode->status === 'inactive' ? 'registered' : 'inactive';
         $qrCode->save();
 
         if (request()->ajax() || request()->wantsJson()) {

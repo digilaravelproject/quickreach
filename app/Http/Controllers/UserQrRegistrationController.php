@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\QrCode;
 use App\Models\QrRegistration;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserQrRegistrationController extends Controller
@@ -49,6 +51,10 @@ class UserQrRegistrationController extends Controller
             'emergency_note' => 'nullable|string|max:500',
         ];
 
+        // Email/Password always required
+        $rules['email']    = 'required|email|unique:users,email';
+        $rules['password'] = 'required|string|min:8|confirmed';
+
         // Dynamic Validation
         if (str_contains($categorySlug, 'pet')) {
             $rules['breed'] = 'nullable|string';
@@ -81,7 +87,19 @@ class UserQrRegistrationController extends Controller
             }
         }
 
-        $userId = Auth::check() ? Auth::id() : null;
+        // Create User account
+        $user = User::create([
+            'name'      => $request->input('full_name'),
+            'email'     => $request->input('email'),
+            'password'  => Hash::make($request->input('password')),
+            'phone'     => $request->input('mobile_number'),
+            'is_admin'  => false,
+            'is_active' => true,
+        ]);
+
+        //Auth::login($user);
+
+        $userId = $user->id;
 
         // Create Registration (full_address saved here)
         QrRegistration::create([

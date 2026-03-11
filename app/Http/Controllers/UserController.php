@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Razorpay\Api\Api;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 
 class UserController extends Controller
@@ -48,6 +50,30 @@ class UserController extends Controller
 
     //     return view('user.products', compact('categories', 'sliders'));
     // }
+
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone'    => 'nullable|string|max:15',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->name  = $request->input('name');
+        $user->email = $request->input('email');
+        $user->phone = $request->input('phone');
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('profile_success', 'Profile updated successfully!');
+    }
     public function products()
     {
         $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
@@ -677,6 +703,17 @@ class UserController extends Controller
     }
 
 
+    // public function index()
+    // {
+    //     // Logged in user ke orders fetch karein with items and categories
+    //     $orders = Auth::user()->orders()
+    //         ->with(['items.category'])
+    //         ->latest()
+    //         ->paginate(10);
+
+    //     return view('user.orders.index', compact('orders'));
+    // }
+
     public function index()
     {
         // Logged in user ke orders fetch karein with items and categories
@@ -685,7 +722,13 @@ class UserController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('user.orders.index', compact('orders'));
+        // Logged in user ke QR codes fetch karo with category
+        $qrCodes = QrCode::with('category')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
+
+        return view('user.orders.index', compact('orders', 'qrCodes'));
     }
 
     public function show($id)

@@ -69,6 +69,8 @@ Route::get('/test-qr', function () {
 
 Route::middleware('auth')->prefix('user')->name('user.')->group(
     function () {
+        Route::patch('user/profile/update', [UserController::class, 'update'])
+            ->name('profile.update');
         Route::get('/my-orders-new', [UserController::class, 'index'])->name('new.orders.index');
         Route::get('/my-orders/{id}', [UserController::class, 'show'])->name('orders.show');
 

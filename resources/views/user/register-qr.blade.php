@@ -73,7 +73,7 @@
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
                 </div>
 
-                <div style="margin-bottom:20px;position:relative">
+                <div style="margin-bottom:12px;position:relative">
                     <div
                         style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#BDBDBD">
                         +91</div>
@@ -84,6 +84,47 @@
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
                 </div>
 
+                {{-- ── ACCOUNT CREDENTIALS ── --}}
+                <div style="margin-bottom:12px;position:relative">
+                    <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#BDBDBD">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                    </div>
+                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="Email Address"
+                        style="width:100%;padding:14px 16px 14px 44px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                        onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                        onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                </div>
+
+                <div style="margin-bottom:12px;position:relative">
+                    <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#BDBDBD">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="password" name="password" required placeholder="Password"
+                        style="width:100%;padding:14px 16px 14px 44px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                        onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                        onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                </div>
+
+                <div style="margin-bottom:20px;position:relative">
+                    <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#BDBDBD">
+                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <input type="password" name="password_confirmation" required placeholder="Confirm Password"
+                        style="width:100%;padding:14px 16px 14px 44px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
+                        onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
+                        onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
+                </div>
                 <div
                     style="height:1px;background:linear-gradient(to right,transparent,rgba(0,0,0,.07),transparent);margin-bottom:18px">
                 </div>
@@ -98,8 +139,8 @@
                                 d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                         </svg>
                     </div>
-                    <input type="tel" name="friend_family_1" value="{{ old('friend_family_1') }}" pattern="[0-9]{10}"
-                        placeholder="Friend / Family 1"
+                    <input type="tel" name="friend_family_1" value="{{ old('friend_family_1') }}"
+                        pattern="[0-9]{10}" placeholder="Friend / Family 1"
                         style="width:100%;padding:14px 16px 14px 44px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
                         onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">
@@ -112,8 +153,8 @@
                                 d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                         </svg>
                     </div>
-                    <input type="tel" name="friend_family_2" value="{{ old('friend_family_2') }}" pattern="[0-9]{10}"
-                        placeholder="Friend / Family 2"
+                    <input type="tel" name="friend_family_2" value="{{ old('friend_family_2') }}"
+                        pattern="[0-9]{10}" placeholder="Friend / Family 2"
                         style="width:100%;padding:14px 60px 14px 44px;background:#F5F5F3;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#0A0A0A;outline:none;transition:all .2s ease"
                         onfocus="this.style.border='1.5px solid #86D657';this.style.background='#fff'"
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F5F5F3'">

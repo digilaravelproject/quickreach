@@ -236,27 +236,27 @@
 
                                                 {{-- Toggle Inactive / Activate (sirf available ya inactive) --}}
                                                 <button @click="toggleInactive(qr)"
-                                                    x-show="qr.status === 'available' || qr.status === 'inactive'"
-                                                    class="icon-btn"
+                                                    x-show="qr.status === 'inactive' || qr.status === 'registered'"
                                                     :title="qr.status === 'inactive' ? 'Activate' : 'Deactivate'"
-                                                    :style="`background: var(--card2); width: 30px; height: 30px; border: none; cursor: pointer; color: ${qr.status === 'inactive' ? 'var(--green)' : 'var(--text3)'};`">
-                                                    {{-- Eye-off = deactivate, Eye = activate --}}
-                                                    <template x-if="qr.status !== 'inactive'">
-                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                                            style="width:14px;">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2.5"
-                                                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.293-3.95M6.938 6.938A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-1.357 2.598M6.938 6.938L3 3m3.938 3.938l10.124 10.124M3 3l18 18" />
-                                                        </svg>
-                                                    </template>
-                                                    <template x-if="qr.status === 'inactive'">
-                                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                                            style="width:14px;">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2.5"
-                                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    </template>
+                                                    style="background: none; border: none; cursor: pointer; padding: 0; display: inline-flex; align-items: center;">
+                                                    <div
+                                                        :style="`
+                                                                                                                width: 34px; height: 18px; border-radius: 50px;
+                                                                                                                background: ${qr.status === 'inactive' ? '#e5e7eb' : '#7c3aed'};
+                                                                                                                position: relative; transition: background 0.25s ease;
+                                                                                                                flex-shrink: 0;
+                                                                                                            `">
+                                                        <div
+                                                            :style="`
+                                                                                                                        width: 12px; height: 12px; border-radius: 50%;
+                                                                                                                        background: #fff;
+                                                                                                                        position: absolute; top: 3px;
+                                                                                                                        left: ${qr.status === 'inactive' ? '3px' : '19px'};
+                                                                                                                        transition: left 0.25s ease;
+                                                                                                                        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                                                                                                                    `">
+                                                        </div>
+                                                    </div>
                                                 </button>
 
                                                 {{-- Delete (sirf available) --}}
