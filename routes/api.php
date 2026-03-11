@@ -14,6 +14,7 @@ use App\Http\Controllers\CallController;
 
 // Get call to owner
 Route::get('/owner_session/{id}', [CallController::class, 'addOwnerMobileNoInSession'])->name('api.owner.session');
+Route::get('/owner_emeg_session/{id}/{key}', [CallController::class, 'addOwnerEmegMobileNoInSession'])->name('api.owner.emeg_session');
 Route::get('/owner_call', [CallController::class, 'getOwnerMobileNo'])->name('api.owner.mobile');
 
 // QR Code Scan Actions (No authentication required - public access)

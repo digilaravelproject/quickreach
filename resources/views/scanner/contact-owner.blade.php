@@ -8,8 +8,11 @@
             <div class="space-y-4">
 
                 {{-- 1. Call Owner Button (Dark Purple) --}}
-                <button @click="openCallModal('{{ $ownerDetails->mobile_number }}', 'Owner')"
-                    class="w-full bg-[#4B3D76] hover:bg-[#3c315e] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                <!--<button @click="openCallModal('{{ $ownerDetails->mobile_number }}', 'Owner')"-->
+                <!--    class="w-full bg-[#4B3D76] hover:bg-[#3c315e] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">-->
+                    
+                <button @click="callOwnerSession('{{ $ownerDetails->qr_code_id }}', 'Owner')" class="w-full bg-[#4B3D76] hover:bg-[#3c315e] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                    
                     <svg class="w-5 h-5 text-[#86D657]" fill="currentColor" viewBox="0 0 20 20">
                         <path
                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
@@ -217,18 +220,23 @@
                 </div>
 
                 <div class="space-y-2 mb-6">
+                    <?php $key = '';?>
                     @if (!empty($ownerDetails->emergency_contacts))
-                        @foreach ($ownerDetails->emergency_contacts as $contact)
+                        @foreach ($ownerDetails->emergency_contacts as $k => $contact)
+                            <?php $key = $k+1; ?>
                             {{-- Har contact pe click se Call Modal khulega --}}
-                            <button
-                                @click="
-                                    showEmergency = false;
-                                    openCallModal('{{ $contact['number'] }}', '{{ $contact['name'] }}')
-                                "
-                                class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#F05252]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">
+                            <!--<button-->
+                            <!--    @click="-->
+                            <!--        showEmergency = false;-->
+                            <!--        openCallModal('{{ $contact['number'] }}', '{{ $contact['name'] }}')-->
+                            <!--    "-->
+                            <!--    class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#F05252]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">-->
+                                
+                            <button @click="callOwnerEmegSession('{{ $ownerDetails->qr_code_id }}', '{{ $key }}', 'Owner')" class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#F05252]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">
+                                
                                 <div class="text-left">
                                     <p class="font-black text-gray-800 text-xs tracking-tight">{{ $contact['name'] }}</p>
-                                    <p class="text-[10px] font-bold text-[#4B3D76]">{{ $contact['number'] }}</p>
+                                    <!--<p class="text-[10px] font-bold text-[#4B3D76]">{{ $contact['number'] }}</p>-->
                                 </div>
                                 <div class="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm">
                                     <svg class="w-3 h-3 text-[#F05252]" fill="currentColor" viewBox="0 0 20 20">
@@ -253,6 +261,54 @@
         </div>
 
     </div>
+    
+    <script>
+        function callOwnerSession(id, type) {
+            fetch(`/api/owner_session/${id}`)
+                .then(response => response.json())
+                .then(data => {
+        
+                    if (data.status) {
+        
+                        let virtualNo = data.virtual_no;
+        
+                        if (virtualNo) {
+                            window.location.href = "tel:" + virtualNo;
+                        }
+        
+                    } else {
+                        alert(data.msg);
+                    }
+        
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+        
+        function callOwnerEmegSession(id, key, type) {
+            fetch(`/api/owner_emeg_session/${id}/${key}`)
+                .then(response => response.json())
+                .then(data => {
+        
+                    if (data.status) {
+        
+                        let virtualNo = data.virtual_no;
+        
+                        if (virtualNo) {
+                            window.location.href = "tel:" + virtualNo;
+                        }
+        
+                    } else {
+                        alert(data.msg);
+                    }
+        
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
 
     <script>
         function contactOwner() {

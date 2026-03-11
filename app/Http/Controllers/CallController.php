@@ -75,16 +75,44 @@ class CallController extends Controller
     
         if ($qrCode && $qrCode->owner) {
     
-            Cache::put('owner_call_number', $qrCode->owner->mobile_number, now()->addMinutes(10));
+            Cache::put('owner_call_number', $qrCode->owner->mobile_number, now()->addMinute());
     
             return response()->json([
+                'status' => true,
                 'msg' => $qrCode->owner->mobile_number . ' mobile number stored',
+                'virtual_no' => env('MSG91_CALLER_ID'),
             ]);
             
             $this->getOwnerMobileNo();
         }
     
         return response()->json([
+            'status' => false,
+            'msg' => 'mobile number not found',
+        ]);
+    }
+    
+    public function addOwnerEmegMobileNoInSession($id=null, $k=null)
+    {
+        $qrCode = QrCode::with('owner')->find($id);
+    
+        if ($qrCode && $qrCode->owner) {
+            
+            $eme_mobile = $qrCode->owner->{'friend_family_'.$k};
+    
+            Cache::put('owner_call_number', $eme_mobile, now()->addMinute());
+    
+            return response()->json([
+                'status' => true,
+                'msg' => $eme_mobile . ' mobile number stored',
+                'virtual_no' => env('MSG91_CALLER_ID'),
+            ]);
+            
+            $this->getOwnerMobileNo();
+        }
+    
+        return response()->json([
+            'status' => false,
             'msg' => 'mobile number not found',
         ]);
     }
@@ -107,6 +135,7 @@ class CallController extends Controller
         }
     
         return response()->json([
+            'status' => false,
             'msg' => 'mobile number not found',
         ]);
     }
