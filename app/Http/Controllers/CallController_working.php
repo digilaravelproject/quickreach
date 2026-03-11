@@ -70,6 +70,70 @@ class CallController extends Controller
         ]);
     }
     
+    public function addOwnerMobileNoInSession($id)
+    {
+        $qrCode = QrCode::with('owner')->find($id);
+    
+        if ($qrCode && $qrCode->owner) {
+    
+            Cache::put('owner_call_number', $qrCode->owner->mobile_number, now()->addMinute());
+            
+            $caller_number = '919999999999';
+            
+            // $caller_number = request()->caller_number;
+            
+            // if ($caller_number) {
+    
+            //     $caller_number = preg_replace('/\D/', '', $caller_number);
+        
+            //     if (!str_starts_with($caller_number, '91') && strlen($caller_number) == 10) {
+            //         $caller_number = '91' . $caller_number;
+            //     }
+            // }
+
+            $own_mobile = preg_replace('/\D/', '', $qrCode->owner->mobile_number);
+    
+            if (!str_starts_with($own_mobile, '91') && strlen($own_mobile) == 10) {
+                $own_mobile = '91' . $own_mobile;
+            }
+
+            // Count calls for this number in current month
+            $monthlyCount = FraudDetection::where('to_number', $own_mobile)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count();
+
+            // If already 5 calls exist then mark next as fraud
+            $fraudFlag = ($monthlyCount > 5) ? 1 : 0;
+
+            // Save call initiated record
+            $fraud = FraudDetection::create([
+                'from_number' => $caller_number,
+                'to_number' => $own_mobile,
+                'qr_code_id' => $qrCode->qr_code,
+                'type' => 'normal_call',
+                'call_started_at' => now(),
+                'fraud' => $fraudFlag
+            ]);
+
+            // Store ID in cache to update later
+            Cache::put('fraud_detection_id', $fraud->id, now()->addMinute());
+    
+            return response()->json([
+                'status' => true,
+                'msg' => $qrCode->owner->mobile_number . ' mobile number stored',
+                'virtual_no' => env('MSG91_CALLER_ID'),
+            ]);
+            
+            $this->getOwnerMobileNo();
+        }
+    
+        return response()->json([
+            'status' => false,
+            'msg' => 'mobile number not found',
+        ]);
+    }
+
     /**
      * Format mobile number to 91XXXXXXXXXX
      */
@@ -83,100 +147,60 @@ class CallController extends Controller
 
         return $mobile;
     }
-
-    private function logFraudCall($from, $to, $qrCodeId, $type)
+    
+    public function addOwnerEmegMobileNoInSession($id = null, $k = null, Request $request)
     {
-        $from = $this->formatMobileNumber($from);
-        $to   = $this->formatMobileNumber($to);
+        $qrCode = QrCode::with('owner')->find($id);
 
-        $monthlyCount = FraudDetection::where('to_number', $to)
+        if (!$qrCode || !$qrCode->owner) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Owner or QR code not found',
+            ]);
+        }
+
+        // Validate emergency contact key
+        $field = 'friend_family_' . $k;
+
+        if (!isset($qrCode->owner->$field)) {
+            return response()->json([
+                'status' => false,
+                'msg' => 'Emergency contact not found',
+            ]);
+        }
+
+        $eme_mobile = $this->formatMobileNumber($qrCode->owner->$field);
+
+        // Store mobile in cache
+        Cache::put('owner_call_number', $eme_mobile, now()->addMinutes(1));
+
+        $emeg_caller_number = '919999999999';
+
+        // Count monthly calls
+        $monthlyCount = FraudDetection::where('to_number', $eme_mobile)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
+        // Fraud if more than 5 calls
         $fraudFlag = ($monthlyCount >= 5) ? 1 : 0;
 
+        // Create record
         $fraud = FraudDetection::create([
-            'from_number' => $from,
-            'to_number' => $to,
-            'qr_code_id' => $qrCodeId,
-            'type' => $type,
-            'call_started_at' => now(),
-            'fraud' => $fraudFlag
+            'from_number'      => $emeg_caller_number,
+            'to_number'        => $eme_mobile,
+            'qr_code_id'       => $qrCode->qr_code,
+            'type'             => 'emergency_call',
+            'call_started_at'  => now(),
+            'fraud'            => $fraudFlag
         ]);
 
-        Cache::put('fraud_detection_id', $fraud->id, now()->addMinute());
-
-        return $to;
-    }
-
-    public function addOwnerMobileNoInSession($id)
-    {
-        $qrCode = QrCode::with('owner')->find($id);
-
-        if (!$qrCode || !$qrCode->owner) {
-            return response()->json([
-                'status' => false,
-                'msg' => 'Mobile number not found',
-            ]);
-        }
-
-        $ownerMobile = $this->formatMobileNumber($qrCode->owner->mobile_number);
-
-        Cache::put('owner_call_number', $ownerMobile, now()->addMinute());
-
-        $callerNumber = '919999999999';
-
-        $this->logFraudCall(
-            $callerNumber,
-            $ownerMobile,
-            $qrCode->qr_code,
-            'normal_call'
-        );
+        // Store fraud id
+        Cache::put('fraud_detection_id', $fraud->id, now()->addMinutes(1));
 
         return response()->json([
             'status' => true,
-            'msg' => $ownerMobile . ' mobile number stored',
-            'virtual_no' => env('MSG91_CALLER_ID'),
-        ]);
-    }
-
-    public function addOwnerEmegMobileNoInSession($id = null, $k = null)
-    {
-        $qrCode = QrCode::with('owner')->find($id);
-
-        if (!$qrCode || !$qrCode->owner) {
-            return response()->json([
-                'status' => false,
-                'msg' => 'Mobile number not found',
-            ]);
-        }
-
-        $emeMobile = $qrCode->owner->{'friend_family_'.$k};
-
-        if (!$emeMobile) {
-            return response()->json([
-                'status' => false,
-                'msg' => 'Emergency mobile number not found',
-            ]);
-        }
-
-        $emeMobile = $this->formatMobileNumber($emeMobile);
-
-        Cache::put('owner_call_number', $emeMobile, now()->addMinute());
-
-        $callerNumber = '919999999999';
-
-        $this->logFraudCall(
-            $callerNumber,
-            $emeMobile,
-            $qrCode->qr_code,
-            'emergency_call'
-        );
-
-        return response()->json([
-            'status' => true,
-            'msg' => $emeMobile . ' mobile number stored',
+            'msg' => $eme_mobile . ' mobile number stored',
             'virtual_no' => env('MSG91_CALLER_ID'),
         ]);
     }

@@ -127,7 +127,8 @@ class QrCodeController extends Controller
         ])->loadCount('scans');
 
         // Fraud detection records for this QR code (optional filters)
-        $fraudQuery = \App\Models\FraudDetection::where('qr_code_id', $qrCode->qr_code);
+        $fraudQuery = \App\Models\FraudDetection::where('qr_code_id', $qrCode->qr_code)
+            ->where('fraud', 1);
 
         if ($request->filled('type')) {
             $fraudQuery->where('type', $request->type);
