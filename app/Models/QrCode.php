@@ -16,11 +16,12 @@ class QrCode extends Model
     protected $fillable = [
         'qr_code',
         'category_id',
+        'qr_batch_id',      // ← YE LINE ADD KI GAYI HAI
         'user_id',
         'qr_image_path',
         'order_id',
         'status',
-        'source',           // 'online_order' | 'bulk_admin' — prevents bulk QRs mixing with online assignment
+        'source',           // 'online_order' | 'bulk_admin'
         'assigned_at',
         'registered_at',
     ];
@@ -31,6 +32,12 @@ class QrCode extends Model
     ];
 
     // ── Relationships ───────────────────────────────────────
+
+    // Batch relationship add kiya gaya hai taaki data fetch ho sake
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(QrBatch::class, 'qr_batch_id');
+    }
 
     public function category(): BelongsTo
     {
@@ -52,10 +59,6 @@ class QrCode extends Model
         return $this->belongsTo(User::class);
     }
 
-    // public function registration(): HasOne
-    // {
-    //     return $this->hasOne(QrRegistration::class, 'qr_code_id', 'id');
-    // }
     public function registration()
     {
         return $this->hasOne(QrRegistration::class, 'qr_code_id');
@@ -68,7 +71,6 @@ class QrCode extends Model
 
     // ── Scopes ──────────────────────────────────────────────
 
-    /** QR codes available for online order assignment (excludes bulk-admin QRs) */
     public function scopeAvailableForOnlineOrder($query)
     {
         return $query->where('status', 'available')
@@ -78,7 +80,6 @@ class QrCode extends Model
             });
     }
 
-    /** QR codes generated for bulk admin download/sale (never auto-assigned to online orders) */
     public function scopeBulkAdmin($query)
     {
         return $query->where('source', 'bulk_admin');

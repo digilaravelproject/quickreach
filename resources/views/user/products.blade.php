@@ -31,7 +31,57 @@
             </div>
             <div class="swiper-pagination"></div>
         </div>
+        {{-- ── HOW IT WORKS SECTION ── --}}
+        <div class="mb-10 rounded-3xl overflow-hidden">
+            <div class="relative p-6"
+                style="background: radial-gradient(ellipse at top, #D4C2FF 0%, #C0AAFF 40%, #B8A0F8 100%);">
 
+                {{-- Sparkle decorations --}}
+                <div class="sparkle-dot" style="top:8%; left:4%;"></div>
+                <div class="sparkle-dot" style="top:15%; right:6%;"></div>
+                <div class="sparkle-dot sm" style="top:40%; left:2%;"></div>
+                <div class="sparkle-dot" style="bottom:20%; right:4%;"></div>
+                <div class="sparkle-dot sm" style="bottom:10%; left:30%;"></div>
+
+                <h3 class="font-display text-xl font-black text-center mb-8 relative" style="color:#1A1A3E; z-index:1;">
+                    How QwickReach Works
+                </h3>
+
+                <div class="relative" style="z-index:1;">
+                    {{-- Dotted connecting line --}}
+                    <div class="absolute"
+                        style="top:18px; left:calc(12.5% + 4px); right:calc(12.5% + 4px); height:2px; background: repeating-linear-gradient(to right, rgba(255,255,255,0.8) 0, rgba(255,255,255,0.8) 6px, transparent 6px, transparent 12px);">
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2">
+                        @foreach ($howItWorks as $step)
+                            <div class="flex flex-col items-center text-center">
+                                {{-- Numbered circle --}}
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm text-white mb-3 shadow-lg relative"
+                                    style="background:#6B47D6; border:3px solid rgba(255,255,255,0.9); z-index:2;">
+                                    {{ $step->step_order }}
+                                </div>
+                                {{-- White image card --}}
+                                <div class="w-full rounded-2xl bg-white shadow-md mb-2 flex items-center justify-center overflow-hidden"
+                                    style="aspect-ratio:1/1; padding:10px; border:1px solid rgba(255,255,255,0.8);">
+                                    <img src="{{ asset('storage/' . $step->image_path) }}"
+                                        class="w-full h-full object-contain">
+                                </div>
+                                {{-- Title --}}
+                                <p class="text-[10px] font-bold leading-snug" style="color:#1A1A3E;">
+                                    {{ $step->title }}
+                                </p>
+                                @if (!empty($step->description))
+                                    <p class="text-[9px] mt-0.5 leading-tight" style="color:#4A3A7A; opacity:0.85;">
+                                        {{ $step->description }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
         {{-- ── CATEGORIES CHIPS ── --}}
         <div class="flex gap-3 overflow-x-auto no-scrollbar mb-6 pb-2">
             <button onclick="filterCat(this, 'all')"
@@ -71,54 +121,7 @@
             </button>
         </div>
 
-        {{-- ── WHERE TO USE SECTION ── --}}
-        <div class="mb-8">
-            <h3 class="font-display text-lg font-bold mb-4" style="color:#1A1A3E;">Where Can You Use QwickReach?</h3>
-            <div class="grid grid-cols-2 gap-3">
-                @foreach ($useCases as $uc)
-                    <div class="p-4 rounded-2xl border"
-                        style="background:#ffffff; border-color:#E8E8F5; box-shadow: 0 2px 12px rgba(91,91,219,0.07);">
-                        <div class="flex items-center gap-2 mb-2">
-                            <img src="{{ asset('storage/' . $uc->icon_image) }}" class="w-6 h-6 object-contain">
-                            <h4 class="font-black text-sm" style="color:#1A1A3E;">{{ $uc->title }}</h4>
-                        </div>
-                        <p class="text-[11px] leading-relaxed" style="color:#6B6B8A;">{{ $uc->description }}</p>
-                    </div>
-                @endforeach
-            </div>
-        </div>
 
-        {{-- ── EVERYDAY EMERGENCIES SECTION ── --}}
-        <div class="mb-8">
-            <div class="p-6 rounded-3xl" style="background:#FFF0EE;">
-                <h3 class="text-2xl font-black mb-1" style="color:#7B1010;">Everyday Emergencies</h3>
-                <p class="text-sm font-medium mb-6" style="color:#B03030;">Because safety should never depend on luck.</p>
-
-                @foreach ($emergencies as $em)
-                    @php
-                        $cleaned = str_replace(['<br>', '<br/>', '<br />', '</p>', '</li>'], "\n", $em->description);
-                        $cleaned = strip_tags($cleaned);
-                        $lines = array_filter(
-                            array_map(function ($line) {
-                                return trim(ltrim(trim($line), '•·-*'));
-                            }, explode("\n", $cleaned)),
-                        );
-                        $lines = array_filter($lines, function ($line) {
-                            return !empty($line) &&
-                                stripos($line, 'because safety') === false &&
-                                stripos($line, 'depend on luck') === false &&
-                                strlen($line) > 2;
-                        });
-                    @endphp
-                    @foreach ($lines as $line)
-                        <div class="flex items-center gap-4 mb-4 last:mb-0">
-                            <span class="flex-shrink-0 w-[10px] h-[10px] rounded-full" style="background:#FF5252;"></span>
-                            <span class="text-[15px] font-medium" style="color:#1A1A1A;">{{ $line }}</span>
-                        </div>
-                    @endforeach
-                @endforeach
-            </div>
-        </div>
 
         {{-- ── CATEGORIES HEADING ── --}}
         <div class="flex justify-between items-center mb-4">
@@ -174,58 +177,55 @@
                 </div>
             @endforeach
         </div>
-
-        {{-- ── HOW IT WORKS SECTION ── --}}
-        <div class="mb-10 rounded-3xl overflow-hidden">
-            <div class="relative p-6"
-                style="background: radial-gradient(ellipse at top, #D4C2FF 0%, #C0AAFF 40%, #B8A0F8 100%);">
-
-                {{-- Sparkle decorations --}}
-                <div class="sparkle-dot" style="top:8%; left:4%;"></div>
-                <div class="sparkle-dot" style="top:15%; right:6%;"></div>
-                <div class="sparkle-dot sm" style="top:40%; left:2%;"></div>
-                <div class="sparkle-dot" style="bottom:20%; right:4%;"></div>
-                <div class="sparkle-dot sm" style="bottom:10%; left:30%;"></div>
-
-                <h3 class="font-display text-xl font-black text-center mb-8 relative" style="color:#1A1A3E; z-index:1;">
-                    How QwickReach Works
-                </h3>
-
-                <div class="relative" style="z-index:1;">
-                    {{-- Dotted connecting line --}}
-                    <div class="absolute"
-                        style="top:18px; left:calc(12.5% + 4px); right:calc(12.5% + 4px); height:2px; background: repeating-linear-gradient(to right, rgba(255,255,255,0.8) 0, rgba(255,255,255,0.8) 6px, transparent 6px, transparent 12px);">
+        {{-- ── WHERE TO USE SECTION ── --}}
+        <div class="mb-8">
+            <h3 class="font-display text-lg font-bold mb-4" style="color:#1A1A3E;">Where Can You Use QwickReach?</h3>
+            <div class="grid grid-cols-2 gap-3">
+                @foreach ($useCases as $uc)
+                    <div class="p-4 rounded-2xl border"
+                        style="background:#ffffff; border-color:#E8E8F5; box-shadow: 0 2px 12px rgba(91,91,219,0.07);">
+                        <div class="flex items-center gap-2 mb-2">
+                            <img src="{{ asset('storage/' . $uc->icon_image) }}" class="w-6 h-6 object-contain">
+                            <h4 class="font-black text-sm" style="color:#1A1A3E;">{{ $uc->title }}</h4>
+                        </div>
+                        <p class="text-[11px] leading-relaxed" style="color:#6B6B8A;">{{ $uc->description }}</p>
                     </div>
-
-                    <div class="grid grid-cols-4 gap-2">
-                        @foreach ($howItWorks as $step)
-                            <div class="flex flex-col items-center text-center">
-                                {{-- Numbered circle --}}
-                                <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm text-white mb-3 shadow-lg relative"
-                                    style="background:#6B47D6; border:3px solid rgba(255,255,255,0.9); z-index:2;">
-                                    {{ $step->step_order }}
-                                </div>
-                                {{-- White image card --}}
-                                <div class="w-full rounded-2xl bg-white shadow-md mb-2 flex items-center justify-center overflow-hidden"
-                                    style="aspect-ratio:1/1; padding:10px; border:1px solid rgba(255,255,255,0.8);">
-                                    <img src="{{ asset('storage/' . $step->image_path) }}"
-                                        class="w-full h-full object-contain">
-                                </div>
-                                {{-- Title --}}
-                                <p class="text-[10px] font-bold leading-snug" style="color:#1A1A3E;">
-                                    {{ $step->title }}
-                                </p>
-                                @if (!empty($step->description))
-                                    <p class="text-[9px] mt-0.5 leading-tight" style="color:#4A3A7A; opacity:0.85;">
-                                        {{ $step->description }}
-                                    </p>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
+
+        {{-- ── EVERYDAY EMERGENCIES SECTION ── --}}
+        <div class="mb-8">
+            <div class="p-6 rounded-3xl" style="background:#FFF0EE;">
+                <h3 class="text-2xl font-black mb-1" style="color:#7B1010;">Everyday Emergencies</h3>
+                <p class="text-sm font-medium mb-6" style="color:#B03030;">Because safety should never depend on luck.</p>
+
+                @foreach ($emergencies as $em)
+                    @php
+                        $cleaned = str_replace(['<br>', '<br/>', '<br />', '</p>', '</li>'], "\n", $em->description);
+                        $cleaned = strip_tags($cleaned);
+                        $lines = array_filter(
+                            array_map(function ($line) {
+                                return trim(ltrim(trim($line), '•·-*'));
+                            }, explode("\n", $cleaned)),
+                        );
+                        $lines = array_filter($lines, function ($line) {
+                            return !empty($line) &&
+                                stripos($line, 'because safety') === false &&
+                                stripos($line, 'depend on luck') === false &&
+                                strlen($line) > 2;
+                        });
+                    @endphp
+                    @foreach ($lines as $line)
+                        <div class="flex items-center gap-4 mb-4 last:mb-0">
+                            <span class="flex-shrink-0 w-[10px] h-[10px] rounded-full" style="background:#FF5252;"></span>
+                            <span class="text-[15px] font-medium" style="color:#1A1A1A;">{{ $line }}</span>
+                        </div>
+                    @endforeach
+                @endforeach
+            </div>
+        </div>
+
 
         {{-- ── BRANDING ── --}}
         <div class="text-center py-6 opacity-40">

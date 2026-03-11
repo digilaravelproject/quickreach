@@ -48,6 +48,7 @@ class QrBatchController extends Controller
      */
     public function show(Request $request, QrBatch $qrBatch)
     {
+
         $qrBatch->load('category');
 
         $query = QrCode::with(['category', 'registration'])
@@ -68,6 +69,34 @@ class QrBatchController extends Controller
         }
 
         return view('admin.qr-batches.show', compact('qrBatch'));
+    }
+    /**
+     * Toggle QR code status between available ↔ inactive
+     * Sirf available aur inactive QR codes pe kaam karta hai
+     */
+    public function toggleInactive(QrCode $qrCode)
+    {
+        if (!in_array($qrCode->status, ['available', 'inactive'])) {
+            $message = 'Sirf available ya inactive QR code ka status toggle ho sakta hai.';
+
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['error' => $message], 422);
+            }
+
+            return redirect()->back()->with('error', $message);
+        }
+
+        $qrCode->status = $qrCode->status === 'inactive' ? 'available' : 'inactive';
+        $qrCode->save();
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json([
+                'success' => 'Status updated!',
+                'status'  => $qrCode->status,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'QR code status update ho gaya!');
     }
 
     /**
