@@ -686,7 +686,7 @@
                                 stroke-linejoin="round" />
                         </svg>
                     </div>
-                    Privacy & Refund Policy
+                    Refund and Terms & Conditions
                 </a>
 
                 {{-- <a href="{{ route('user.new.orders.index') }}" class="menu-item">

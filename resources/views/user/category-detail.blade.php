@@ -28,9 +28,9 @@
                     <h1 class="font-display text-3xl font-black leading-tight" style="color:#1A1A3E;">{{ $category->name }}
                     </h1>
                 </div>
-                <div class="px-3 py-1 rounded-lg" style="background:#EAEAF8;">
+                {{-- <div class="px-3 py-1 rounded-lg" style="background:#EAEAF8;">
                     <span class="font-bold text-sm" style="color:#5B5BDB;">★ 4.8</span>
-                </div>
+                </div> --}}
             </div>
             <div class="flex items-center gap-2 mb-6">
                 <span class="text-xs font-bold" style="color:#9B9BB4;">Over 200+ active scans this month</span>

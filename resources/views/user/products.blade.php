@@ -8,7 +8,7 @@
                 @forelse ($sliders as $slider)
                     <div class="swiper-slide relative">
                         <img src="{{ asset('storage/' . $slider->image_path) }}" alt="Banner"
-                            class="w-full banner-img object-contain"
+                            class="w-full banner-img object-cover"
                             onerror="this.src='https://placehold.co/600x400?text=QwickReach+Banner'">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
                         @if ($slider->link)
@@ -43,9 +43,20 @@
                 <div class="sparkle-dot" style="bottom:20%; right:4%;"></div>
                 <div class="sparkle-dot sm" style="bottom:10%; left:30%;"></div>
 
-                <h3 class="font-display text-xl font-black text-center mb-8 relative" style="color:#1A1A3E; z-index:1;">
-                    How QwickReach Works
-                </h3>
+                <div class="flex items-center justify-between mb-8 relative" style="z-index:1;">
+                    <h3 class="font-display text-xl font-black" style="color:#1A1A3E;">
+                        How QwickReach Works
+                    </h3>
+                    <a href="{{ asset('pdf/Scan_Call_Connect Privately.pdf') }}" download
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold shadow-md"
+                        style="background:#1A1A3E; color:#ffffff; white-space:nowrap;">
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+                        </svg>
+                        Download
+                    </a>
+                </div>
 
                 <div class="relative" style="z-index:1;">
                     {{-- Dotted connecting line --}}
@@ -62,10 +73,10 @@
                                     {{ $step->step_order }}
                                 </div>
                                 {{-- White image card --}}
-                                <div class="w-full rounded-2xl bg-white shadow-md mb-2 flex items-center justify-center overflow-hidden"
-                                    style="aspect-ratio:1/1; padding:10px; border:1px solid rgba(255,255,255,0.8);">
+                                <div class="w-full rounded-2xl bg-white shadow-md mb-2 overflow-hidden"
+                                    style="aspect-ratio:1/1; border:1px solid rgba(255,255,255,0.8);">
                                     <img src="{{ asset('storage/' . $step->image_path) }}"
-                                        class="w-full h-full object-contain">
+                                        class="w-full h-full object-cover">
                                 </div>
                                 {{-- Title --}}
                                 <p class="text-[10px] font-bold leading-snug" style="color:#1A1A3E;">
@@ -144,12 +155,9 @@
                             onclick="event.stopPropagation(); addToCart({{ $category->id }}, '{{ addslashes($category->name) }}', {{ $category->price }}, '{{ asset($category->icon ?? 'images/bag-qr.png') }}')"
                             class="absolute bottom-2 right-2 w-9 h-9 text-white rounded-full shadow-xl flex items-center justify-center font-bold transition-transform active:scale-75"
                             style="background-color:#1A1A3E; border: 2px solid #ffffff;">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24">
-                                <circle cx="9" cy="21" r="1"></circle>
-                                <circle cx="20" cy="21" r="1"></circle>
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M1 1h4l2.68 12.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
                             </svg>
                         </button>
                     </div>
@@ -165,12 +173,8 @@
                             <span class="font-black text-[15px]"
                                 style="color:#1A1A3E;">₹{{ number_format($category->price, 0) }}</span>
                             @if ($category->in_stock)
-                                <span class="text-[8px] font-bold px-1.5 py-0.5 rounded-md"
-                                    style="background:#E8F5E9; color:#2E7D32; border: 1px solid #C8E6C9;">IN STOCK</span>
-                            @else
-                                <span class="text-[8px] font-bold px-1.5 py-0.5 rounded-md"
-                                    style="background:#FFEBEE; color:#C62828; border: 1px solid #FFCDD2;">OUT OF
-                                    STOCK</span>
+                                {{-- <span class="text-[8px] font-bold px-1.5 py-0.5 rounded-md"
+                                    style="background:#E8F5E9; color:#2E7D32; border: 1px solid #C8E6C9;">IN STOCK</span> --}}
                             @endif
                         </div>
                     </div>
@@ -268,7 +272,7 @@
         .banner-img {
             width: 100%;
             height: 205px;
-            object-fit: contain;
+            object-fit: cover;
         }
 
         @media (min-width: 768px) {
@@ -276,7 +280,7 @@
                 width: 100%;
                 height: auto;
                 max-height: 420px;
-                object-fit: contain;
+                object-fit: cover;
             }
         }
 
