@@ -127,7 +127,7 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id'        => 'required',
+            // 'user_id'        => 'required',
             'customer_name'  => 'required_if:user_id,other|string|max:255|nullable',
             'category_id'    => 'required|exists:categories,id',
             'quantity'       => 'required|integer|min:1',

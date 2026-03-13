@@ -25,6 +25,16 @@
                 </div>
             </div>
 
+            @if ($errors->any())
+                <div style="margin-bottom: 20px; background: var(--red-bg); border: 1px solid var(--red); color: var(--red); padding: 15px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;">
+                    <ul style="margin: 0; padding-left: 20px;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- ── FORM AREA ── --}}
             <div class="card"
                 style="padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); max-width: 1000px;">
