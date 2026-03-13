@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\UserNewController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\UseCaseController;
 use App\Http\Controllers\Admin\EmergencyController;
+use App\Http\Controllers\Admin\FraudDetectionController;
 use App\Http\Controllers\Admin\HowItWorksController;
 
 use App\Http\Controllers\UserQrRegistrationController;
@@ -268,6 +269,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('sliders/update/{id}', [SliderController::class, 'update'])->name('sliders.custom_update');
 
     Route::resource('registrations', QrRegistrationController::class);
+
+    Route::get('fraud-detections', [FraudDetectionController::class, 'index'])->name('fraud-detections.index');
 
     Route::get('/users', [UserNewController::class, 'index'])->name('users.index');
     Route::get('/users/{id}', [UserNewController::class, 'show'])->name('users.show');

@@ -82,68 +82,6 @@
                             </div>
                         </div>
 
-                        {{-- Fraud Detection Card --}}
-                        <div class="card" style="padding: 20px; border: 1px solid var(--border);">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                <p
-                                    style="font-size: 10px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin: 0;">
-                                    Fraud Detection</p>
-                                <span style="font-size: 10px; font-weight: 900; color: var(--blue);">TOTAL: {{ $fraudDetections->count() }}</span>
-                            </div>
-
-                            <form method="GET" action="{{ route('admin.qr-codes.show', $qrCode->id) }}" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
-                                <div style="flex: 0 0 42%; min-width: 110px; display: flex; flex-direction: column; gap: 6px;">
-                                    <label style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase;">Type</label>
-                                    <select name="type" style="padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-size: 12px;">
-                                        <option value="" {{ request('type') == '' ? 'selected' : '' }}>All</option>
-                                        <option value="normal_call" {{ request('type') === 'normal_call' ? 'selected' : '' }}>Normal Call</option>
-                                        <option value="emergency_call" {{ request('type') === 'emergency_call' ? 'selected' : '' }}>Emergency Call</option>
-                                    </select>
-                                </div>
-
-                                <div style="flex: 0 0 42%; min-width: 110px; display: flex; flex-direction: column; gap: 6px;">
-                                    <label style="font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase;">Owner Number</label>
-                                    <input type="text" name="to_number" value="{{ request('to_number') }}" placeholder="e.g. 919876543210" style="padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-size: 12px;" />
-                                </div>
-
-                                <div style="flex: 0 0 16%; min-width: 110px; display: flex; align-items: flex-end;">
-                                    <button type="submit" style="background: var(--blue); color: white; border: none; border-radius: 10px; padding: 10px 14px; font-size: 12px; font-weight: 800; cursor: pointer; width: 50%;">Filter</button>
-                                </div>
-                            </form>
-
-                            @if ($fraudDetections->isEmpty())
-                                <p style="text-align: center; color: var(--text3); font-size: 12px; margin-top: 10px; font-style: italic;">No fraud detection records found for this QR code.</p>
-                            @else
-                                <div style="width: 100%; overflow-x: auto;">
-                                    <div style="max-height: 260px; overflow-y: auto;">
-                                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                                            <thead>
-                                                <tr>
-                                                    <th style="text-align: left; padding: 8px 10px; color: var(--text3); font-weight: 800; text-transform: uppercase;">Owner Number</th>
-                                                    <th style="text-align: left; padding: 8px 10px; color: var(--text3); font-weight: 800; text-transform: uppercase;">Type</th>
-                                                    <th style="text-align: left; padding: 8px 10px; color: var(--text3); font-weight: 800; text-transform: uppercase;">Initiated</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($fraudDetections->take(6) as $item)
-                                                    <tr style="border-top: 1px solid var(--border);">
-                                                        <td style="padding: 8px 10px;">{{ $item->to_number ?? '—' }}</td>
-                                                        <td style="padding: 8px 10px; text-transform: capitalize;">{{ str_replace('_', ' ', $item->type) }}</td>
-                                                        <td style="padding: 8px 10px;">{{ $item->call_ended_at ? \Illuminate\Support\Carbon::parse($item->call_ended_at)->format('d M Y, h:i A') : '—' }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    @if ($fraudDetections->count() > 6)
-                                        <div style="text-align: right; font-size: 10px; color: var(--text3); margin-top: 8px;">
-                                            Showing 6 of {{ $fraudDetections->count() }} entries
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; gap: 15px; grid-column: span 2;">

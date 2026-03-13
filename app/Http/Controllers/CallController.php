@@ -89,7 +89,7 @@ class CallController extends Controller
         $from = $this->formatMobileNumber($from);
         $to   = $this->formatMobileNumber($to);
 
-        $monthlyCount = FraudDetection::where('to_number', $to)
+        $monthlyCount = FraudDetection::where('qr_code_id', $qrCodeId)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();

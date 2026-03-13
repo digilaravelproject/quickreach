@@ -92,6 +92,18 @@
             <span class="nav-label">Qr Registration List</span>
         </a>
 
+        <a href="{{ route('admin.fraud-detections.index') }}"
+            class="nav-link {{ request()->routeIs('admin.fraud-detections.*') ? 'active' : '' }}"
+            data-tip="Fraud Detection">
+            <span class="nav-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:18px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 11c0 3.866-3.582 7-8 7s-8-3.134-8-7 3.582-7 8-7 8 3.134 8 7zM12 11v2m0 4h0" />
+                </svg>
+            </span>
+            <span class="nav-label">Fraud Detection</span>
+        </a>
+
 
         {{-- <div class="nav-group">
             <div
