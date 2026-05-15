@@ -5,12 +5,24 @@
         class="min-h-[calc(100vh-64px)] bg-[#F5F3FA] flex flex-col items-center px-4 py-6 font-sans pb-12">
         <div class="max-w-md w-full">
 
+            {{-- =============================================
+                 LANGUAGE TOGGLE BUTTON (EN / हिंदी)
+                 ============================================= --}}
+            <div class="flex justify-end mb-4">
+                <button @click="toggleLang()"
+                    class="flex items-center gap-1.5 bg-white border border-[#4B3D76] rounded-full px-4 py-1.5 shadow-sm transition-all hover:bg-[#EBE5F7] active:scale-95">
+                    <span class="text-xs font-black text-[#4B3D76]" x-text="lang === 'en' ? 'EN' : 'EN'"></span>
+                    <div class="relative w-9 h-5 bg-[#4B3D76] rounded-full flex items-center px-0.5 transition-all">
+                        <div class="absolute w-4 h-4 bg-white rounded-full shadow transition-all duration-300"
+                            :class="lang === 'hi' ? 'translate-x-4' : 'translate-x-0'"></div>
+                    </div>
+                    <span class="text-xs font-black text-[#4B3D76]" x-text="lang === 'en' ? 'हिंदी' : 'हिंदी'"></span>
+                </button>
+            </div>
+
             <div class="space-y-4">
 
                 {{-- 1. Call Owner Button (Dark Purple) --}}
-                <!--<button @click="openCallModal('{{ $ownerDetails->mobile_number }}', 'Owner')"-->
-                <!--    class="w-full bg-[#4B3D76] hover:bg-[#3c315e] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">-->
-
                 <button @click="callOwnerSession('{{ $ownerDetails->qr_code_id }}', 'Owner')"
                     class="w-full bg-[#4B3D76] hover:bg-[#3c315e] text-white py-4 rounded-2xl font-black text-base shadow-lg shadow-indigo-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
 
@@ -18,7 +30,7 @@
                         <path
                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                     </svg>
-                    Call Owner
+                    <span x-text="lang === 'en' ? 'Call Owner' : 'मालिक को कॉल करें'"></span>
                 </button>
 
                 {{-- Disclaimer --}}
@@ -28,9 +40,10 @@
                             d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                             clip-rule="evenodd" />
                     </svg>
-                    <p class="text-[11px] font-semibold text-[#92400E] leading-snug">
-                        This contact feature is strictly for emergencies or genuine concerns. Misuse or prank calls may be
-                        tracked and reported.
+                    <p class="text-[11px] font-semibold text-[#92400E] leading-snug"
+                        x-text="lang === 'en'
+                            ? 'This contact feature is strictly for emergencies or genuine concerns. Misuse or prank calls may be tracked and reported.'
+                            : 'यह संपर्क सुविधा केवल आपातकाल या वास्तविक चिंताओं के लिए है। दुरुपयोग या प्रैंक कॉल को ट्रैक और रिपोर्ट किया जा सकता है।'">
                     </p>
                 </div>
 
@@ -42,7 +55,7 @@
                             d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
                             clip-rule="evenodd" />
                     </svg>
-                    Emergency Call
+                    <span x-text="lang === 'en' ? 'Emergency Call' : 'आपातकालीन कॉल'"></span>
                 </button>
 
                 {{-- 3. SOS Card Section --}}
@@ -60,11 +73,12 @@
                             </svg>
                         </div>
                         <h2 class="text-2xl font-black text-gray-900 leading-tight">SOS</h2>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Quick Access to
-                            Emergency Services</p>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1"
+                            x-text="lang === 'en' ? 'Quick Access to Emergency Services' : 'आपातकालीन सेवाओं तक त्वरित पहुँच'">
+                        </p>
                     </div>
 
-                    {{-- SOS Links (Direct tel: - ye government numbers hain, Bonvoice ki zaroorat nahi) --}}
+                    {{-- SOS Links --}}
                     <div class="space-y-3">
                         <a href="tel:100"
                             class="flex items-center justify-between w-full bg-[#4B3D76] text-white py-3.5 px-5 rounded-2xl font-black text-sm shadow-md transition-all active:scale-[0.98]">
@@ -74,7 +88,7 @@
                                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
                                     </path>
                                 </svg>
-                                POLICE 100
+                                <span x-text="lang === 'en' ? 'POLICE 100' : 'पुलिस 100'"></span>
                             </div>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -89,7 +103,7 @@
                                         d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                                     </path>
                                 </svg>
-                                AMBULANCE 108
+                                <span x-text="lang === 'en' ? 'AMBULANCE 108' : 'एम्बुलेंस 108'"></span>
                             </div>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -106,7 +120,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
                                 </svg>
-                                FIRE BRIGADE 101
+                                <span x-text="lang === 'en' ? 'FIRE BRIGADE 101' : 'अग्निशमन 101'"></span>
                             </div>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -121,7 +135,7 @@
                                         d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
                                     </path>
                                 </svg>
-                                WOMEN HELPLINE 1091
+                                <span x-text="lang === 'en' ? 'WOMEN HELPLINE 1091' : 'महिला हेल्पलाइन 1091'"></span>
                             </div>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
@@ -133,8 +147,8 @@
                     {{-- Dynamic Emergency Note --}}
                     @if (!empty($ownerDetails->emergency_note))
                         <div class="mt-5 bg-[#FEF9E8] rounded-2xl p-4 border border-[#FDE89F]">
-                            <p class="text-[10px] font-black text-[#D97706] uppercase tracking-wider mb-2">Emergency Note
-                            </p>
+                            <p class="text-[10px] font-black text-[#D97706] uppercase tracking-wider mb-2"
+                                x-text="lang === 'en' ? 'Emergency Note' : 'आपातकालीन नोट'"></p>
                             <div class="flex gap-2 items-start">
                                 <svg class="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" fill="currentColor"
                                     viewBox="0 0 20 20">
@@ -153,7 +167,8 @@
                 <div class="text-center pt-6 pb-2 flex justify-center">
                     <p
                         class="text-gray-400 text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-2 justify-center">
-                        Powered by <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}"
+                        <span x-text="lang === 'en' ? 'Powered by' : 'द्वारा संचालित'"></span>
+                        <img src="{{ asset('assets/images/logos/quickreach_logo.jpeg') }}"
                             alt="QwickReach Logo" class="qw_logo"
                             style="height: 15px; width: auto; object-fit: contain;">
                     </p>
@@ -162,8 +177,7 @@
         </div>
 
         {{-- =============================================
-             CALL MODAL - Caller ka number maango
-             (Call Owner + Emergency dono iske liye)
+             CALL MODAL
              ============================================= --}}
         <div x-show="showCallModal" x-transition.opacity
             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm"
@@ -180,18 +194,21 @@
                                 d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-black text-gray-900">Connect Call</h3>
+                    <h3 class="text-lg font-black text-gray-900"
+                        x-text="lang === 'en' ? 'Connect Call' : 'कॉल कनेक्ट करें'"></h3>
                     <p class="text-[11px] text-gray-500 font-semibold mt-1">
-                        Calling: <span class="text-[#4B3D76]" x-text="callTargetName"></span>
+                        <span x-text="lang === 'en' ? 'Calling:' : 'कॉल हो रहा है:'"></span>
+                        <span class="text-[#4B3D76]" x-text="callTargetName"></span>
                     </p>
                 </div>
 
                 {{-- Caller Number Input --}}
                 <div class="mb-4">
-                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1 block">
-                        Your Mobile Number
+                    <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-1 block"
+                        x-text="lang === 'en' ? 'Your Mobile Number' : 'आपका मोबाइल नंबर'">
                     </label>
-                    <input x-model="callerNumber" type="tel" maxlength="10" placeholder="Enter your 10-digit number"
+                    <input x-model="callerNumber" type="tel" maxlength="10"
+                        :placeholder="lang === 'en' ? 'Enter your 10-digit number' : 'अपना 10 अंकों का नंबर दर्ज करें'"
                         class="w-full border-2 border-[#EBE5F7] focus:border-[#4B3D76] rounded-xl px-4 py-3 text-sm font-bold text-gray-800 focus:outline-none transition-all">
                     <p x-show="callError" x-text="callError" class="text-[10px] text-red-500 font-bold mt-1"></p>
                 </div>
@@ -203,19 +220,18 @@
                         <path
                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                     </svg>
-                    {{-- Spinner --}}
                     <svg x-show="calling" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                             stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
                     </svg>
-                    <span x-text="calling ? 'Connecting...' : 'Connect Call'"></span>
+                    <span x-text="calling ? (lang === 'en' ? 'Connecting...' : 'कनेक्ट हो रहा है...') : (lang === 'en' ? 'Connect Call' : 'कॉल कनेक्ट करें')"></span>
                 </button>
 
                 {{-- Cancel --}}
                 <button @click="closeCallModal()"
-                    class="w-full py-3 mt-2 bg-gray-100 text-gray-500 rounded-xl font-black text-xs hover:bg-gray-200 transition-all">
-                    Cancel
+                    class="w-full py-3 mt-2 bg-gray-100 text-gray-500 rounded-xl font-black text-xs hover:bg-gray-200 transition-all"
+                    x-text="lang === 'en' ? 'Cancel' : 'रद्द करें'">
                 </button>
             </div>
         </div>
@@ -237,7 +253,8 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <h3 class="text-xl font-black text-gray-900 leading-tight">Personal Contacts</h3>
+                    <h3 class="text-xl font-black text-gray-900 leading-tight"
+                        x-text="lang === 'en' ? 'Personal Contacts' : 'व्यक्तिगत संपर्क'"></h3>
                 </div>
 
                 <div class="space-y-2 mb-6">
@@ -245,21 +262,12 @@
                     @if (!empty($ownerDetails->emergency_contacts))
                         @foreach ($ownerDetails->emergency_contacts as $k => $contact)
                             <?php $key = $k + 1; ?>
-                            {{-- Har contact pe click se Call Modal khulega --}}
-                            <!--<button-->
-                            <!--    @click="-->
-                            <!--        showEmergency = false;-->
-                            <!--        openCallModal('{{ $contact['number'] }}', '{{ $contact['name'] }}')-->
-                            <!--    "-->
-                            <!--    class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#F05252]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">-->
-
                             <button
                                 @click="callOwnerEmegSession('{{ $ownerDetails->qr_code_id }}', '{{ $key }}', 'Owner')"
                                 class="block w-full p-3 bg-[#F5F3FA] hover:bg-[#EBE5F7] border-2 border-transparent hover:border-[#F05252]/20 rounded-xl flex items-center justify-between group transition-all active:scale-[0.97]">
 
                                 <div class="text-left">
                                     <p class="font-black text-gray-800 text-xs tracking-tight">{{ $contact['name'] }}</p>
-                                    <!--<p class="text-[10px] font-bold text-[#4B3D76]">{{ $contact['number'] }}</p>-->
                                 </div>
                                 <div class="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm">
                                     <svg class="w-3 h-3 text-[#F05252]" fill="currentColor" viewBox="0 0 20 20">
@@ -271,14 +279,15 @@
                         @endforeach
                     @else
                         <div class="text-center py-4 bg-gray-50 rounded-2xl">
-                            <p class="text-gray-400 text-xs font-bold uppercase">No contacts available.</p>
+                            <p class="text-gray-400 text-xs font-bold uppercase"
+                                x-text="lang === 'en' ? 'No contacts available.' : 'कोई संपर्क उपलब्ध नहीं।'"></p>
                         </div>
                     @endif
                 </div>
 
                 <button @click="showEmergency = false"
-                    class="w-full py-3 bg-[#4B3D76] text-white rounded-xl font-black text-xs hover:bg-[#3c315e] transition-all active:scale-95 shadow-lg">
-                    CLOSE
+                    class="w-full py-3 bg-[#4B3D76] text-white rounded-xl font-black text-xs hover:bg-[#3c315e] transition-all active:scale-95 shadow-lg"
+                    x-text="lang === 'en' ? 'CLOSE' : 'बंद करें'">
                 </button>
             </div>
         </div>
@@ -290,19 +299,14 @@
             fetch(`/api/owner_session/${id}`)
                 .then(response => response.json())
                 .then(data => {
-
                     if (data.status) {
-
                         let virtualNo = data.virtual_no;
-
                         if (virtualNo) {
                             window.location.href = "tel:" + virtualNo;
                         }
-
                     } else {
                         alert(data.msg);
                     }
-
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -313,19 +317,14 @@
             fetch(`/api/owner_emeg_session/${id}/${key}`)
                 .then(response => response.json())
                 .then(data => {
-
                     if (data.status) {
-
                         let virtualNo = data.virtual_no;
-
                         if (virtualNo) {
                             window.location.href = "tel:" + virtualNo;
                         }
-
                     } else {
                         alert(data.msg);
                     }
-
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -336,18 +335,24 @@
     <script>
         function contactOwner() {
             return {
+                // Language toggle: 'en' or 'hi'
+                lang: 'en',
+
+                toggleLang() {
+                    this.lang = this.lang === 'en' ? 'hi' : 'en';
+                },
+
                 // Emergency modal
                 showEmergency: false,
 
                 // Call modal
                 showCallModal: false,
-                callTargetNumber: '', // Jise call karni hai (owner ya emergency contact)
-                callTargetName: '', // Display name
-                callerNumber: '', // Jo call kar raha hai (user ka number)
+                callTargetNumber: '',
+                callTargetName: '',
+                callerNumber: '',
                 calling: false,
                 callError: '',
 
-                // Call modal open karo
                 openCallModal(targetNumber, targetName) {
                     this.callTargetNumber = targetNumber;
                     this.callTargetName = targetName;
@@ -357,7 +362,6 @@
                     this.showCallModal = true;
                 },
 
-                // Call modal close karo
                 closeCallModal() {
                     this.showCallModal = false;
                     this.callTargetNumber = '';
@@ -367,14 +371,14 @@
                     this.calling = false;
                 },
 
-                // Call confirm karo aur API hit karo
                 confirmCall() {
                     this.callError = '';
 
-                    // Validation
                     const num = this.callerNumber.trim();
                     if (!num || num.length < 10) {
-                        this.callError = 'Please enter a valid 10-digit mobile number';
+                        this.callError = this.lang === 'en'
+                            ? 'Please enter a valid 10-digit mobile number'
+                            : 'कृपया एक वैध 10 अंकों का मोबाइल नंबर दर्ज करें';
                         return;
                     }
 
@@ -396,17 +400,16 @@
                             this.calling = false;
                             if (data.success) {
                                 this.closeCallModal();
-                                // Success toast / alert
-                                alert('✅ Call connecting to ' + this.callTargetName + '! Please wait...');
+                                alert(this.lang === 'en'
+                                    ? '✅ Call connecting to ' + this.callTargetName + '! Please wait...'
+                                    : '✅ ' + this.callTargetName + ' से कॉल कनेक्ट हो रही है! कृपया प्रतीक्षा करें...');
                             } else {
-                                // Bonvoice fail hua toh direct call fallback
                                 this.closeCallModal();
                                 window.location.href = 'tel:' + this.callTargetNumber;
                             }
                         })
                         .catch(() => {
                             this.calling = false;
-                            // Network error fallback - direct call
                             this.closeCallModal();
                             window.location.href = 'tel:' + this.callTargetNumber;
                         });

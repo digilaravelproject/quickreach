@@ -1,5 +1,31 @@
 @extends('user_layout.user')
 @section('content')
+    {{-- ── EMAIL ALREADY EXISTS POPUP ── --}}
+    <div id="emailExistsModal"
+        style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(26,26,62,0.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+        <div
+            style="background:#fff;border-radius:28px;padding:32px 24px;max-width:340px;width:90%;box-shadow:0 25px 50px -10px rgba(107,71,214,0.25);text-align:center;position:relative;animation:slideUp .3s ease">
+            <div
+                style="width:56px;height:56px;background:#F0F0FA;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px">
+                🔐</div>
+            <p class="f-display" style="font-size:18px;font-weight:800;color:#1A1A3E;margin-bottom:8px;line-height:1.3">
+                Account Already Exists
+            </p>
+            <p class="f-display" style="font-size:13px;font-weight:500;color:#6B7280;margin-bottom:24px;line-height:1.6">
+                This email is already registered with QwickReach.<br>
+                Please log in to continue registering your QR tag.
+            </p>
+            <a id="loginRedirectBtn" href="#"
+                style="display:block;width:100%;padding:15px;background:#1A1A3E;color:#fff;border:none;border-radius:18px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none;box-shadow:0 10px 20px -5px rgba(26,26,62,0.3);border-bottom:4px solid #6B47D6;transition:all .2s ease;box-sizing:border-box;">
+                Login to Your Account →
+            </a>
+            <button onclick="closeEmailModal()"
+                style="margin-top:12px;background:none;border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:#9B9BB4;cursor:pointer;padding:6px 16px;">
+                Cancel
+            </button>
+        </div>
+    </div>
+
     {{-- Main Container --}}
     <div class="min-h-screen py-8 px-5 max-w-md mx-auto" style="background-color:#F0F0FA;">
         {{-- ── HEADER ── --}}
@@ -35,6 +61,20 @@
             </div>
         </div>
 
+        {{-- ── LOGGED-IN BANNER ── --}}
+        @auth
+            <div
+                style="background:#eef2ff;border:1.5px solid #c7d2fe;border-radius:18px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">
+                <span style="font-size:20px">✅</span>
+                <div>
+                    <p class="f-display" style="font-size:12px;font-weight:800;color:#3730a3;margin-bottom:2px">Logged in as
+                        {{ Auth::user()->name }}</p>
+                    <p class="f-display" style="font-size:11px;font-weight:500;color:#6366f1">Your account will be linked
+                        automatically</p>
+                </div>
+            </div>
+        @endauth
+
         {{-- ── FORM CARD ── --}}
         <div
             style="background:#fff;border-radius:28px;border:1px solid rgba(107,71,214,.12);padding:24px 20px;box-shadow:0 20px 30px -10px rgba(107,71,214,0.1);margin-bottom:24px">
@@ -66,7 +106,9 @@
                             <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
                         </svg>
                     </div>
-                    <input type="text" name="full_name" value="{{ old('full_name') }}" required placeholder="Full Name"
+                    <input type="text" name="full_name"
+                        value="{{ old('full_name', Auth::check() ? Auth::user()->name : '') }}" required
+                        placeholder="Full Name"
                         style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
                         onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
@@ -76,54 +118,61 @@
                     <div
                         style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#A3A3C2">
                         +91</div>
-                    <input type="tel" name="mobile_number" value="{{ old('mobile_number') }}" required
+                    <input type="tel" name="mobile_number"
+                        value="{{ old('mobile_number', Auth::check() ? Auth::user()->phone ?? '' : '') }}" required
                         pattern="[0-9]{10}" placeholder="Mobile Number"
                         style="width:100%;padding:14px 16px 14px 52px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
                         onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
                         onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
                 </div>
 
-                {{-- ── ACCOUNT CREDENTIALS ── --}}
-                <div style="margin-bottom:12px;position:relative">
-                    <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#A3A3C2">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                    </div>
-                    <input type="email" name="email" value="{{ old('email') }}" required placeholder="Email Address"
-                        style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
-                        onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
-                        onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
-                </div>
+                {{-- ── ACCOUNT CREDENTIALS — only shown to guests ── --}}
+                @guest
+                    <div id="credentialsSection">
+                        <div style="margin-bottom:12px;position:relative">
+                            <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#A3A3C2">
+                                <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
+                            </div>
+                            <input type="email" name="email" id="emailInput" value="{{ old('email') }}" required
+                                placeholder="Email Address"
+                                style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
+                                onblur="handleEmailBlur(this)">
+                        </div>
 
-                <div style="margin-bottom:12px;position:relative">
-                    <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#A3A3C2">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <input type="password" name="password" required placeholder="Password"
-                        style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
-                        onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
-                        onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
-                </div>
+                        <div style="margin-bottom:12px;position:relative">
+                            <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#A3A3C2">
+                                <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input type="password" name="password" required placeholder="Password"
+                                style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
+                        </div>
 
-                <div style="margin-bottom:20px;position:relative">
-                    <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#A3A3C2">
-                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd" />
-                        </svg>
+                        <div style="margin-bottom:20px;position:relative">
+                            <div style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#A3A3C2">
+                                <svg width="18" height="18" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <input type="password" name="password_confirmation" required placeholder="Confirm Password"
+                                style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
+                                onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
+                                onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
+                        </div>
                     </div>
-                    <input type="password" name="password_confirmation" required placeholder="Confirm Password"
-                        style="width:100%;padding:14px 16px 14px 44px;background:#F0F0FA;border:1.5px solid transparent;border-radius:16px;font-size:14px;font-weight:500;color:#1A1A3E;outline:none;transition:all .2s ease"
-                        onfocus="this.style.border='1.5px solid #6B47D6';this.style.background='#fff'"
-                        onblur="this.style.border='1.5px solid transparent';this.style.background='#F0F0FA'">
-                </div>
+                @endguest
+
                 <div
                     style="height:1px;background:linear-gradient(to right,transparent,rgba(107,71,214,.15),transparent);margin-bottom:18px">
                 </div>
@@ -336,4 +385,77 @@
             <div style="height:1px;flex:1;background:linear-gradient(to left,transparent,rgba(107,71,214,.15))"></div>
         </div>
     </div>
+
+    {{-- ── MODAL ANIMATION ── --}}
+    <style>
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    {{-- ── EMAIL CHECK SCRIPT (only for guests) ── --}}
+    @guest
+        <script>
+            // Login URL with intended redirect back to this QR register page
+            const loginUrl = "{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}";
+
+            document.getElementById('loginRedirectBtn').href = loginUrl;
+
+            function openEmailModal() {
+                const modal = document.getElementById('emailExistsModal');
+                modal.style.display = 'flex';
+            }
+
+            function closeEmailModal() {
+                const modal = document.getElementById('emailExistsModal');
+                modal.style.display = 'none';
+            }
+
+            // Close modal on backdrop click
+            document.getElementById('emailExistsModal').addEventListener('click', function(e) {
+                if (e.target === this) closeEmailModal();
+            });
+
+            async function handleEmailBlur(input) {
+                // Reset border style
+                input.style.border = '1.5px solid transparent';
+                input.style.background = '#F0F0FA';
+
+                const email = input.value.trim();
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+
+                try {
+                    const response = await fetch("{{ route('qr.check-email') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ||
+                                "{{ csrf_token() }}"
+                        },
+                        body: JSON.stringify({
+                            email: email
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.exists) {
+                        openEmailModal();
+                    }
+                } catch (err) {
+                    // Silently fail — server-side validation will catch it anyway
+                    console.error('Email check failed', err);
+                }
+            }
+        </script>
+    @endguest
+
 @endsection

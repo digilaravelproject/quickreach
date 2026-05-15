@@ -147,7 +147,8 @@
                             style="background-color:#EF4444; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);"
                             title="Remove item">
                             <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                                <path
+                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
                             </svg>
                         </button>
                         <div class="w-16 h-16 rounded-xl flex items-center justify-center p-2" style="background:#ffffff;">
@@ -204,37 +205,44 @@
                 <div class="space-y-3 p-5 rounded-[24px] border border-[#DDDDF0] bg-[#EAEAF8]">
                     <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Personal Info</p>
                     <div class="mb-3">
-                        <input type="text" x-model="shippingData.full_name" @input="errors.full_name = null" placeholder="Full Name" required
+                        <input type="text" x-model="shippingData.full_name" @input="errors.full_name = null"
+                            placeholder="Full Name" required
                             class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        <p x-show="errors.full_name" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.full_name"></p>
+                        <p x-show="errors.full_name" class="text-xs text-red-500 mt-1 font-bold pl-2"
+                            x-text="errors.full_name"></p>
                     </div>
                     <div class="mb-3">
-                        <input type="email" x-model="shippingData.email" @input="errors.email = null" placeholder="Email Address" required
+                        <input type="email" x-model="shippingData.email" @input="errors.email = null"
+                            placeholder="Email Address" required
                             class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        <p x-show="errors.email" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.email"></p>
+                        <p x-show="errors.email" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.email">
+                        </p>
                     </div>
                     <div class="mb-3">
-                        <input type="tel" x-model="shippingData.mobile_number" @input="errors.mobile_number = null" placeholder="Mobile Number (10 Digit)"
-                            required pattern="[0-9]{10,13}" minlength="10" maxlength="13"
-                            class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                        <input type="tel" x-model="shippingData.mobile_number" @input="errors.mobile_number = null"
+                            placeholder="Mobile Number (10 Digit)" required pattern="[0-9]{10,13}" minlength="10"
+                            maxlength="13" class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        <p x-show="errors.mobile_number" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.mobile_number"></p>
+                        <p x-show="errors.mobile_number" class="text-xs text-red-500 mt-1 font-bold pl-2"
+                            x-text="errors.mobile_number"></p>
                     </div>
                 </div>
 
                 <div class="space-y-3 p-5 rounded-[24px] border border-[#DDDDF0] bg-[#EAEAF8]">
                     <p class="text-[10px] font-black uppercase tracking-widest" style="color:#9B9BB4;">Address</p>
                     <div class="mb-3">
-                        <input type="text" x-model="shippingData.address_line1" @input="errors.address_line1 = null" placeholder="Flat, House no., Building"
-                            required class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                        <input type="text" x-model="shippingData.address_line1" @input="errors.address_line1 = null"
+                            placeholder="Flat, House no., Building" required
+                            class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        <p x-show="errors.address_line1" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.address_line1"></p>
+                        <p x-show="errors.address_line1" class="text-xs text-red-500 mt-1 font-bold pl-2"
+                            x-text="errors.address_line1"></p>
                     </div>
                     <input type="text" x-model="shippingData.address_line2"
                         placeholder="Area, Street, Sector (Optional)"
@@ -244,27 +252,33 @@
                     <div class="mb-3">
                         <div class="flex gap-3">
                             <div class="w-1/2">
-                                <input type="text" x-model="shippingData.city" @input="errors.city = null" placeholder="City / Town" required
+                                <input type="text" x-model="shippingData.city" @input="errors.city = null"
+                                    placeholder="City / Town" required
                                     class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                                     style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                                     onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                                <p x-show="errors.city" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.city"></p>
+                                <p x-show="errors.city" class="text-xs text-red-500 mt-1 font-bold pl-2"
+                                    x-text="errors.city"></p>
                             </div>
                             <div class="w-1/2">
-                                <input type="text" x-model="shippingData.pincode" @input="errors.pincode = null" placeholder="Pincode" required
-                                    pattern="[0-9]{6}" class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
+                                <input type="text" x-model="shippingData.pincode" @input="errors.pincode = null"
+                                    placeholder="Pincode" required pattern="[0-9]{6}"
+                                    class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                                     style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                                     onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                                <p x-show="errors.pincode" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.pincode"></p>
+                                <p x-show="errors.pincode" class="text-xs text-red-500 mt-1 font-bold pl-2"
+                                    x-text="errors.pincode"></p>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <input type="text" x-model="shippingData.state" @input="errors.state = null" placeholder="State" required
+                        <input type="text" x-model="shippingData.state" @input="errors.state = null"
+                            placeholder="State" required
                             class="w-full p-4 rounded-xl font-bold text-sm outline-none transition-all"
                             style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                             onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        <p x-show="errors.state" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.state"></p>
+                        <p x-show="errors.state" class="text-xs text-red-500 mt-1 font-bold pl-2" x-text="errors.state">
+                        </p>
                     </div>
                 </div>
             </div>
@@ -345,24 +359,24 @@
             <div class="mb-6">
                 <p class="text-[10px] font-black uppercase tracking-widest mb-3" style="color:#9B9BB4;">Have a Coupon?</p>
                 <div class="relative flex items-center">
-                    <input type="text" x-model="coupon.code" :disabled="coupon.applied" placeholder="Enter code here..."
+                    <input type="text" x-model="coupon.code" :disabled="coupon.applied"
+                        placeholder="Enter code here..."
                         class="w-full p-4 pr-24 rounded-xl font-bold text-sm outline-none transition-all uppercase"
                         style="background:#ffffff; border: 1.5px solid #DDDDF0; color:#1A1A3E;"
                         onfocus="this.style.borderColor='#5B5BDB'" onblur="this.style.borderColor='#DDDDF0'">
-                        
+
                     <button x-show="!coupon.applied" @click="applyCoupon()" :disabled="applyingCoupon"
                         class="absolute right-2 px-4 py-2 bg-[#1A1A3E] text-white rounded-lg text-xs font-black uppercase tracking-wider active:scale-95 transition-transform"
                         x-text="applyingCoupon ? '...' : 'Apply'">
                     </button>
-                    
+
                     <button x-show="coupon.applied" @click="removeCoupon()"
                         class="absolute right-2 px-4 py-2 bg-red-100 text-red-600 rounded-lg text-xs font-black uppercase tracking-wider active:scale-95 transition-transform">
                         Remove
                     </button>
                 </div>
                 <p x-show="coupon.message" class="text-xs font-bold mt-2 pl-1"
-                   :class="coupon.type === 'error' ? 'text-red-500' : 'text-green-500'" 
-                   x-text="coupon.message"></p>
+                    :class="coupon.type === 'error' ? 'text-red-500' : 'text-green-500'" x-text="coupon.message"></p>
             </div>
 
             <!-- ── PAYMENT METHOD SELECTOR ── -->
@@ -449,7 +463,7 @@
                     restoredShipping = JSON.parse(savedShipping);
                     initialStep = 3;
                     localStorage.removeItem('qr_pending_shipping');
-                    
+
                     const savedCoupon = localStorage.getItem('qr_pending_coupon');
                     if (savedCoupon) {
                         restoredCoupon = JSON.parse(savedCoupon);
@@ -608,7 +622,13 @@
                 },
 
                 removeCoupon() {
-                    this.coupon = { code: '', discount: 0, message: '', type: '', applied: false };
+                    this.coupon = {
+                        code: '',
+                        discount: 0,
+                        message: '',
+                        type: '',
+                        applied: false
+                    };
                 },
 
                 goToShipping() {
@@ -624,27 +644,51 @@
                     const s = this.shippingData;
                     let isValid = true;
                     this.errors = {
-                        full_name: null, email: null, mobile_number: null,
-                        address_line1: null, city: null, pincode: null, state: null
+                        full_name: null,
+                        email: null,
+                        mobile_number: null,
+                        address_line1: null,
+                        city: null,
+                        pincode: null,
+                        state: null
                     };
 
-                    if (!s.full_name) { this.errors.full_name = 'Full Name is required'; isValid = false; }
-                    if (!s.email) { this.errors.email = 'Email Address is required'; isValid = false; }
-                    
-                    if (!s.mobile_number) { 
-                        this.errors.mobile_number = 'Mobile Number is required'; isValid = false; 
-                    } else if (s.mobile_number.length < 10) { 
-                        this.errors.mobile_number = 'Enter a valid 10-digit number'; isValid = false; 
+                    if (!s.full_name) {
+                        this.errors.full_name = 'Full Name is required';
+                        isValid = false;
+                    }
+                    if (!s.email) {
+                        this.errors.email = 'Email Address is required';
+                        isValid = false;
                     }
 
-                    if (!s.address_line1) { this.errors.address_line1 = 'Address is required'; isValid = false; }
-                    if (!s.city) { this.errors.city = 'City is required'; isValid = false; }
-                    if (!s.state) { this.errors.state = 'State is required'; isValid = false; }
-                    
-                    if (!s.pincode) { 
-                        this.errors.pincode = 'Pincode is required'; isValid = false; 
-                    } else if (s.pincode.length < 6) { 
-                        this.errors.pincode = 'Enter a valid 6-digit pincode'; isValid = false; 
+                    if (!s.mobile_number) {
+                        this.errors.mobile_number = 'Mobile Number is required';
+                        isValid = false;
+                    } else if (s.mobile_number.length < 10) {
+                        this.errors.mobile_number = 'Enter a valid 10-digit number';
+                        isValid = false;
+                    }
+
+                    if (!s.address_line1) {
+                        this.errors.address_line1 = 'Address is required';
+                        isValid = false;
+                    }
+                    if (!s.city) {
+                        this.errors.city = 'City is required';
+                        isValid = false;
+                    }
+                    if (!s.state) {
+                        this.errors.state = 'State is required';
+                        isValid = false;
+                    }
+
+                    if (!s.pincode) {
+                        this.errors.pincode = 'Pincode is required';
+                        isValid = false;
+                    } else if (s.pincode.length < 6) {
+                        this.errors.pincode = 'Enter a valid 6-digit pincode';
+                        isValid = false;
                     }
 
                     if (!isValid) return;
@@ -729,12 +773,12 @@
 
                         const data = await response.json();
                         if (!data.success) return this.showToast('Error: ' + data.message, 'error');
-                        
+
                         // Handle 100% Free order bypass Razorpay Modal
                         if (data.is_free) {
-                           localStorage.removeItem('quickreach_cart');
-                           window.location.href = '{{ route('user.order.success') }}?order_id=' + data.order_id;
-                           return;
+                            localStorage.removeItem('quickreach_cart');
+                            window.location.href = '{{ route('user.order.success') }}?order_id=' + data.order_id;
+                            return;
                         }
 
                         const options = {

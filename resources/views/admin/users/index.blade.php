@@ -147,6 +147,31 @@
                         console.error("Error toggling status:", e);
                     }
                 },
+                async deleteUser(user) {
+                    if (!confirm(`Are you sure you want to delete "${user.name}"? This action cannot be undone.`))
+                        return;
+
+                    try {
+                        const res = await fetch(`/admin/users/${user.id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        }).then(r => r.json());
+
+                        if (res.success) {
+                            this.users = this.users.filter(u => u.id !== user.id);
+                            this.selectedUsers = this.selectedUsers.filter(id => id !== user.id);
+                        } else {
+                            alert(res.message || 'Failed to delete user.');
+                        }
+                    } catch (e) {
+                        console.error("Error deleting user:", e);
+                        alert('Something went wrong. Please try again.');
+                    }
+                },
                 exportCSV() {
                     this.exporting = true;
                     let url = `{{ route('admin.users.export') }}?search=${encodeURIComponent(this.search)}`;

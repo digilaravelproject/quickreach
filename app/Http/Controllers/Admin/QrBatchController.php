@@ -100,7 +100,7 @@ class QrBatchController extends Controller
     }
 
     /**
-     * 2×3 grid HTML file download — 6 cards per A4 Portrait page.
+     * 4×4 grid HTML file download — 16 cards per A4 Portrait page.
      * Browser mein open → Ctrl+P → Save as PDF
      */
     public function download(QrBatch $qrBatch)
@@ -235,7 +235,13 @@ class QrBatchController extends Controller
     // =========================================================
 
     /**
-     * Single card HTML snippet — A4 portrait 2×3 grid ke liye size tune kiya
+     * Minimal card — sirf QR image + QR code number.
+     * 4×4 grid (16 per A4 Portrait page) ke liye size tune kiya.
+     *
+     * Card usable area  : ~43mm wide × ~62mm tall
+     * QR image          : 38mm × 38mm
+     * Code label below  : ~8mm
+     * Padding (1.5mm)   : baaki space
      */
     private function buildCardSnippet(array $card): string
     {
@@ -253,71 +259,29 @@ class QrBatchController extends Controller
 
         return '
 <div class="card">
-  <div class="blob blob-blue"></div>
-  <div class="blob blob-purple"></div>
-  <div class="blob blob-pink"></div>
-
-  <div class="brand">Qwick<span class="reach">Reach</span></div>
-  <div class="tagline">SCAN · CALL · CONNECT</div>
-
-  <div class="qr-outer">
-    <div class="qr-glow-ring"></div>
-    <div class="qr-wrapper">' . $imgTag . '</div>
-    <div class="qr-corner"></div>
-  </div>
-
-  <div class="scan-btn">
-    <div class="scan-label">SCAN TO</div>
-    <div class="contact-text">CONTACT OWNER</div>
-    <div class="qr-code-text">' . $code . '</div>
-  </div>
-
-  <div class="features">
-    <div class="fi">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502
-             1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0
-             011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1
-             C9.716 21 3 14.284 3 6V5z"/>
-      </svg>
-      <span>No App Needed</span>
-    </div>
-    <div class="fd"></div>
-    <div class="fi">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955
-             11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29
-             9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-      </svg>
-      <span>100% Secure</span>
-    </div>
-    <div class="fd"></div>
-    <div class="fi">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542
-             7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-      </svg>
-      <span>Private &amp; Safe</span>
-    </div>
-  </div>
+  <div class="qr-wrapper">' . $imgTag . '</div>
+  <div class="qr-code-text">' . $code . '</div>
 </div>';
     }
 
     /**
-     * 2×3 grid wala full HTML.
-     * A4 Portrait — 6 cards per page, auto page-break.
+     * 4×4 grid wala full HTML.
+     * A4 Portrait — 16 cards per page, auto page-break.
+     *
+     * Layout math (1.5mm gap):
+     *   Usable width  = 210mm − 2×8mm padding       = 194mm
+     *   Col width     = (194mm − 3×1.5mm) / 4        ≈ 47.4mm
+     *   Usable height = 297mm − 2×8mm padding        = 281mm
+     *   Row height    = (281mm − 3×1.5mm) / 4        ≈ 68.9mm
+     *   QR img        = 38mm × 38mm  (fits comfortably)
      */
     private function buildGridHtml(array $cards, string $batchCode): string
     {
         $totalCards = count($cards);
         $batchSafe  = htmlspecialchars($batchCode);
 
-        // 6 cards per page
-        $chunks    = array_chunk($cards, 6);
+        // 16 cards per page (4 cols × 4 rows)
+        $chunks    = array_chunk($cards, 16);
         $pagesHtml = '';
 
         foreach ($chunks as $chunk) {
@@ -366,96 +330,68 @@ class QrBatchController extends Controller
   }
   .btn-print:hover { background:#f3e8ff; }
 
-  /* ===== A4 PORTRAIT PAGE ===== */
+  /* ===== A4 PORTRAIT PAGE — 4×4 grid ===== */
   /*
-     A4 = 210mm × 297mm
-     Usable (minus 10mm margin each side) = 190mm × 277mm
-     2 cols × 3 rows grid
+     A4            = 210mm × 297mm
+     Padding       = 8mm each side
+     Usable        = 194mm × 281mm
+     Gap           = 1.5mm
+     Col width     = (194 - 3×1.5) / 4  ≈ 47.4mm
+     Row height    = (281 - 3×1.5) / 4  ≈ 68.9mm
   */
   .page {
     background: white;
     width: 210mm;
     min-height: 297mm;
     margin: 0 auto 28px auto;
-    padding: 10mm;
+    padding: 8mm;
     border-radius: 8px;
     box-shadow: 0 6px 28px rgba(0,0,0,0.12);
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, 1fr);
-    gap: 8mm;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 1.5mm;
   }
 
-  /* ===== CARD ===== */
+  /* ===== CARD — minimal: QR image + code number ===== */
   .card {
-    border-radius: 20px;
-    position: relative;
-    overflow: hidden;
-    padding: 18px 16px 14px;
-    background: linear-gradient(145deg, #f0f0ff 0%, #e8e4ff 40%, #f5f0ff 70%, #ffffff 100%);
-    text-align: center;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 6px 20px rgba(100,80,200,0.18);
+    justify-content: center;
+    padding: 2mm 1.5mm 2mm;
+    background: #ffffff;
+    gap: 0.5mm;
   }
 
-  /* ---- blobs ---- */
-  .blob { position:absolute; border-radius:50%; filter:blur(28px); opacity:0.5; pointer-events:none; }
-  .blob-blue   { width:90px; height:90px; background:radial-gradient(circle,#7b9fff,#4f6ef7); top:55%; left:-22px; }
-  .blob-purple { width:80px; height:80px; background:radial-gradient(circle,#c084fc,#9333ea); top:50%; right:-18px; }
-  .blob-pink   { width:70px; height:70px; background:radial-gradient(circle,#f9a8d4,#ec4899); bottom:36px; left:50%; transform:translateX(-50%); opacity:0.25; }
+  /* ---- QR image ---- */
+  .qr-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38mm;
+    height: 38mm;
+    flex-shrink: 0;
+  }
+  .qr-wrapper img {
+    width: 38mm;
+    height: 38mm;
+    display: block;
+  }
+  .no-qr { font-size:7px; color:red; text-align:center; }
 
-  /* ---- brand ---- */
-  .brand   { font-size:22px; font-weight:900; color:#1a1a2e; letter-spacing:-0.5px; position:relative; z-index:2; line-height:1; }
-  .reach   { color:#7c3aed; }
-  .tagline { font-size:7px; font-weight:700; letter-spacing:3px; color:#8888aa; margin-bottom:10px; position:relative; z-index:2; }
-
-  /* ---- QR ---- */
-  .qr-outer    { position:relative; display:inline-block; z-index:2; margin-bottom:10px; }
-  .qr-glow-ring {
-    position:absolute; inset:-5px; border-radius:16px;
-    background:linear-gradient(135deg,#60a5fa,#818cf8,#a855f7,#ec4899);
-    opacity:0.8; filter:blur(5px); z-index:-1;
+  /* ---- QR code number ---- */
+  .qr-code-text {
+    font-size: 7.5px;
+    font-weight: 700;
+    color: #374151;
+    letter-spacing: 0.8px;
+    text-align: center;
+    word-break: break-all;
+    line-height: 1.3;
   }
-  .qr-wrapper  {
-    background:#fff; padding:10px; border-radius:14px;
-    display:inline-flex; align-items:center; justify-content:center;
-    border:1.5px solid rgba(139,92,246,0.25);
-  }
-  .qr-wrapper img { width:110px; height:110px; display:block; }
-  .no-qr       { font-size:9px; color:red; }
-  .qr-corner   {
-    position:absolute; bottom:-6px; right:-6px;
-    width:16px; height:16px;
-    border-right:2.5px solid #7c3aed; border-bottom:2.5px solid #7c3aed;
-    border-radius:0 0 4px 0;
-  }
-
-  /* ---- scan btn ---- */
-  .scan-btn {
-    position:relative; z-index:2; width:100%; margin-bottom:10px;
-    background:linear-gradient(90deg,#2d1b6e 0%,#4c1d95 40%,#7c2d9e 75%,#9333ea 100%);
-    border-radius:50px; padding:8px 12px 9px; color:white;
-  }
-  .scan-label {
-    font-size:6.5px; font-weight:700; letter-spacing:2.5px; color:rgba(255,255,255,0.7);
-    display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:2px;
-  }
-  .scan-label::before, .scan-label::after { content:""; flex:1; height:0.5px; background:rgba(255,255,255,0.3); }
-  .contact-text { font-size:14px; font-weight:900; color:#fff; letter-spacing:1px; }
-  .qr-code-text { font-size:7.5px; font-weight:700; color:rgba(255,255,255,0.65); letter-spacing:2px; margin-top:3px; text-align:center; }
-
-  /* ---- features ---- */
-  .features {
-    position:relative; z-index:2; width:100%;
-    display:flex; justify-content:space-around; align-items:center;
-    padding-top:6px; border-top:1px solid rgba(120,100,200,0.15);
-  }
-  .fi  { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:7px; font-weight:700; color:#666688; line-height:1.3; }
-  .fi svg { width:13px; height:13px; color:#7c3aed; }
-  .fd  { width:1px; height:22px; background:rgba(120,100,200,0.2); }
 
   /* ===== PRINT ===== */
   @media print {
@@ -473,10 +409,10 @@ class QrBatchController extends Controller
       height: 297mm;
       min-height: unset;
       margin: 0;
-      padding: 10mm;
+      padding: 8mm;
       box-shadow: none;
       border-radius: 0;
-      gap: 7mm;
+      gap: 1.5mm;
       page-break-after: always;
       break-after: page;
     }
@@ -497,7 +433,7 @@ class QrBatchController extends Controller
 <div class="topbar">
   <div>
     <h1>📦 ' . $batchSafe . '</h1>
-    <p>Total ' . $totalCards . ' QR Cards &nbsp;·&nbsp; 2×3 Grid &nbsp;·&nbsp; 6 cards per A4 Portrait page</p>
+    <p>Total ' . $totalCards . ' QR Cards &nbsp;·&nbsp; 4×4 Grid &nbsp;·&nbsp; 16 cards per A4 Portrait page</p>
   </div>
   <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
 </div>

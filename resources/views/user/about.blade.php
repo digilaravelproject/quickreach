@@ -61,16 +61,16 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 pt-4">
-            <div class="bg-white p-6 rounded-[30px] border border-indigo-50 text-center shadow-sm">
-                <div class="text-2xl font-black text-indigo-600">12+</div>
-                <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Global Presence</div>
-            </div>
-            <div class="bg-white p-6 rounded-[30px] border border-indigo-50 text-center shadow-sm">
-                <div class="text-2xl font-black text-indigo-600">205k+</div>
-                <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Happy Users</div>
-            </div>
-        </div>
+        <!--<div class="grid grid-cols-2 gap-4 pt-4">-->
+        <!--    <div class="bg-white p-6 rounded-[30px] border border-indigo-50 text-center shadow-sm">-->
+        <!--        <div class="text-2xl font-black text-indigo-600">12+</div>-->
+        <!--        <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Global Presence</div>-->
+        <!--    </div>-->
+        <!--    <div class="bg-white p-6 rounded-[30px] border border-indigo-50 text-center shadow-sm">-->
+        <!--        <div class="text-2xl font-black text-indigo-600">205k+</div>-->
+        <!--        <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Happy Users</div>-->
+        <!--    </div>-->
+        <!--</div>-->
 
     </div>
 

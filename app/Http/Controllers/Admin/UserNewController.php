@@ -44,6 +44,25 @@ class UserNewController extends Controller
         ]);
     }
 
+    // Delete User Method
+    public function destroy($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete user.'
+            ], 500);
+        }
+    }
+
     public function export(Request $request)
     {
         $query = User::withCount('orders');

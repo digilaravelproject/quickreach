@@ -46,7 +46,7 @@ class QrScanController extends Controller
 
             if (Auth::check() && Auth::id() === $qrCode->user_id) {
 
-                return redirect()->route('user.my-qrs')
+                return redirect()->route('user.new.orders.index')
                     ->with('info', 'This is your registered QR code.');
             }
 

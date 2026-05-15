@@ -109,11 +109,15 @@ class QrRegistrationController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function edit(QrRegistration $registration)
+    // public function edit(QrRegistration $registration)
+    // {
+    //     return view('admin.registrations.edit', compact('registration'));
+    // }
+public function edit(QrRegistration $registration)
     {
+        $registration->load('qrCode.category');
         return view('admin.registrations.edit', compact('registration'));
     }
-
     public function update(Request $request, QrRegistration $registration)
     {
         // Naye fields ka validation

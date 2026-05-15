@@ -52,6 +52,31 @@ class AuthenticatedSessionController extends Controller
     //         ->header('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
     // }
 
+    // public function store(LoginRequest $request): RedirectResponse
+    // {
+    //     $request->authenticate();
+
+    //     // Active Status Check added here
+    //     if ($request->user()->is_active == 0) {
+    //         Auth::guard('web')->logout();
+    //         $request->session()->invalidate();
+    //         $request->session()->regenerateToken();
+
+    //         return back()->withErrors([
+    //             'email' => 'Your account is inactive. Please contact the administrator.',
+    //         ])->onlyInput('email');
+    //     }
+
+    //     $request->session()->regenerate();
+
+    //     // Aapke model ka isAdmin() method use ho raha hai
+    //     if ($request->user()->isAdmin()) {
+    //         return redirect()->intended(route('admin.dashboard'));
+    //     }
+
+    //     return redirect()->intended(route('user.products'));
+    // }
+
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -69,11 +94,18 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Aapke model ka isAdmin() method use ho raha hai
+        // Admin ko hamesha admin dashboard par bhejo
         if ($request->user()->isAdmin()) {
             return redirect()->intended(route('admin.dashboard'));
         }
 
+        // Agar ?redirect= param hai aur same domain ka URL hai to wahan bhejo
+        $redirectUrl = $request->input('redirect');
+        if ($redirectUrl && str_starts_with($redirectUrl, config('app.url'))) {
+            return redirect()->to($redirectUrl);
+        }
+
+        // Default: user products page
         return redirect()->intended(route('user.products'));
     }
 

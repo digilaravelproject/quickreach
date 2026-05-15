@@ -88,6 +88,58 @@
                             style="width: 100%; padding: 12px 15px; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; font-weight: 700; color: var(--text); outline: none; resize: none; font-size: 13px;">{{ $registration->emergency_note }}</textarea>
                     </div>
 
+                    {{-- QR CODE DISPLAY (READ ONLY) --}}
+                    @if ($registration->qrCode)
+                        <div
+                            style="margin-bottom: 25px; padding: 20px; background: var(--card2); border-radius: 15px; border: 1px dashed var(--border);">
+                            <h3
+                                style="font-size: 11px; font-weight: 800; color: var(--blue); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 15px 0;">
+                                QR Code Info</h3>
+
+                            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+
+                                {{-- QR Image --}}
+                                @if ($registration->qrCode->qr_image_path)
+                                    <div>
+                                        @php
+                                            $qrFullPath = storage_path('app/public/' . ltrim(str_replace('storage/', '', $registration->qrCode->qr_image_path), '/'));
+                                            $qrExt = strtolower(pathinfo($qrFullPath, PATHINFO_EXTENSION));
+                                        @endphp
+
+                                        @if ($qrExt === 'svg')
+                                            <img src="data:image/svg+xml;base64,{{ base64_encode(file_get_contents($qrFullPath)) }}"
+                                                alt="QR Code"
+                                                style="width: 100px; height: 100px; border-radius: 10px; border: 1px solid var(--border); background: #fff; padding: 5px;">
+                                        @else
+                                            <img src="{{ asset('storage/' . ltrim(str_replace('storage/', '', $registration->qrCode->qr_image_path), '/')) }}"
+                                                alt="QR Code"
+                                                style="width: 100px; height: 100px; border-radius: 10px; border: 1px solid var(--border); background: #fff; padding: 5px;">
+                                        @endif
+                                    </div>
+                                @endif
+
+                                {{-- QR Details --}}
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div>
+                                        <span
+                                            style="display: block; font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px;">QR
+                                            Code</span>
+                                        <span
+                                            style="font-size: 14px; font-weight: 900; color: var(--text); font-family: monospace; letter-spacing: 1px;">{{ $registration->qrCode->qr_code }}</span>
+                                    </div>
+                                    @if ($registration->qrCode->category)
+                                        <div>
+                                            <span
+                                                style="display: block; font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px;">Category</span>
+                                            <span
+                                                style="display: inline-block; font-size: 11px; font-weight: 800; color: var(--blue); background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; text-transform: uppercase; letter-spacing: 1px;">{{ $registration->qrCode->category->name }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- NEWLY ADDED: Category Data & Photo (Read Only) --}}
                     @if (!empty($registration->category_data) || $registration->photo_path)
                         <div

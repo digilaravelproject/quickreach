@@ -134,18 +134,35 @@
                     </td>
                     <td x-text="new Date(user.created_at).toLocaleDateString('en-GB')"></td>
                     <td style="text-align: right;">
-                        <a :href="'/admin/users/' + user.id" class="btn-outline"
-                            style="padding: 5px 12px; font-size: 10px; text-decoration: none; border-radius: 6px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                        <div style="display: inline-flex; align-items: center; gap: 6px;">
 
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                style="width:14px; height:14px;">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                </path>
-                            </svg>
+                            {{-- View Button --}}
+                            <a :href="'/admin/users/' + user.id" class="btn-outline"
+                                style="padding: 5px 12px; font-size: 10px; text-decoration: none; border-radius: 6px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    style="width:14px; height:14px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                    </path>
+                                </svg>
+                                VIEW
+                            </a>
 
-                            VIEW
-                        </a>
+                            {{-- Delete Button --}}
+                            <button @click="deleteUser(user)"
+                                style="padding: 5px 12px; font-size: 10px; font-weight: 800; border-radius: 6px; cursor: pointer; border: 1.5px solid #ef9a9a; background: #ffebee; color: #c62828; display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;"
+                                @mouseenter="$el.style.background='#ffcdd2'; $el.style.borderColor='#e57373';"
+                                @mouseleave="$el.style.background='#ffebee'; $el.style.borderColor='#ef9a9a';">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    style="width:14px; height:14px; pointer-events: none;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                    </path>
+                                </svg>
+                                DELETE
+                            </button>
+
+                        </div>
                     </td>
                 </tr>
             </template>

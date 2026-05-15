@@ -17,7 +17,6 @@ class UserQrRegistrationController extends Controller
      */
     public function showRegistrationForm($qrCodeId)
     {
-        // die('cxc');
         $qrCode = QrCode::with('category')->findOrFail($qrCodeId);
 
         // Check if already registered
@@ -30,7 +29,10 @@ class UserQrRegistrationController extends Controller
 
         $categorySlug = strtolower($qrCode->category->slug ?? $qrCode->category->name);
 
-        return view('user.register-qr', compact('qrCode', 'categorySlug'));
+        // If logged-in user, pass their info to pre-fill
+        $authUser = Auth::user();
+
+        return view('user.register-qr', compact('qrCode', 'categorySlug', 'authUser'));
     }
 
     /**
@@ -41,33 +43,35 @@ class UserQrRegistrationController extends Controller
         $qrCode = QrCode::with('category')->findOrFail($qrCodeId);
         $categorySlug = strtolower($qrCode->category->slug ?? $qrCode->category->name);
 
-        // Validation Rules (full_address added here)
+        // Validation Rules
         $rules = [
-            'full_name' => 'required|string|max:255',
-            'mobile_number' => 'required|string|max:15',
-            'full_address' => 'nullable|string', // <-- ADDED THIS
+            'full_name'      => 'required|string|max:255',
+            'mobile_number'  => 'required|string|max:15',
+            'full_address'   => 'nullable|string',
             'friend_family_1' => 'nullable|string|max:15',
             'friend_family_2' => 'nullable|string|max:15',
             'emergency_note' => 'nullable|string|max:500',
         ];
 
-        // Email/Password always required
-        $rules['email']    = 'required|email|unique:users,email';
-        $rules['password'] = 'required|string|min:8|confirmed';
+        // Email/Password only required for guests
+        if (!Auth::check()) {
+            $rules['email']    = 'required|email|unique:users,email';
+            $rules['password'] = 'required|string|min:8|confirmed';
+        }
 
         // Dynamic Validation
         if (str_contains($categorySlug, 'pet')) {
-            $rules['breed'] = 'nullable|string';
-            $rules['age'] = 'nullable|string';
+            $rules['breed']  = 'nullable|string';
+            $rules['age']    = 'nullable|string';
             $rules['colour'] = 'nullable|string';
-            $rules['photo'] = 'nullable|image|mimes:jpeg,png,jpg|max:2048';
+            $rules['photo']  = 'nullable|image|mimes:jpeg,png,jpg|max:2048';
         } elseif (str_contains($categorySlug, 'car') || str_contains($categorySlug, 'bike')) {
-            $rules['make'] = 'required|string';
-            $rules['model'] = 'required|string';
+            $rules['make']       = 'required|string';
+            $rules['model']      = 'required|string';
             $rules['vehicle_no'] = 'required|string';
         } elseif (str_contains($categorySlug, 'child')) {
             $rules['child_name'] = 'required|string';
-            $rules['child_age'] = 'required|string';
+            $rules['child_age']  = 'required|string';
         }
 
         $validated = $request->validate($rules);
@@ -87,33 +91,37 @@ class UserQrRegistrationController extends Controller
             }
         }
 
-        // Create User account
-        $user = User::create([
-            'name'      => $request->input('full_name'),
-            'email'     => $request->input('email'),
-            'password'  => Hash::make($request->input('password')),
-            'phone'     => $request->input('mobile_number'),
-            'is_admin'  => false,
-            'is_active' => true,
-        ]);
+        // Get or Create User
+        if (Auth::check()) {
+            // Logged-in user — use existing user
+            $user   = Auth::user();
+            $userId = $user->id;
+        } else {
+            // Guest — create new user account
+            $user = User::create([
+                'name'      => $request->input('full_name'),
+                'email'     => $request->input('email'),
+                'password'  => Hash::make($request->input('password')),
+                'phone'     => $request->input('mobile_number'),
+                'is_admin'  => false,
+                'is_active' => true,
+            ]);
+            $userId = $user->id;
+        }
 
-        //Auth::login($user);
-
-        $userId = $user->id;
-
-        // Create Registration (full_address saved here)
+        // Create Registration
         QrRegistration::create([
-            'qr_code_id' => $qrCode->id,
-            'user_id' => $userId,
-            'full_name' => $request->input('full_name'),
-            'mobile_number' => $request->input('mobile_number'),
-            'full_address' => $request->input('full_address'), // <-- FIXED HERE
+            'qr_code_id'      => $qrCode->id,
+            'user_id'         => $userId,
+            'full_name'       => $request->input('full_name'),
+            'mobile_number'   => $request->input('mobile_number'),
+            'full_address'    => $request->input('full_address'),
             'friend_family_1' => $request->input('friend_family_1'),
             'friend_family_2' => $request->input('friend_family_2'),
-            'category_data' => $categoryData,
-            'emergency_note' => $request->input('emergency_note'),
-            'photo_path' => $photoPath,
-            'is_active' => true,
+            'category_data'   => $categoryData,
+            'emergency_note'  => $request->input('emergency_note'),
+            'photo_path'      => $photoPath,
+            'is_active'       => true,
         ]);
 
         // Update QR Code Status
@@ -131,5 +139,15 @@ class UserQrRegistrationController extends Controller
     {
         $qrCode = QrCode::with('category')->findOrFail($qrCodeId);
         return view('scanner.register-success', compact('qrCode'));
+    }
+
+    /**
+     * AJAX: Check if email already exists (for popup trigger)
+     */
+    public function checkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $exists = User::where('email', $request->input('email'))->exists();
+        return response()->json(['exists' => $exists]);
     }
 }

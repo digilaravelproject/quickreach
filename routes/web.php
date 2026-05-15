@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\UseCaseController;
 use App\Http\Controllers\Admin\EmergencyController;
 use App\Http\Controllers\Admin\FraudDetectionController;
 use App\Http\Controllers\Admin\HowItWorksController;
+use App\Http\Controllers\Admin\ContactPageController;
 
 use App\Http\Controllers\UserQrRegistrationController;
 use App\Http\Controllers\ContactController;
@@ -38,6 +39,8 @@ use chillerlan\QRCode\QRCode;
 
 Route::get('auth/google', [SocialiteController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [SocialiteController::class, 'handleGoogleCallback']);
+
+Route::post('/check-email', [UserQrRegistrationController::class, 'checkEmail'])->name('qr.check-email');
 
 
 Route::post('/initiate-call', [CallController::class, 'initiateCall']);
@@ -158,6 +161,7 @@ Route::prefix('scan')->name('qr.')->group(function () {
 // });
 
 Route::prefix('user')->name('user.')->group(function () {
+    Route::get('/contact', [ContactPageController::class, 'index'])->name('contact');
     // Verify payment signature after Razorpay callback
     Route::post('/verify-payment',      [UserController::class, 'verifyPayment'])->name('verify.payment');
 
@@ -214,9 +218,12 @@ Route::get('payments/export', [AdminPaymentController::class, 'export'])
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    Route::get('/admin/contact', [ContactPageController::class, 'edit'])->name('contact.edit');
+    Route::post('/admin/contact', [ContactPageController::class, 'update'])->name('contact.update');
 
     Route::resource('how-it-works', HowItWorksController::class);
-
+Route::delete('/users/{id}', [UserNewController::class, 'destroy'])->name('users.destroy');
     // Everyday Emergencies Routes
     Route::controller(EmergencyController::class)->group(function () {
         // List and AJAX Search

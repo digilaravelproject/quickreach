@@ -50,9 +50,8 @@
                     <a href="{{ asset('pdf/Scan_Call_Connect Privately.pdf') }}" download
                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold shadow-md"
                         style="background:#1A1A3E; color:#ffffff; white-space:nowrap;">
-                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
+                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/>
                         </svg>
                         Download
                     </a>
@@ -157,7 +156,7 @@
                             style="background-color:#1A1A3E; border: 2px solid #ffffff;">
                             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
                                 viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/>
                             </svg>
                         </button>
                     </div>
@@ -173,8 +172,8 @@
                             <span class="font-black text-[15px]"
                                 style="color:#1A1A3E;">₹{{ number_format($category->price, 0) }}</span>
                             @if ($category->in_stock)
-                                {{-- <span class="text-[8px] font-bold px-1.5 py-0.5 rounded-md"
-                                    style="background:#E8F5E9; color:#2E7D32; border: 1px solid #C8E6C9;">IN STOCK</span> --}}
+                                <!--<span class="text-[8px] font-bold px-1.5 py-0.5 rounded-md"-->
+                                <!--    style="background:#E8F5E9; color:#2E7D32; border: 1px solid #C8E6C9;">IN STOCK</span>-->
                             @endif
                         </div>
                     </div>
